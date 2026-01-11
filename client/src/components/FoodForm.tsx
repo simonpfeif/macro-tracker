@@ -1,14 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
-export type Food = {
-  name: string;
-  protein: number;
-  carbs: number;
-  fat: number;
-  calories: number;
-};
+import type { Food } from "@/types";
 
 type FoodFormProps = {
   onAddFood: (food: Food) => void;
