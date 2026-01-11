@@ -2,17 +2,15 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import FoodForm from "./FoodForm";
-import type { Food } from "./FoodForm";
+import type { Food } from "@/types";
 
-export type Meal = {
-  id?: string;
+export type NewMealInput = {
   name: string;
   foods: Food[];
-  createdAt?: Date;
 };
 
 type MealFormProps = {
-  onAddMeal: (meal: Meal) => void;
+  onAddMeal: (meal: NewMealInput) => void;
 };
 
 export default function MacroForm({ onAddMeal }: MealFormProps) {
@@ -26,12 +24,11 @@ export default function MacroForm({ onAddMeal }: MealFormProps) {
   const handleSaveMeal = () => {
     if (!mealName || foods.length === 0) return;
 
-    const newMeal: Meal = { 
-      name: mealName, 
+    const newMeal: NewMealInput = {
+      name: mealName,
       foods,
-      createdAt: new Date()
     };
-    
+
     onAddMeal(newMeal);
 
     setMealName("");
