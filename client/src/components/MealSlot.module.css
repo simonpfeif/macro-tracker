@@ -1,0 +1,269 @@
+.card {
+  background: white;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.title {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.caloriesBadge {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.deleteButton {
+  color: #9ca3af;
+  padding: 0.25rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.deleteButton:hover {
+  color: #ef4444;
+}
+
+.content {
+  padding: 1rem;
+}
+
+.foodsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.foodItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  padding: 0.5rem 0.75rem;
+  background: #f9fafb;
+  border-radius: 0.25rem;
+}
+
+.foodName {
+  color: #1f2937;
+}
+
+.foodCalories {
+  color: #6b7280;
+  margin-left: 0.5rem;
+}
+
+.removeButton {
+  color: #9ca3af;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.removeButton:hover {
+  color: #ef4444;
+}
+
+.emptyState {
+  color: #9ca3af;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.addSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: #f9fafb;
+  border-radius: 0.5rem;
+}
+
+.searchContainer {
+  position: relative;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1rem;
+  height: 1rem;
+  color: #9ca3af;
+}
+
+.searchInput {
+  padding-left: 2.5rem;
+}
+
+.searchResults {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  max-height: 12rem;
+  overflow-y: auto;
+}
+
+.searchResultItem {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #f3f4f6;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.searchResultItem:last-child {
+  border-bottom: none;
+}
+
+.searchResultItem:hover {
+  background: #f9fafb;
+}
+
+.searchResultName {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.searchResultDetails {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.selectedFoodCard {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+}
+
+.selectedFoodHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.selectedFoodInfo {
+  flex: 1;
+}
+
+.selectedFoodName {
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.selectedFoodServing {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.clearButton {
+  color: #9ca3af;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.clearButton:hover {
+  color: #4b5563;
+}
+
+.servingsContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.servingsLabel {
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.servingsInput {
+  width: 5rem;
+  height: 2rem;
+}
+
+.macroGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  text-align: center;
+  font-size: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.macroCell {
+  background: #f9fafb;
+  border-radius: 0.25rem;
+  padding: 0.5rem;
+}
+
+.macroLabel {
+  color: #6b7280;
+}
+
+.macroValue {
+  font-weight: 500;
+}
+
+.cancelButton {
+  font-size: 0.875rem;
+  color: #6b7280;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+  transition: color 0.2s;
+}
+
+.cancelButton:hover {
+  color: #374151;
+}
+
+.addFoodButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #2563eb;
+  font-size: 0.875rem;
+  font-weight: 500;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.addFoodButton:hover {
+  color: #1e40af;
+}

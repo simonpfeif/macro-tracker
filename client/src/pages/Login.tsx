@@ -1,6 +1,7 @@
 import { auth } from "@/lib/firebase";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { Button } from "@/components/ui/button";
+import styles from "./Login.module.css";
 
 export default function Login() {
   const signInWithGoogle = async () => {
@@ -13,8 +14,8 @@ export default function Login() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen">
-      <h1 className="text-2xl font-bold mb-6">Sign In</h1>
+    <div className={styles.container}>
+      <h1 className={styles.title}>Sign In</h1>
       <Button onClick={signInWithGoogle}>Sign in with Google</Button>
     </div>
   );

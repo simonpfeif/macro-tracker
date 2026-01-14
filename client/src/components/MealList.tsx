@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import type { Meal } from "@/types";
 import { getTodayDate } from "@/services/db";
+import styles from "./MealList.module.css";
 
 type MealListProps = {
   meals: Meal[];
@@ -22,9 +23,9 @@ export default function MealList({
 
   if (meals.length === 0) {
     return (
-      <div className="w-full max-w-2xl p-6 bg-white rounded-2xl shadow-md">
-        <h2 className="text-xl font-semibold text-gray-700 mb-4">{dateLabel}</h2>
-        <p className="text-gray-500 text-center py-8">
+      <div className={styles.container}>
+        <h2 className={styles.title}>{dateLabel}</h2>
+        <p className={styles.emptyState}>
           No meals logged{isToday ? " yet" : " for this day"}.
           {isToday && " Create your first meal!"}
         </p>
@@ -46,10 +47,10 @@ export default function MealList({
   );
 
   return (
-    <div className="w-full max-w-2xl p-6 bg-white rounded-2xl shadow-md">
-      <h2 className="text-xl font-semibold text-gray-700 mb-4">{dateLabel}</h2>
+    <div className={styles.container}>
+      <h2 className={styles.title}>{dateLabel}</h2>
 
-      <div className="space-y-4">
+      <div className={styles.mealsList}>
         {meals.map((meal) => {
           const mealTotals = meal.foods.reduce(
             (acc, food) => {
@@ -63,21 +64,21 @@ export default function MealList({
           );
 
           return (
-            <div key={meal.id} className="border rounded-lg p-4 bg-gray-50">
-              <div className="flex justify-between items-start mb-3">
-                <h3 className="font-semibold text-gray-800">{meal.name}</h3>
-                <div className="flex gap-2">
+            <div key={meal.id} className={styles.mealCard}>
+              <div className={styles.mealHeader}>
+                <h3 className={styles.mealName}>{meal.name}</h3>
+                <div className={styles.mealActions}>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => onSaveAsTemplate(meal)}
-                    className="text-blue-600 hover:text-blue-800 hover:bg-blue-50 text-xs px-2 py-1 h-auto"
+                    className={styles.saveButton}
                   >
                     Save
                   </Button>
                   <button
                     onClick={() => onDeleteMeal(meal.id)}
-                    className="text-red-500 hover:text-red-700 text-sm"
+                    className={styles.deleteButton}
                     type="button"
                   >
                     Delete
@@ -85,17 +86,17 @@ export default function MealList({
                 </div>
               </div>
 
-              <ul className="space-y-1 mb-3">
+              <ul className={styles.foodsList}>
                 {meal.foods.map((food, foodIndex) => (
-                  <li key={foodIndex} className="text-sm text-gray-600 ml-4">
+                  <li key={foodIndex} className={styles.foodItem}>
                     • {food.name} – P: {food.protein}g | C: {food.carbs}g | F:{" "}
                     {food.fat}g | {food.calories} cal
                   </li>
                 ))}
               </ul>
 
-              <div className="pt-2 border-t border-gray-200">
-                <p className="text-sm font-medium text-gray-700">
+              <div className={styles.mealTotal}>
+                <p className={styles.mealTotalText}>
                   Meal Total: {mealTotals.protein}g P / {mealTotals.carbs}g C /{" "}
                   {mealTotals.fat}g F — {mealTotals.calories} cal
                 </p>
@@ -105,9 +106,9 @@ export default function MealList({
         })}
       </div>
 
-      <div className="mt-6 p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
-        <h3 className="font-semibold text-gray-800 mb-2">Daily Totals</h3>
-        <p className="text-lg font-bold text-gray-900">
+      <div className={styles.dailyTotals}>
+        <h3 className={styles.dailyTotalsTitle}>Daily Totals</h3>
+        <p className={styles.dailyTotalsValue}>
           {dailyTotals.protein}g P / {dailyTotals.carbs}g C / {dailyTotals.fat}g
           F — {dailyTotals.calories} cal
         </p>

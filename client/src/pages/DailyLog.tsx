@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import MealSlot from "@/components/MealSlot";
 import DailySummary from "@/components/DailySummary";
+import styles from "./DailyLog.module.css";
 
 const DEFAULT_MEALS = ["Breakfast", "Lunch", "Dinner"];
 
@@ -210,56 +211,56 @@ export default function DailyLog() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className={styles.page}>
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
+      <header className={styles.header}>
+        <div className={styles.headerContent}>
           {/* Date Navigation */}
-          <div className="flex items-center gap-4">
+          <div className={styles.dateNavigation}>
             <button
               onClick={goToPrevDay}
-              className="p-2 hover:bg-gray-100 rounded-lg"
+              className={styles.navButton}
             >
               <ChevronLeft className="w-5 h-5 text-gray-600" />
             </button>
 
-            <div className="text-center">
-              <h1 className="text-lg font-semibold text-gray-800">
+            <div className={styles.dateContainer}>
+              <h1 className={styles.dateTitle}>
                 {isToday ? "Today" : formattedDate}
               </h1>
               {isToday && (
-                <p className="text-sm text-gray-500">{formattedDate}</p>
+                <p className={styles.dateSubtitle}>{formattedDate}</p>
               )}
             </div>
 
             <button
               onClick={goToNextDay}
               disabled={isToday}
-              className={`p-2 hover:bg-gray-100 rounded-lg ${isToday ? "invisible" : ""}`}
+              className={`${styles.navButton} ${isToday ? styles.navButtonInvisible : ""}`}
             >
               <ChevronRight className="w-5 h-5 text-gray-600" />
             </button>
           </div>
 
           {/* Navigation Icons */}
-          <div className="flex items-center gap-2">
+          <div className={styles.navIcons}>
             <Link
               to="/"
-              className="p-2 hover:bg-gray-100 rounded-lg"
+              className={styles.navIcon}
               title="Dashboard"
             >
               <Home className="w-5 h-5 text-gray-600" />
             </Link>
             <Link
               to="/calendar"
-              className="p-2 hover:bg-gray-100 rounded-lg"
+              className={styles.navIcon}
               title="Calendar"
             >
               <Calendar className="w-5 h-5 text-gray-600" />
             </Link>
             <Link
               to="/settings"
-              className="p-2 hover:bg-gray-100 rounded-lg"
+              className={styles.navIcon}
               title="Settings"
             >
               <Settings className="w-5 h-5 text-gray-600" />
@@ -269,13 +270,13 @@ export default function DailyLog() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-6 py-6">
+      <main className={styles.main}>
         {loading ? (
-          <div className="text-center py-12 text-gray-500">Loading...</div>
+          <div className={styles.loading}>Loading...</div>
         ) : (
-          <div className="flex gap-6">
+          <div className={styles.content}>
             {/* Left Column - Meals (2/3) */}
-            <div className="flex-1 space-y-4" style={{ flexBasis: "66.666%" }}>
+            <div className={styles.mealsColumn}>
               {/* Default Meals */}
               {DEFAULT_MEALS.map((mealName) => {
                 const meal = getMealByName(mealName);
@@ -307,8 +308,8 @@ export default function DailyLog() {
 
               {/* Add Custom Meal */}
               {isAddingMeal ? (
-                <div className="bg-white rounded-lg border border-gray-200 p-4">
-                  <div className="flex gap-2">
+                <div className={styles.addMealCard}>
+                  <div className={styles.addMealForm}>
                     <Input
                       type="text"
                       placeholder="Meal name (e.g., Snack)"
@@ -327,7 +328,7 @@ export default function DailyLog() {
               ) : (
                 <button
                   onClick={() => setIsAddingMeal(true)}
-                  className="flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium py-3"
+                  className={styles.addMealButton}
                 >
                   <Plus className="w-5 h-5" />
                   Add Meal
@@ -336,7 +337,7 @@ export default function DailyLog() {
             </div>
 
             {/* Right Column - Daily Summary (1/3) */}
-            <div style={{ flexBasis: "33.333%", minWidth: "280px" }}>
+            <div className={styles.summaryColumn}>
               <DailySummary
                 calories={dailyTotals.calories}
                 protein={dailyTotals.protein}

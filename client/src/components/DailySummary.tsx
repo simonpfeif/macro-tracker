@@ -1,3 +1,5 @@
+import styles from './DailySummary.module.css';
+
 type DailySummaryProps = {
   calories: number;
   protein: number;
@@ -7,28 +9,28 @@ type DailySummaryProps = {
 
 export default function DailySummary({ calories, protein, carbs, fat }: DailySummaryProps) {
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-5 sticky top-6">
-      <h3 className="font-semibold text-gray-800 mb-4">Daily Totals</h3>
+    <div className={styles.card}>
+      <h3 className={styles.title}>Daily Totals</h3>
 
       {/* Calories - Prominent */}
-      <div className="text-center py-4 mb-4 bg-blue-50 rounded-lg">
-        <div className="text-3xl font-bold text-gray-800">{Math.round(calories)}</div>
-        <div className="text-sm text-gray-500">Calories</div>
+      <div className={styles.caloriesSection}>
+        <div className={styles.caloriesValue}>{Math.round(calories)}</div>
+        <div className={styles.caloriesLabel}>Calories</div>
       </div>
 
       {/* Macros */}
-      <div className="space-y-3">
-        <div className="flex justify-between items-center py-2 border-b border-gray-100">
-          <span className="text-gray-600">Protein</span>
-          <span className="font-semibold text-gray-800">{Math.round(protein * 10) / 10}g</span>
+      <div className={styles.macrosContainer}>
+        <div className={styles.macroRow}>
+          <span className={styles.macroLabel}>Protein</span>
+          <span className={styles.macroValue}>{Math.round(protein * 10) / 10}g</span>
         </div>
-        <div className="flex justify-between items-center py-2 border-b border-gray-100">
-          <span className="text-gray-600">Carbs</span>
-          <span className="font-semibold text-gray-800">{Math.round(carbs * 10) / 10}g</span>
+        <div className={styles.macroRow}>
+          <span className={styles.macroLabel}>Carbs</span>
+          <span className={styles.macroValue}>{Math.round(carbs * 10) / 10}g</span>
         </div>
-        <div className="flex justify-between items-center py-2">
-          <span className="text-gray-600">Fat</span>
-          <span className="font-semibold text-gray-800">{Math.round(fat * 10) / 10}g</span>
+        <div className={styles.macroRow}>
+          <span className={styles.macroLabel}>Fat</span>
+          <span className={styles.macroValue}>{Math.round(fat * 10) / 10}g</span>
         </div>
       </div>
     </div>

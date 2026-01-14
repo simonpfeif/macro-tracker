@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { Food, FoodItem } from "@/types";
 import { Search } from "lucide-react";
+import styles from "./FoodForm.module.css";
 
 type FoodFormProps = {
   onAddFood: (food: Food) => void;
@@ -102,9 +103,9 @@ export default function FoodForm({ onAddFood, foods }: FoodFormProps) {
   const multiplier = parseFloat(servings) || 1;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3 p-4 border rounded-lg bg-gray-50">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="font-medium text-gray-700">Add Food Item</h3>
+    <form onSubmit={handleSubmit} className={styles.form}>
+      <div className={styles.header}>
+        <h3 className={styles.title}>Add Food Item</h3>
         <button
           type="button"
           onClick={() => {
@@ -112,7 +113,7 @@ export default function FoodForm({ onAddFood, foods }: FoodFormProps) {
             setSelectedFood(null);
             setSearchQuery("");
           }}
-          className="text-xs text-blue-600 hover:text-blue-800"
+          className={styles.modeToggle}
         >
           {manualMode ? "Search foods" : "Enter manually"}
         </button>
@@ -122,7 +123,7 @@ export default function FoodForm({ onAddFood, foods }: FoodFormProps) {
         // Manual entry mode
         <>
           <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1">
+            <label className={styles.label}>
               Food Name
             </label>
             <Input
@@ -134,9 +135,9 @@ export default function FoodForm({ onAddFood, foods }: FoodFormProps) {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className={styles.grid}>
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">
+              <label className={styles.label}>
                 Protein (g)
               </label>
               <Input
@@ -150,7 +151,7 @@ export default function FoodForm({ onAddFood, foods }: FoodFormProps) {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">
+              <label className={styles.label}>
                 Carbs (g)
               </label>
               <Input
@@ -164,7 +165,7 @@ export default function FoodForm({ onAddFood, foods }: FoodFormProps) {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">
+              <label className={styles.label}>
                 Fat (g)
               </label>
               <Input
@@ -178,7 +179,7 @@ export default function FoodForm({ onAddFood, foods }: FoodFormProps) {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">
+              <label className={styles.label}>
                 Calories
               </label>
               <Input
@@ -195,12 +196,12 @@ export default function FoodForm({ onAddFood, foods }: FoodFormProps) {
       ) : (
         // Search mode
         <>
-          <div ref={searchRef} className="relative">
-            <label className="block text-sm font-medium text-gray-600 mb-1">
+          <div ref={searchRef} className={styles.searchContainer}>
+            <label className={styles.label}>
               Search Food
             </label>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <div className={styles.searchContainer}>
+              <Search className={styles.searchIcon} />
               <Input
                 type="text"
                 placeholder="Search chicken, rice, eggs..."
@@ -213,22 +214,22 @@ export default function FoodForm({ onAddFood, foods }: FoodFormProps) {
                   }
                 }}
                 onFocus={() => setShowResults(true)}
-                className="pl-10"
+                className={styles.searchInput}
               />
             </div>
 
             {/* Search Results Dropdown */}
             {showResults && filteredFoods.length > 0 && (
-              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-64 overflow-y-auto">
+              <div className={styles.dropdown}>
                 {filteredFoods.map((food) => (
                   <button
                     key={food.id}
                     type="button"
                     onClick={() => handleSelectFood(food)}
-                    className="w-full px-4 py-2 text-left hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                    className={styles.dropdownItem}
                   >
-                    <div className="font-medium text-gray-800">{food.name}</div>
-                    <div className="text-xs text-gray-500">
+                    <div className={styles.itemName}>{food.name}</div>
+                    <div className={styles.itemDetails}>
                       {food.servingSize} · {food.calories} cal · {food.protein}g P
                     </div>
                   </button>
@@ -237,12 +238,12 @@ export default function FoodForm({ onAddFood, foods }: FoodFormProps) {
             )}
 
             {showResults && searchQuery && filteredFoods.length === 0 && (
-              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-4 text-center">
-                <p className="text-gray-500 text-sm">No foods found</p>
+              <div className={styles.emptyState}>
+                <p className={styles.emptyText}>No foods found</p>
                 <button
                   type="button"
                   onClick={() => setManualMode(true)}
-                  className="text-blue-600 text-sm mt-1 hover:text-blue-800"
+                  className={styles.emptyLink}
                 >
                   Enter manually instead
                 </button>
@@ -252,11 +253,11 @@ export default function FoodForm({ onAddFood, foods }: FoodFormProps) {
 
           {/* Selected Food Details */}
           {selectedFood && (
-            <div className="bg-white border border-gray-200 rounded-lg p-3 space-y-3">
-              <div className="flex justify-between items-start">
-                <div>
-                  <div className="font-medium text-gray-800">{selectedFood.name}</div>
-                  <div className="text-xs text-gray-500">{selectedFood.servingSize}</div>
+            <div className={styles.selectedFoodCard}>
+              <div className={styles.selectedFoodHeader}>
+                <div className={styles.selectedFoodInfo}>
+                  <div className={styles.selectedFoodName}>{selectedFood.name}</div>
+                  <div className={styles.selectedFoodServing}>{selectedFood.servingSize}</div>
                 </div>
                 <button
                   type="button"
@@ -264,14 +265,14 @@ export default function FoodForm({ onAddFood, foods }: FoodFormProps) {
                     setSelectedFood(null);
                     setSearchQuery("");
                   }}
-                  className="text-gray-400 hover:text-gray-600"
+                  className={styles.clearButton}
                 >
                   ×
                 </button>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1">
+                <label className={styles.label}>
                   Servings
                 </label>
                 <Input
@@ -280,26 +281,26 @@ export default function FoodForm({ onAddFood, foods }: FoodFormProps) {
                   min="0.25"
                   value={servings}
                   onChange={(e) => setServings(e.target.value)}
-                  className="w-24"
+                  className={styles.servingsInput}
                 />
               </div>
 
-              <div className="grid grid-cols-4 gap-2 text-center text-sm">
-                <div className="bg-gray-50 rounded p-2">
-                  <div className="text-gray-500 text-xs">Protein</div>
-                  <div className="font-medium">{Math.round(selectedFood.protein * multiplier * 10) / 10}g</div>
+              <div className={styles.macroGrid}>
+                <div className={styles.macroCell}>
+                  <div className={styles.macroLabel}>Protein</div>
+                  <div className={styles.macroValue}>{Math.round(selectedFood.protein * multiplier * 10) / 10}g</div>
                 </div>
-                <div className="bg-gray-50 rounded p-2">
-                  <div className="text-gray-500 text-xs">Carbs</div>
-                  <div className="font-medium">{Math.round(selectedFood.carbs * multiplier * 10) / 10}g</div>
+                <div className={styles.macroCell}>
+                  <div className={styles.macroLabel}>Carbs</div>
+                  <div className={styles.macroValue}>{Math.round(selectedFood.carbs * multiplier * 10) / 10}g</div>
                 </div>
-                <div className="bg-gray-50 rounded p-2">
-                  <div className="text-gray-500 text-xs">Fat</div>
-                  <div className="font-medium">{Math.round(selectedFood.fat * multiplier * 10) / 10}g</div>
+                <div className={styles.macroCell}>
+                  <div className={styles.macroLabel}>Fat</div>
+                  <div className={styles.macroValue}>{Math.round(selectedFood.fat * multiplier * 10) / 10}g</div>
                 </div>
-                <div className="bg-gray-50 rounded p-2">
-                  <div className="text-gray-500 text-xs">Calories</div>
-                  <div className="font-medium">{Math.round(selectedFood.calories * multiplier)}</div>
+                <div className={styles.macroCell}>
+                  <div className={styles.macroLabel}>Calories</div>
+                  <div className={styles.macroValue}>{Math.round(selectedFood.calories * multiplier)}</div>
                 </div>
               </div>
             </div>
@@ -309,7 +310,7 @@ export default function FoodForm({ onAddFood, foods }: FoodFormProps) {
 
       <Button
         type="submit"
-        className="w-full"
+        className={styles.submitButton}
         disabled={!manualMode && !selectedFood}
       >
         Add Food

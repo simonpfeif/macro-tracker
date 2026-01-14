@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import FoodForm from "./FoodForm";
 import type { Food, FoodItem } from "@/types";
+import styles from "./MacroForm.module.css";
 
 export type NewMealInput = {
   name: string;
@@ -52,11 +53,11 @@ export default function MacroForm({ onAddMeal, availableFoods }: MealFormProps) 
   );
 
   return (
-    <div className="bg-white rounded-2xl shadow-md p-6 max-w-md mx-auto mt-6 space-y-4">
-      <h2 className="text-xl font-semibold text-gray-700 text-center">Create a Meal</h2>
+    <div className={styles.card}>
+      <h2 className={styles.title}>Create a Meal</h2>
 
       <div>
-        <label className="block text-sm font-medium text-gray-600 mb-1">
+        <label className={styles.label}>
           Meal Name
         </label>
         <Input
@@ -71,17 +72,17 @@ export default function MacroForm({ onAddMeal, availableFoods }: MealFormProps) 
       <FoodForm onAddFood={addFood} foods={availableFoods} />
 
       {foods.length > 0 && (
-        <div className="mt-4">
-          <h3 className="font-medium text-gray-700 mb-2">Foods in this Meal:</h3>
-          <ul className="space-y-2">
+        <div className={styles.foodsSection}>
+          <h3 className={styles.foodsTitle}>Foods in this Meal:</h3>
+          <ul className={styles.foodsList}>
             {foods.map((food, index) => (
-              <li key={index} className="flex justify-between items-center text-sm text-gray-600 bg-gray-50 p-2 rounded">
+              <li key={index} className={styles.foodItem}>
                 <span>
                   {food.name} – P: {food.protein}g | C: {food.carbs}g | F: {food.fat}g | {food.calories} cal
                 </span>
                 <button
                   onClick={() => removeFood(index)}
-                  className="text-red-500 hover:text-red-700 ml-2"
+                  className={styles.removeButton}
                   type="button"
                 >
                   ×
@@ -90,15 +91,15 @@ export default function MacroForm({ onAddMeal, availableFoods }: MealFormProps) 
             ))}
           </ul>
 
-          <div className="mt-3 p-3 bg-blue-50 rounded-lg">
-            <p className="font-semibold text-gray-800">
+          <div className={styles.totals}>
+            <p className={styles.totalsText}>
               Total: {totals.protein}g P / {totals.carbs}g C / {totals.fat}g F — {totals.calories} cal
             </p>
           </div>
         </div>
       )}
 
-      <Button className="w-full mt-4" onClick={handleSaveMeal} disabled={!mealName || foods.length === 0}>
+      <Button className={styles.saveButton} onClick={handleSaveMeal} disabled={!mealName || foods.length === 0}>
         Save Meal
       </Button>
     </div>

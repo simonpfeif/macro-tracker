@@ -3,6 +3,7 @@ import { Plus, Trash2, X, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { Food, FoodItem } from "@/types";
+import styles from "./MealSlot.module.css";
 
 type MealSlotProps = {
   name: string;
@@ -79,18 +80,18 @@ export default function MealSlot({
   const multiplier = parseFloat(servings) || 1;
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+    <div className={styles.card}>
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-200">
-        <h3 className="font-semibold text-gray-800">{name}</h3>
-        <div className="flex items-center gap-2">
+      <div className={styles.header}>
+        <h3 className={styles.title}>{name}</h3>
+        <div className={styles.headerRight}>
           {foods.length > 0 && (
-            <span className="text-sm text-gray-500">{totals.calories} cal</span>
+            <span className={styles.caloriesBadge}>{totals.calories} cal</span>
           )}
           {isCustom && onDelete && (
             <button
               onClick={onDelete}
-              className="text-gray-400 hover:text-red-500 p-1"
+              className={styles.deleteButton}
             >
               <Trash2 className="w-4 h-4" />
             </button>
@@ -99,23 +100,23 @@ export default function MealSlot({
       </div>
 
       {/* Foods List */}
-      <div className="p-4">
+      <div className={styles.content}>
         {foods.length > 0 ? (
-          <ul className="space-y-2 mb-4">
+          <ul className={styles.foodsList}>
             {foods.map((food, index) => (
               <li
                 key={index}
-                className="flex items-center justify-between text-sm py-2 px-3 bg-gray-50 rounded"
+                className={styles.foodItem}
               >
                 <div>
-                  <span className="text-gray-800">{food.name}</span>
-                  <span className="text-gray-500 ml-2">
+                  <span className={styles.foodName}>{food.name}</span>
+                  <span className={styles.foodCalories}>
                     {food.calories} cal
                   </span>
                 </div>
                 <button
                   onClick={() => onRemoveFood(index)}
-                  className="text-gray-400 hover:text-red-500"
+                  className={styles.removeButton}
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -123,15 +124,15 @@ export default function MealSlot({
             ))}
           </ul>
         ) : (
-          <p className="text-gray-400 text-sm mb-4">No foods added</p>
+          <p className={styles.emptyState}>No foods added</p>
         )}
 
         {/* Add Food Section */}
         {isAdding ? (
-          <div className="space-y-3 p-3 bg-gray-50 rounded-lg">
+          <div className={styles.addSection}>
             {/* Search Input */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <div className={styles.searchContainer}>
+              <Search className={styles.searchIcon} />
               <Input
                 type="text"
                 placeholder="Search foods..."
@@ -142,23 +143,23 @@ export default function MealSlot({
                     setSelectedFood(null);
                   }
                 }}
-                className="pl-10"
+                className={styles.searchInput}
                 autoFocus
               />
             </div>
 
             {/* Search Results */}
             {!selectedFood && filteredFoods.length > 0 && (
-              <div className="bg-white border border-gray-200 rounded-lg max-h-48 overflow-y-auto">
+              <div className={styles.searchResults}>
                 {filteredFoods.map((food) => (
                   <button
                     key={food.id}
                     type="button"
                     onClick={() => handleSelectFood(food)}
-                    className="w-full px-3 py-2 text-left hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                    className={styles.searchResultItem}
                   >
-                    <div className="text-sm font-medium text-gray-800">{food.name}</div>
-                    <div className="text-xs text-gray-500">
+                    <div className={styles.searchResultName}>{food.name}</div>
+                    <div className={styles.searchResultDetails}>
                       {food.servingSize} · {food.calories} cal · {food.protein}g P
                     </div>
                   </button>
@@ -168,51 +169,51 @@ export default function MealSlot({
 
             {/* Selected Food */}
             {selectedFood && (
-              <div className="bg-white border border-gray-200 rounded-lg p-3">
-                <div className="flex justify-between items-start mb-3">
-                  <div>
-                    <div className="font-medium text-gray-800">{selectedFood.name}</div>
-                    <div className="text-xs text-gray-500">{selectedFood.servingSize}</div>
+              <div className={styles.selectedFoodCard}>
+                <div className={styles.selectedFoodHeader}>
+                  <div className={styles.selectedFoodInfo}>
+                    <div className={styles.selectedFoodName}>{selectedFood.name}</div>
+                    <div className={styles.selectedFoodServing}>{selectedFood.servingSize}</div>
                   </div>
                   <button
                     onClick={() => {
                       setSelectedFood(null);
                       setSearchQuery("");
                     }}
-                    className="text-gray-400 hover:text-gray-600"
+                    className={styles.clearButton}
                   >
                     <X className="w-4 h-4" />
                   </button>
                 </div>
 
-                <div className="flex items-center gap-3 mb-3">
-                  <label className="text-sm text-gray-600">Servings:</label>
+                <div className={styles.servingsContainer}>
+                  <label className={styles.servingsLabel}>Servings:</label>
                   <Input
                     type="number"
                     step="0.25"
                     min="0.25"
                     value={servings}
                     onChange={(e) => setServings(e.target.value)}
-                    className="w-20 h-8"
+                    className={styles.servingsInput}
                   />
                 </div>
 
-                <div className="grid grid-cols-4 gap-2 text-center text-xs mb-3">
-                  <div className="bg-gray-50 rounded p-2">
-                    <div className="text-gray-500">Protein</div>
-                    <div className="font-medium">{Math.round(selectedFood.protein * multiplier * 10) / 10}g</div>
+                <div className={styles.macroGrid}>
+                  <div className={styles.macroCell}>
+                    <div className={styles.macroLabel}>Protein</div>
+                    <div className={styles.macroValue}>{Math.round(selectedFood.protein * multiplier * 10) / 10}g</div>
                   </div>
-                  <div className="bg-gray-50 rounded p-2">
-                    <div className="text-gray-500">Carbs</div>
-                    <div className="font-medium">{Math.round(selectedFood.carbs * multiplier * 10) / 10}g</div>
+                  <div className={styles.macroCell}>
+                    <div className={styles.macroLabel}>Carbs</div>
+                    <div className={styles.macroValue}>{Math.round(selectedFood.carbs * multiplier * 10) / 10}g</div>
                   </div>
-                  <div className="bg-gray-50 rounded p-2">
-                    <div className="text-gray-500">Fat</div>
-                    <div className="font-medium">{Math.round(selectedFood.fat * multiplier * 10) / 10}g</div>
+                  <div className={styles.macroCell}>
+                    <div className={styles.macroLabel}>Fat</div>
+                    <div className={styles.macroValue}>{Math.round(selectedFood.fat * multiplier * 10) / 10}g</div>
                   </div>
-                  <div className="bg-gray-50 rounded p-2">
-                    <div className="text-gray-500">Cal</div>
-                    <div className="font-medium">{Math.round(selectedFood.calories * multiplier)}</div>
+                  <div className={styles.macroCell}>
+                    <div className={styles.macroLabel}>Cal</div>
+                    <div className={styles.macroValue}>{Math.round(selectedFood.calories * multiplier)}</div>
                   </div>
                 </div>
 
@@ -225,7 +226,7 @@ export default function MealSlot({
             {/* Cancel Button */}
             <button
               onClick={handleCancel}
-              className="text-sm text-gray-500 hover:text-gray-700 w-full text-center"
+              className={styles.cancelButton}
             >
               Cancel
             </button>
@@ -233,7 +234,7 @@ export default function MealSlot({
         ) : (
           <button
             onClick={() => setIsAdding(true)}
-            className="flex items-center gap-2 text-blue-600 hover:text-blue-800 text-sm font-medium"
+            className={styles.addFoodButton}
           >
             <Plus className="w-4 h-4" />
             Add Food
