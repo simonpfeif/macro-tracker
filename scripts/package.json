@@ -1,0 +1,10 @@
+{
+  "name": "snackstat-scripts",
+  "type": "module",
+  "scripts": {
+    "seed": "node seedFoods.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.0.0"
+  }
+}
