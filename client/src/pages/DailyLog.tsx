@@ -1,34 +1,33 @@
 import { useEffect, useState, useCallback } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
 import type { User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import MacroForm from "@/components/MacroForm";
-import type { NewMealInput } from "@/components/MacroForm";
-import MealList from "@/components/MealList";
-import type { Meal, MealTemplate } from "@/types";
+import type { Meal, FoodItem, Food } from "@/types";
 import {
   saveMeal,
   getMealsByDate,
   deleteMeal,
   getTodayDate,
-  saveMealTemplate,
-  getMealTemplates,
-  deleteMealTemplate,
+  getAllFoods,
 } from "@/services/db";
-import TemplateList from "@/components/TemplateList";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar, Settings, Home, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import MealSlot from "@/components/MealSlot";
+import DailySummary from "@/components/DailySummary";
+
+const DEFAULT_MEALS = ["Breakfast", "Lunch", "Dinner"];
 
 export default function DailyLog() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [user, setUser] = useState<User | null>(null);
   const [meals, setMeals] = useState<Meal[]>([]);
-  const [templates, setTemplates] = useState<MealTemplate[]>([]);
+  const [availableFoods, setAvailableFoods] = useState<FoodItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [isAddingMeal, setIsAddingMeal] = useState(false);
+  const [newMealName, setNewMealName] = useState("");
 
-  // Get date from URL or default to today
   const selectedDate = searchParams.get("date") || getTodayDate();
   const isToday = selectedDate === getTodayDate();
 
@@ -60,13 +59,13 @@ export default function DailyLog() {
     }
   }, [user, selectedDate]);
 
-  const loadTemplates = useCallback(async () => {
+  const loadFoods = useCallback(async () => {
     if (!user) return;
     try {
-      const fetchedTemplates = await getMealTemplates(user.uid);
-      setTemplates(fetchedTemplates);
+      const foods = await getAllFoods(user.uid);
+      setAvailableFoods(foods);
     } catch (error) {
-      console.error("Error loading templates:", error);
+      console.error("Error loading foods:", error);
     }
   }, [user]);
 
@@ -75,95 +74,119 @@ export default function DailyLog() {
   }, [loadMeals]);
 
   useEffect(() => {
-    loadTemplates();
-  }, [loadTemplates]);
+    loadFoods();
+  }, [loadFoods]);
 
-  const handleAddMeal = async (mealInput: NewMealInput) => {
+  // Get meal by name or return undefined
+  const getMealByName = (name: string) => meals.find((m) => m.name === name);
+
+  // Add food to a meal (create meal if doesn't exist)
+  const handleAddFood = async (mealName: string, food: Food) => {
     if (!user) return;
-    setSaving(true);
-    try {
-      const mealId = await saveMeal(user.uid, {
-        name: mealInput.name,
-        foods: mealInput.foods,
+
+    const existingMeal = getMealByName(mealName);
+
+    if (existingMeal) {
+      // Update existing meal
+      const updatedFoods = [...existingMeal.foods, food];
+      await deleteMeal(user.uid, existingMeal.id);
+      const newId = await saveMeal(user.uid, {
+        name: mealName,
+        foods: updatedFoods,
+        date: selectedDate,
+      });
+      setMeals((prev) =>
+        prev.map((m) =>
+          m.id === existingMeal.id
+            ? { ...m, id: newId, foods: updatedFoods }
+            : m
+        )
+      );
+    } else {
+      // Create new meal
+      const newId = await saveMeal(user.uid, {
+        name: mealName,
+        foods: [food],
         date: selectedDate,
       });
       const newMeal: Meal = {
-        id: mealId,
-        name: mealInput.name,
-        foods: mealInput.foods,
+        id: newId,
+        name: mealName,
+        foods: [food],
         date: selectedDate,
         createdAt: new Date(),
       };
-      setMeals((prev) => [newMeal, ...prev]);
-    } catch (error) {
-      console.error("Error saving meal:", error);
-    } finally {
-      setSaving(false);
+      setMeals((prev) => [...prev, newMeal]);
     }
   };
 
-  const handleDeleteMeal = async (mealId: string) => {
+  // Remove food from a meal
+  const handleRemoveFood = async (mealName: string, foodIndex: number) => {
     if (!user) return;
-    try {
-      await deleteMeal(user.uid, mealId);
-      setMeals((prev) => prev.filter((m) => m.id !== mealId));
-    } catch (error) {
-      console.error("Error deleting meal:", error);
-    }
-  };
 
-  const handleSaveAsTemplate = async (meal: Meal) => {
-    if (!user) return;
-    try {
-      const templateId = await saveMealTemplate(user.uid, {
-        name: meal.name,
-        foods: meal.foods,
-      });
-      const newTemplate: MealTemplate = {
-        id: templateId,
-        name: meal.name,
-        foods: meal.foods,
-        createdAt: new Date(),
-      };
-      setTemplates((prev) => [newTemplate, ...prev]);
-    } catch (error) {
-      console.error("Error saving template:", error);
-    }
-  };
+    const existingMeal = getMealByName(mealName);
+    if (!existingMeal) return;
 
-  const handleUseTemplate = async (template: MealTemplate) => {
-    if (!user) return;
-    setSaving(true);
-    try {
-      const mealId = await saveMeal(user.uid, {
-        name: template.name,
-        foods: template.foods,
+    const updatedFoods = existingMeal.foods.filter((_, i) => i !== foodIndex);
+
+    if (updatedFoods.length === 0) {
+      // Delete meal if no foods left
+      await deleteMeal(user.uid, existingMeal.id);
+      setMeals((prev) => prev.filter((m) => m.id !== existingMeal.id));
+    } else {
+      // Update meal
+      await deleteMeal(user.uid, existingMeal.id);
+      const newId = await saveMeal(user.uid, {
+        name: mealName,
+        foods: updatedFoods,
         date: selectedDate,
       });
-      const newMeal: Meal = {
-        id: mealId,
-        name: template.name,
-        foods: template.foods,
-        date: selectedDate,
-        createdAt: new Date(),
-      };
-      setMeals((prev) => [newMeal, ...prev]);
-    } catch (error) {
-      console.error("Error using template:", error);
-    } finally {
-      setSaving(false);
+      setMeals((prev) =>
+        prev.map((m) =>
+          m.id === existingMeal.id
+            ? { ...m, id: newId, foods: updatedFoods }
+            : m
+        )
+      );
     }
   };
 
-  const handleDeleteTemplate = async (templateId: string) => {
+  // Delete entire custom meal
+  const handleDeleteMeal = async (mealName: string) => {
     if (!user) return;
-    try {
-      await deleteMealTemplate(user.uid, templateId);
-      setTemplates((prev) => prev.filter((t) => t.id !== templateId));
-    } catch (error) {
-      console.error("Error deleting template:", error);
-    }
+
+    const existingMeal = getMealByName(mealName);
+    if (!existingMeal) return;
+
+    await deleteMeal(user.uid, existingMeal.id);
+    setMeals((prev) => prev.filter((m) => m.id !== existingMeal.id));
   };
+
+  // Add custom meal
+  const handleAddCustomMeal = () => {
+    if (!newMealName.trim()) return;
+    // The meal will be created when user adds first food
+    // For now, just close the input
+    setIsAddingMeal(false);
+    setNewMealName("");
+  };
+
+  // Get custom meals (meals that aren't Breakfast, Lunch, Dinner)
+  const customMeals = meals.filter((m) => !DEFAULT_MEALS.includes(m.name));
+
+  // Calculate daily totals
+  const dailyTotals = meals.reduce(
+    (acc, meal) => {
+      meal.foods.forEach((food) => {
+        acc.calories += food.calories;
+        acc.protein += food.protein;
+        acc.carbs += food.carbs;
+        acc.fat += food.fat;
+      });
+      return acc;
+    },
+    { calories: 0, protein: 0, carbs: 0, fat: 0 }
+  );
 
   const goToPrevDay = () => {
     const date = new Date(selectedDate + "T12:00:00");
@@ -187,74 +210,143 @@ export default function DailyLog() {
   });
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      {/* Date Navigation */}
-      <div className="flex items-center justify-between mb-6">
-        <Button variant="ghost" size="icon" onClick={goToPrevDay}>
-          <ChevronLeft className="w-5 h-5" />
-        </Button>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200 px-6 py-4">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          {/* Date Navigation */}
+          <div className="flex items-center gap-4">
+            <button
+              onClick={goToPrevDay}
+              className="p-2 hover:bg-gray-100 rounded-lg"
+            >
+              <ChevronLeft className="w-5 h-5 text-gray-600" />
+            </button>
 
-        <div className="text-center">
-          <h1 className="text-xl font-bold text-gray-800">
-            {isToday ? "Today" : formattedDate}
-          </h1>
-          {isToday && (
-            <p className="text-sm text-gray-500">{formattedDate}</p>
-          )}
-        </div>
-
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={goToNextDay}
-          disabled={isToday}
-          className={isToday ? "invisible" : ""}
-        >
-          <ChevronRight className="w-5 h-5" />
-        </Button>
-      </div>
-
-      {!isToday && (
-        <div className="text-center mb-4">
-          <button
-            onClick={() => setSelectedDate(getTodayDate())}
-            className="text-sm text-blue-600 hover:text-blue-800"
-          >
-            Go to Today
-          </button>
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Left column - Meal Form & Templates */}
-        <div className="space-y-6">
-          <MacroForm onAddMeal={handleAddMeal} />
-          {saving && (
-            <p className="text-center text-gray-500 text-sm">Saving...</p>
-          )}
-          <TemplateList
-            templates={templates}
-            onUseTemplate={handleUseTemplate}
-            onDeleteTemplate={handleDeleteTemplate}
-          />
-        </div>
-
-        {/* Right column - Meal List */}
-        <div>
-          {loading ? (
-            <div className="w-full max-w-2xl p-6 bg-white rounded-2xl shadow-md">
-              <p className="text-gray-500 text-center py-8">Loading meals...</p>
+            <div className="text-center">
+              <h1 className="text-lg font-semibold text-gray-800">
+                {isToday ? "Today" : formattedDate}
+              </h1>
+              {isToday && (
+                <p className="text-sm text-gray-500">{formattedDate}</p>
+              )}
             </div>
-          ) : (
-            <MealList
-              meals={meals}
-              onDeleteMeal={handleDeleteMeal}
-              onSaveAsTemplate={handleSaveAsTemplate}
-              selectedDate={selectedDate}
-            />
-          )}
+
+            <button
+              onClick={goToNextDay}
+              disabled={isToday}
+              className={`p-2 hover:bg-gray-100 rounded-lg ${isToday ? "invisible" : ""}`}
+            >
+              <ChevronRight className="w-5 h-5 text-gray-600" />
+            </button>
+          </div>
+
+          {/* Navigation Icons */}
+          <div className="flex items-center gap-2">
+            <Link
+              to="/"
+              className="p-2 hover:bg-gray-100 rounded-lg"
+              title="Dashboard"
+            >
+              <Home className="w-5 h-5 text-gray-600" />
+            </Link>
+            <Link
+              to="/calendar"
+              className="p-2 hover:bg-gray-100 rounded-lg"
+              title="Calendar"
+            >
+              <Calendar className="w-5 h-5 text-gray-600" />
+            </Link>
+            <Link
+              to="/settings"
+              className="p-2 hover:bg-gray-100 rounded-lg"
+              title="Settings"
+            >
+              <Settings className="w-5 h-5 text-gray-600" />
+            </Link>
+          </div>
         </div>
-      </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-6xl mx-auto px-6 py-6">
+        {loading ? (
+          <div className="text-center py-12 text-gray-500">Loading...</div>
+        ) : (
+          <div className="flex gap-6">
+            {/* Left Column - Meals (2/3) */}
+            <div className="flex-1 space-y-4" style={{ flexBasis: "66.666%" }}>
+              {/* Default Meals */}
+              {DEFAULT_MEALS.map((mealName) => {
+                const meal = getMealByName(mealName);
+                return (
+                  <MealSlot
+                    key={mealName}
+                    name={mealName}
+                    foods={meal?.foods || []}
+                    availableFoods={availableFoods}
+                    onAddFood={(food) => handleAddFood(mealName, food)}
+                    onRemoveFood={(index) => handleRemoveFood(mealName, index)}
+                  />
+                );
+              })}
+
+              {/* Custom Meals */}
+              {customMeals.map((meal) => (
+                <MealSlot
+                  key={meal.id}
+                  name={meal.name}
+                  foods={meal.foods}
+                  availableFoods={availableFoods}
+                  onAddFood={(food) => handleAddFood(meal.name, food)}
+                  onRemoveFood={(index) => handleRemoveFood(meal.name, index)}
+                  onDelete={() => handleDeleteMeal(meal.name)}
+                  isCustom
+                />
+              ))}
+
+              {/* Add Custom Meal */}
+              {isAddingMeal ? (
+                <div className="bg-white rounded-lg border border-gray-200 p-4">
+                  <div className="flex gap-2">
+                    <Input
+                      type="text"
+                      placeholder="Meal name (e.g., Snack)"
+                      value={newMealName}
+                      onChange={(e) => setNewMealName(e.target.value)}
+                      autoFocus
+                    />
+                    <Button onClick={handleAddCustomMeal} disabled={!newMealName.trim()}>
+                      Add
+                    </Button>
+                    <Button variant="outline" onClick={() => setIsAddingMeal(false)}>
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setIsAddingMeal(true)}
+                  className="flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium py-3"
+                >
+                  <Plus className="w-5 h-5" />
+                  Add Meal
+                </button>
+              )}
+            </div>
+
+            {/* Right Column - Daily Summary (1/3) */}
+            <div style={{ flexBasis: "33.333%", minWidth: "280px" }}>
+              <DailySummary
+                calories={dailyTotals.calories}
+                protein={dailyTotals.protein}
+                carbs={dailyTotals.carbs}
+                fat={dailyTotals.fat}
+              />
+            </div>
+          </div>
+        )}
+      </main>
     </div>
   );
 }

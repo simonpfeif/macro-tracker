@@ -41,10 +41,13 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* DailyLog has its own standalone layout */}
+        <Route path="/log" element={<DailyLog />} />
+
+        {/* Pages that use the shared Layout with sidebar */}
         <Route element={<Layout />}>
           <Route path="/" element={<Dashboard />} />
           <Route path="/calendar" element={<Calendar />} />
-          <Route path="/log" element={<DailyLog />} />
           <Route path="/foods" element={<Foods />} />
           <Route path="/goals" element={<Goals />} />
           <Route path="/settings" element={<Settings />} />

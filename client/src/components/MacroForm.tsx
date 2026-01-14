@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import FoodForm from "./FoodForm";
-import type { Food } from "@/types";
+import type { Food, FoodItem } from "@/types";
 
 export type NewMealInput = {
   name: string;
@@ -11,9 +11,10 @@ export type NewMealInput = {
 
 type MealFormProps = {
   onAddMeal: (meal: NewMealInput) => void;
+  availableFoods: FoodItem[];
 };
 
-export default function MacroForm({ onAddMeal }: MealFormProps) {
+export default function MacroForm({ onAddMeal, availableFoods }: MealFormProps) {
   const [mealName, setMealName] = useState("");
   const [foods, setFoods] = useState<Food[]>([]);
 
@@ -67,7 +68,7 @@ export default function MacroForm({ onAddMeal }: MealFormProps) {
         />
       </div>
 
-      <FoodForm onAddFood={addFood} />
+      <FoodForm onAddFood={addFood} foods={availableFoods} />
 
       {foods.length > 0 && (
         <div className="mt-4">

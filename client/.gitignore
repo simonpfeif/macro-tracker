@@ -24,3 +24,6 @@ dist-ssr
 *.sw?
 
 .env*
+
+# Firebase service account key (NEVER commit)
+serviceAccountKey.json
