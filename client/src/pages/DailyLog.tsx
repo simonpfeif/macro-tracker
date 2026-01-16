@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { useSearchParams, Link } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
 import type { User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
@@ -11,9 +11,11 @@ import {
   getTodayDate,
   getAllFoods,
 } from "@/services/db";
-import { ChevronLeft, ChevronRight, Calendar, Settings, Home, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import Header from "@/components/Header/Header";
+import DateNavigation from "@/components/Header/DateNavigation";
 import MealSlot from "@/components/MealSlot";
 import DailySummary from "@/components/DailySummary";
 import styles from "./DailyLog.module.css";
@@ -212,62 +214,18 @@ export default function DailyLog() {
 
   return (
     <div className={styles.page}>
-      {/* Header */}
-      <header className={styles.header}>
-        <div className={styles.headerContent}>
-          {/* Date Navigation */}
-          <div className={styles.dateNavigation}>
-            <button
-              onClick={goToPrevDay}
-              className={styles.navButton}
-            >
-              <ChevronLeft className="w-5 h-5 text-gray-600" />
-            </button>
-
-            <div className={styles.dateContainer}>
-              <h1 className={styles.dateTitle}>
-                {isToday ? "Today" : formattedDate}
-              </h1>
-              {isToday && (
-                <p className={styles.dateSubtitle}>{formattedDate}</p>
-              )}
-            </div>
-
-            <button
-              onClick={goToNextDay}
-              disabled={isToday}
-              className={`${styles.navButton} ${isToday ? styles.navButtonInvisible : ""}`}
-            >
-              <ChevronRight className="w-5 h-5 text-gray-600" />
-            </button>
-          </div>
-
-          {/* Navigation Icons */}
-          <div className={styles.navIcons}>
-            <Link
-              to="/"
-              className={styles.navIcon}
-              title="Dashboard"
-            >
-              <Home className="w-5 h-5 text-gray-600" />
-            </Link>
-            <Link
-              to="/calendar"
-              className={styles.navIcon}
-              title="Calendar"
-            >
-              <Calendar className="w-5 h-5 text-gray-600" />
-            </Link>
-            <Link
-              to="/settings"
-              className={styles.navIcon}
-              title="Settings"
-            >
-              <Settings className="w-5 h-5 text-gray-600" />
-            </Link>
-          </div>
-        </div>
-      </header>
+      <Header
+        currentPage="log"
+        leftContent={
+          <DateNavigation
+            selectedDate={selectedDate}
+            isToday={isToday}
+            formattedDate={formattedDate}
+            onPrevDay={goToPrevDay}
+            onNextDay={goToNextDay}
+          />
+        }
+      />
 
       {/* Main Content */}
       <main className={styles.main}>
@@ -330,7 +288,7 @@ export default function DailyLog() {
                   onClick={() => setIsAddingMeal(true)}
                   className={styles.addMealButton}
                 >
-                  <Plus className="w-5 h-5" />
+                  <Plus className={styles.icon} />
                   Add Meal
                 </button>
               )}

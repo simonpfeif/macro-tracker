@@ -5,6 +5,7 @@ import type { User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { UtensilsCrossed, Calendar, Target, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Header from "@/components/Header/Header";
 import styles from "./Dashboard.module.css";
 
 export default function Dashboard() {
@@ -19,19 +20,22 @@ export default function Dashboard() {
 
   return (
     <div className={styles.page}>
-      {/* Welcome Header */}
-      <div className={styles.welcomeHeader}>
-        <h1 className={styles.welcomeTitle}>
-          Welcome back{user?.displayName ? `, ${user.displayName.split(" ")[0]}` : ""}!
-        </h1>
-        <p className={styles.welcomeSubtitle}>Here's your nutrition overview</p>
-      </div>
+      <Header title="SnackStat" currentPage="dashboard" />
+
+      <main className={styles.main}>
+        {/* Welcome Header */}
+        <div className={styles.welcomeHeader}>
+          <h1 className={styles.welcomeTitle}>
+            Welcome back{user?.displayName ? `, ${user.displayName.split(" ")[0]}` : ""}!
+          </h1>
+          <p className={styles.welcomeSubtitle}>Here's your nutrition overview</p>
+        </div>
 
       {/* Quick Stats */}
       <div className={styles.statsGrid}>
         <div className={styles.statCard}>
           <div className={styles.statHeader}>
-            <TrendingUp className="w-4 h-4" />
+            <TrendingUp className={styles.icon} />
             <span className={styles.statLabel}>Streak</span>
           </div>
           <p className={styles.statValue}>0 days</p>
@@ -39,7 +43,7 @@ export default function Dashboard() {
 
         <div className={styles.statCard}>
           <div className={styles.statHeader}>
-            <Calendar className="w-4 h-4" />
+            <Calendar className={styles.icon} />
             <span className={styles.statLabel}>This Week</span>
           </div>
           <p className={styles.statValue}>0/7</p>
@@ -47,7 +51,7 @@ export default function Dashboard() {
 
         <div className={styles.statCard}>
           <div className={styles.statHeader}>
-            <Target className="w-4 h-4" />
+            <Target className={styles.icon} />
             <span className={styles.statLabel}>Goal</span>
           </div>
           <p className={styles.statValue}>--</p>
@@ -55,7 +59,7 @@ export default function Dashboard() {
 
         <div className={styles.statCard}>
           <div className={styles.statHeader}>
-            <UtensilsCrossed className="w-4 h-4" />
+            <UtensilsCrossed className={styles.icon} />
             <span className={styles.statLabel}>Today</span>
           </div>
           <p className={styles.statValue}>0 cal</p>
@@ -76,30 +80,31 @@ export default function Dashboard() {
         <div className={styles.actionsGrid}>
           <Link to="/log">
             <Button className={styles.actionButton} variant="outline">
-              <UtensilsCrossed className="w-4 h-4" />
+              <UtensilsCrossed className={styles.icon} />
               Log Today's Meals
             </Button>
           </Link>
           <Link to="/calendar">
             <Button className={styles.actionButton} variant="outline">
-              <Calendar className="w-4 h-4" />
+              <Calendar className={styles.icon} />
               View Calendar
             </Button>
           </Link>
           <Link to="/goals">
             <Button className={styles.actionButton} variant="outline">
-              <Target className="w-4 h-4" />
+              <Target className={styles.icon} />
               Set Goals
             </Button>
           </Link>
           <Link to="/foods">
             <Button className={styles.actionButton} variant="outline">
-              <TrendingUp className="w-4 h-4" />
+              <TrendingUp className={styles.icon} />
               Manage Foods
             </Button>
           </Link>
         </div>
       </div>
+      </main>
     </div>
   );
 }

@@ -1,8 +1,9 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { getTodayDate } from "@/services/db";
+import Header from "@/components/Header/Header";
+import styles from "./Calendar.module.css";
 
 export default function Calendar() {
   const navigate = useNavigate();
@@ -74,74 +75,69 @@ export default function Calendar() {
   };
 
   return (
-    <div className="p-6 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">Calendar</h1>
+    <div className={styles.page}>
+      <Header title="Calendar" currentPage="calendar" />
 
-      <div className="bg-white rounded-xl shadow-sm p-6">
-        {/* Month Navigation */}
-        <div className="flex items-center justify-between mb-6">
-          <Button variant="ghost" size="icon" onClick={goToPrevMonth}>
-            <ChevronLeft className="w-5 h-5" />
-          </Button>
-          <h2 className="text-lg font-semibold text-gray-800">{monthName}</h2>
-          <Button variant="ghost" size="icon" onClick={goToNextMonth}>
-            <ChevronRight className="w-5 h-5" />
-          </Button>
-        </div>
+      <main className={styles.main}>
+        <div className={styles.card}>
+          {/* Month Navigation */}
+          <div className={styles.monthNavigation}>
+            <button className={styles.navButton} onClick={goToPrevMonth}>
+              <ChevronLeft className={styles.icon} />
+            </button>
+            <h2 className={styles.monthTitle}>{monthName}</h2>
+            <button className={styles.navButton} onClick={goToNextMonth}>
+              <ChevronRight className={styles.icon} />
+            </button>
+          </div>
 
-        {/* Day Headers */}
-        <div className="grid grid-cols-7 gap-1 mb-2">
-          {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-            <div
-              key={day}
-              className="text-center text-sm font-medium text-gray-500 py-2"
-            >
-              {day}
-            </div>
-          ))}
-        </div>
-
-        {/* Calendar Grid */}
-        <div className="grid grid-cols-7 gap-1">
-          {calendarDays.map(({ date, day, isCurrentMonth }) => {
-            const isToday = date === today;
-            const isLogged = loggedDays.has(date);
-            const isFuture = date > today;
-
-            return (
-              <button
-                key={date}
-                onClick={() => !isFuture && handleDayClick(date)}
-                disabled={isFuture}
-                className={`
-                  aspect-square flex flex-col items-center justify-center rounded-lg text-sm
-                  transition-colors relative
-                  ${!isCurrentMonth ? "text-gray-300" : "text-gray-700"}
-                  ${isToday ? "bg-blue-100 font-bold" : ""}
-                  ${isFuture ? "cursor-not-allowed opacity-50" : "hover:bg-gray-100"}
-                `}
-              >
+          {/* Day Headers */}
+          <div className={styles.dayHeaders}>
+            {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+              <div key={day} className={styles.dayHeader}>
                 {day}
-                {isLogged && (
-                  <div className="absolute bottom-1 w-1.5 h-1.5 rounded-full bg-green-500" />
-                )}
-              </button>
-            );
-          })}
-        </div>
+              </div>
+            ))}
+          </div>
 
-        {/* Legend */}
-        <div className="mt-6 pt-4 border-t border-gray-100 flex items-center gap-6 text-sm text-gray-500">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-green-500" />
-            <span>Logged</span>
+          {/* Calendar Grid */}
+          <div className={styles.calendarGrid}>
+            {calendarDays.map(({ date, day, isCurrentMonth }) => {
+              const isToday = date === today;
+              const isLogged = loggedDays.has(date);
+              const isFuture = date > today;
+
+              let buttonClassName = styles.dayButton;
+              if (!isCurrentMonth) buttonClassName += ` ${styles.dayOtherMonth}`;
+              if (isToday) buttonClassName += ` ${styles.dayToday}`;
+
+              return (
+                <button
+                  key={date}
+                  onClick={() => !isFuture && handleDayClick(date)}
+                  disabled={isFuture}
+                  className={buttonClassName}
+                >
+                  {day}
+                  {isLogged && <div className={styles.loggedIndicator} />}
+                </button>
+              );
+            })}
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded bg-blue-100" />
-            <span>Today</span>
+
+          {/* Legend */}
+          <div className={styles.legend}>
+            <div className={styles.legendItem}>
+              <div className={styles.legendDotLogged} />
+              <span>Logged</span>
+            </div>
+            <div className={styles.legendItem}>
+              <div className={styles.legendDotToday} />
+              <span>Today</span>
+            </div>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

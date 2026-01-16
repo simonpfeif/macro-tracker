@@ -12,6 +12,7 @@ import DailyLog from "./pages/DailyLog";
 import Foods from "./pages/Foods";
 import Goals from "./pages/Goals";
 import Settings from "./pages/Settings";
+import styles from "./App.module.css";
 
 function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -28,8 +29,8 @@ function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <p className="text-gray-500">Loading...</p>
+      <div className={styles.loadingContainer}>
+        <p className={styles.loadingText}>Loading...</p>
       </div>
     );
   }
@@ -41,13 +42,10 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* DailyLog has its own standalone layout */}
-        <Route path="/log" element={<DailyLog />} />
-
-        {/* Pages that use the shared Layout with sidebar */}
         <Route element={<Layout />}>
           <Route path="/" element={<Dashboard />} />
           <Route path="/calendar" element={<Calendar />} />
+          <Route path="/log" element={<DailyLog />} />
           <Route path="/foods" element={<Foods />} />
           <Route path="/goals" element={<Goals />} />
           <Route path="/settings" element={<Settings />} />

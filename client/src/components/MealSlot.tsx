@@ -93,7 +93,7 @@ export default function MealSlot({
               onClick={onDelete}
               className={styles.deleteButton}
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className={styles.icon} />
             </button>
           )}
         </div>
@@ -118,7 +118,7 @@ export default function MealSlot({
                   onClick={() => onRemoveFood(index)}
                   className={styles.removeButton}
                 >
-                  <X className="w-4 h-4" />
+                  <X className={styles.icon} />
                 </button>
               </li>
             ))}
@@ -132,7 +132,7 @@ export default function MealSlot({
           <div className={styles.addSection}>
             {/* Search Input */}
             <div className={styles.searchContainer}>
-              <Search className={styles.searchIcon} />
+              <Search className={`${styles.searchIcon} ${styles.icon}`} />
               <Input
                 type="text"
                 placeholder="Search foods..."
@@ -182,7 +182,7 @@ export default function MealSlot({
                     }}
                     className={styles.clearButton}
                   >
-                    <X className="w-4 h-4" />
+                    <X className={styles.icon} />
                   </button>
                 </div>
 
@@ -236,7 +236,7 @@ export default function MealSlot({
             onClick={() => setIsAdding(true)}
             className={styles.addFoodButton}
           >
-            <Plus className="w-4 h-4" />
+            <Plus className={styles.icon} />
             Add Food
           </button>
         )}
