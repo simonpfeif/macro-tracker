@@ -1,6 +1,6 @@
 .page {
   min-height: 100vh;
-  background: #f9fafb;
+  background: #F5F1EB;
 }
 
 .main {
@@ -51,7 +51,7 @@
   display: flex;
   gap: 1rem;
   margin-bottom: 1.5rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid #E8E6E3;
 }
 
 .tab {
@@ -70,13 +70,13 @@
 }
 
 .tabActive {
-  border-bottom: 2px solid #2563eb;
-  color: #2563eb;
+  border-bottom: 2px solid #D4886A;
+  color: #D4886A;
   font-weight: 500;
 }
 
 .emptyState {
-  background: white;
+  background: #FFFEFA;
   border-radius: 0.75rem;
   padding: 3rem;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -86,7 +86,7 @@
 .emptyIcon {
   width: 4rem;
   height: 4rem;
-  background: #f3f4f6;
+  background: #F5F3F0;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -123,7 +123,7 @@
 }
 
 .foodItem {
-  background: white;
+  background: #FFFEFA;
   border-radius: 0.5rem;
   padding: 1rem;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -149,8 +149,8 @@
 
 .customBadge {
   font-size: 0.75rem;
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: #FDF0E8;
+  color: #C67A5E;
   padding: 0.125rem 0.5rem;
   border-radius: 0.25rem;
 }

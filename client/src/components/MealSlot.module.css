@@ -1,7 +1,7 @@
 .card {
-  background: white;
+  background: #FFFEFA;
   border-radius: 0.5rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #E8E6E3;
   overflow: hidden;
 }
 
@@ -10,8 +10,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 1rem;
-  background: #f9fafb;
-  border-bottom: 1px solid #e5e7eb;
+  background: #F5F1EB;
+  border-bottom: 1px solid #E8E6E3;
 }
 
 .title {
@@ -60,7 +60,7 @@
   justify-content: space-between;
   font-size: 0.875rem;
   padding: 0.5rem 0.75rem;
-  background: #f9fafb;
+  background: #F5F1EB;
   border-radius: 0.25rem;
 }
 
@@ -96,7 +96,7 @@
   flex-direction: column;
   gap: 0.75rem;
   padding: 0.75rem;
-  background: #f9fafb;
+  background: #F5F1EB;
   border-radius: 0.5rem;
 }
 
@@ -119,8 +119,8 @@
 }
 
 .searchResults {
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: #FFFEFA;
+  border: 1px solid #E8E6E3;
   border-radius: 0.5rem;
   max-height: 12rem;
   overflow-y: auto;
@@ -132,7 +132,7 @@
   text-align: left;
   background: transparent;
   border: none;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid #F5F3F0;
   cursor: pointer;
   transition: background-color 0.2s;
 }
@@ -142,7 +142,7 @@
 }
 
 .searchResultItem:hover {
-  background: #f9fafb;
+  background: #F5F1EB;
 }
 
 .searchResultName {
@@ -157,8 +157,8 @@
 }
 
 .selectedFoodCard {
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: #FFFEFA;
+  border: 1px solid #E8E6E3;
   border-radius: 0.5rem;
   padding: 0.75rem;
 }
@@ -223,7 +223,7 @@
 }
 
 .macroCell {
-  background: #f9fafb;
+  background: #F5F1EB;
   border-radius: 0.25rem;
   padding: 0.5rem;
 }
@@ -255,7 +255,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #2563eb;
+  color: #D4886A;
   font-size: 0.875rem;
   font-weight: 500;
   background: transparent;
@@ -265,7 +265,7 @@
 }
 
 .addFoodButton:hover {
-  color: #1e40af;
+  color: #C67A5E;
 }
 
 .icon {

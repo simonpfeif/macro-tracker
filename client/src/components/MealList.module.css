@@ -2,7 +2,7 @@
   width: 100%;
   max-width: 42rem;
   padding: 1.5rem;
-  background: white;
+  background: #FFFEFA;
   border-radius: 1rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
@@ -27,10 +27,10 @@
 }
 
 .mealCard {
-  border: 1px solid #e5e7eb;
+  border: 1px solid #E8E6E3;
   border-radius: 0.5rem;
   padding: 1rem;
-  background: #f9fafb;
+  background: #F5F1EB;
 }
 
 .mealHeader {
@@ -51,15 +51,15 @@
 }
 
 .saveButton {
-  color: #2563eb;
+  color: #D4886A;
   font-size: 0.75rem;
   padding: 0.25rem 0.5rem;
   height: auto;
 }
 
 .saveButton:hover {
-  color: #1e40af;
-  background: #eff6ff;
+  color: #C67A5E;
+  background: #FDF0E8;
 }
 
 .deleteButton {
@@ -90,7 +90,7 @@
 
 .mealTotal {
   padding-top: 0.5rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid #E8E6E3;
 }
 
 .mealTotalText {
@@ -102,9 +102,9 @@
 .dailyTotals {
   margin-top: 1.5rem;
   padding: 1rem;
-  background: #eff6ff;
+  background: #FDF0E8;
   border-radius: 0.5rem;
-  border: 2px solid #bfdbfe;
+  border: 2px solid #E8C4B8;
 }
 
 .dailyTotalsTitle {

@@ -1,6 +1,6 @@
 .page {
   min-height: 100vh;
-  background: #f9fafb;
+  background: #F5F1EB;
 }
 
 .main {
@@ -38,7 +38,7 @@
 }
 
 .statCard {
-  background: white;
+  background: #FFFEFA;
   border-radius: 0.75rem;
   padding: 1rem;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -63,7 +63,7 @@
 }
 
 .weightCard {
-  background: white;
+  background: #FFFEFA;
   border-radius: 0.75rem;
   padding: 1.5rem;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -82,7 +82,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px dashed #e5e7eb;
+  border: 2px dashed #E8E6E3;
   border-radius: 0.5rem;
 }
 
@@ -91,7 +91,7 @@
 }
 
 .actionsCard {
-  background: white;
+  background: #FFFEFA;
   border-radius: 0.75rem;
   padding: 1.5rem;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -120,13 +120,13 @@
   width: 100%;
   justify-content: flex-start;
   gap: 0.5rem;
-  color: #1f2937 !important; /* Dark gray text - !important to override Tailwind */
-  border-color: #e5e7eb !important; /* Light gray border */
+  color: #1f2937 !important;
+  border-color: #E8E6E3 !important;
 }
 
 .actionButton:hover {
-  background-color: #f3f4f6 !important; /* Light gray background on hover */
-  color: #111827 !important; /* Darker text on hover */
+  background-color: #F5F3F0 !important;
+  color: #111827 !important;
 }
 
 .icon {

@@ -3,9 +3,9 @@
   flex-direction: column;
   gap: 0.75rem;
   padding: 1rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #E8E6E3;
   border-radius: 0.5rem;
-  background: #f9fafb;
+  background: #F5F1EB;
 }
 
 .header {
@@ -22,7 +22,7 @@
 
 .modeToggle {
   font-size: 0.75rem;
-  color: #2563eb;
+  color: #D4886A;
   background: transparent;
   border: none;
   cursor: pointer;
@@ -30,7 +30,7 @@
 }
 
 .modeToggle:hover {
-  color: #1e40af;
+  color: #C67A5E;
 }
 
 .label {
@@ -70,8 +70,8 @@
   z-index: 10;
   width: 100%;
   margin-top: 0.25rem;
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: #FFFEFA;
+  border: 1px solid #E8E6E3;
   border-radius: 0.5rem;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   max-height: 16rem;
@@ -84,7 +84,7 @@
   text-align: left;
   background: transparent;
   border: none;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid #F5F3F0;
   cursor: pointer;
   transition: background-color 0.2s;
 }
@@ -94,7 +94,7 @@
 }
 
 .dropdownItem:hover {
-  background: #f9fafb;
+  background: #F5F1EB;
 }
 
 .itemName {
@@ -112,8 +112,8 @@
   z-index: 10;
   width: 100%;
   margin-top: 0.25rem;
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: #FFFEFA;
+  border: 1px solid #E8E6E3;
   border-radius: 0.5rem;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   padding: 1rem;
@@ -126,7 +126,7 @@
 }
 
 .emptyLink {
-  color: #2563eb;
+  color: #D4886A;
   font-size: 0.875rem;
   margin-top: 0.25rem;
   background: transparent;
@@ -136,12 +136,12 @@
 }
 
 .emptyLink:hover {
-  color: #1e40af;
+  color: #C67A5E;
 }
 
 .selectedFoodCard {
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: #FFFEFA;
+  border: 1px solid #E8E6E3;
   border-radius: 0.5rem;
   padding: 0.75rem;
   display: flex;
@@ -194,7 +194,7 @@
 }
 
 .macroCell {
-  background: #f9fafb;
+  background: #F5F1EB;
   border-radius: 0.25rem;
   padding: 0.5rem;
 }

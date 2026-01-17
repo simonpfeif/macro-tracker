@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Home, Calendar, UtensilsCrossed, Settings } from "lucide-react";
 import styles from "./Header.module.css";
+import logo from "/logo32.png";
 
 type PageType = "dashboard" | "calendar" | "log" | "foods" | "goals" | "settings";
 
@@ -36,6 +37,9 @@ export default function Header({ title, subtitle, leftContent, currentPage }: He
       <div className={styles.headerContent}>
         {/* Left Section */}
         <div className={styles.leftSection}>
+          <Link to="/" className={styles.logoLink}>
+            <img src={logo} alt="SnackStat" className={styles.logo} />
+          </Link>
           {leftContent ? (
             leftContent
           ) : (

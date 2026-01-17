@@ -20,7 +20,7 @@
 }
 
 .button:focus-visible {
-  outline: 2px solid #3b82f6;
+  outline: 2px solid #D4886A;
   outline-offset: 2px;
 }
 
@@ -53,25 +53,25 @@
 }
 
 .outline {
-  border: 1px solid #e5e7eb;
-  background-color: white;
+  border: 1px solid #E8E6E3;
+  background-color: #FFFEFA;
   color: #1f2937;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
 .outline:hover {
-  background-color: #f3f4f6;
+  background-color: #F5F3F0;
   color: #111827;
 }
 
 .secondary {
-  background-color: #f3f4f6;
+  background-color: #F5F3F0;
   color: #1f2937;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
 .secondary:hover {
-  background-color: #e5e7eb;
+  background-color: #E8E6E3;
 }
 
 .ghost {
@@ -80,19 +80,19 @@
 }
 
 .ghost:hover {
-  background-color: #f3f4f6;
+  background-color: #F5F3F0;
   color: #111827;
 }
 
 .link {
   background-color: transparent;
-  color: #2563eb;
+  color: #D4886A;
   text-decoration: underline;
   text-underline-offset: 4px;
 }
 
 .link:hover {
-  color: #1e40af;
+  color: #C67A5E;
 }
 
 /* Sizes */

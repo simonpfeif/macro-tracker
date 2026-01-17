@@ -1,7 +1,7 @@
 .card {
-  background: white;
+  background: #FFFEFA;
   border-radius: 0.5rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #E8E6E3;
   padding: 1.25rem;
   position: sticky;
   top: 1.5rem;
@@ -17,7 +17,7 @@
   text-align: center;
   padding: 1rem 0;
   margin-bottom: 1rem;
-  background: #eff6ff;
+  background: #FDF0E8;
   border-radius: 0.5rem;
 }
 
@@ -43,7 +43,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem 0;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid #F5F3F0;
 }
 
 .macroRow:last-child {

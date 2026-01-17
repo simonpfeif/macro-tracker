@@ -1,5 +1,5 @@
 .card {
-  background: white;
+  background: #FFFEFA;
   border-radius: 1rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   padding: 1.5rem;
@@ -47,7 +47,7 @@
   align-items: center;
   font-size: 0.875rem;
   color: #4b5563;
-  background: #f9fafb;
+  background: #F5F1EB;
   padding: 0.5rem;
   border-radius: 0.25rem;
 }
@@ -68,7 +68,7 @@
 .totals {
   margin-top: 0.75rem;
   padding: 0.75rem;
-  background: #eff6ff;
+  background: #FDF0E8;
   border-radius: 0.5rem;
 }
 

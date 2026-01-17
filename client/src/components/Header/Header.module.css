@@ -1,6 +1,6 @@
 .header {
-  background: white;
-  border-bottom: 1px solid #e5e7eb;
+  background: #FFFEFA;
+  border-bottom: 1px solid #E8E6E3;
   padding: 1rem 1.5rem;
 }
 
@@ -15,7 +15,17 @@
 .leftSection {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
+}
+
+.logoLink {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  width: 28px;
+  height: 28px;
 }
 
 .titleContainer {
@@ -56,7 +66,7 @@
 }
 
 .navIcon:hover {
-  background: #f3f4f6;
+  background: #F5F3F0;
 }
 
 .icon {
