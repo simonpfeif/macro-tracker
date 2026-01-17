@@ -1,19 +1,21 @@
 .page {
   min-height: 100vh;
-  background: #F5F1EB;
+  background: var(--color-bg);
 }
 
 .main {
-  padding: 1.5rem;
+  padding: 2rem 1.5rem;
   max-width: 42rem;
   margin: 0 auto;
+  animation: fadeIn var(--duration-slow) var(--ease-out);
 }
 
 .card {
-  background: #FFFEFA;
-  border-radius: 0.75rem;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  background: var(--color-card);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
   padding: 1.5rem;
+  transition: box-shadow var(--duration-normal) var(--ease-out);
 }
 
 .monthNavigation {
@@ -24,9 +26,10 @@
 }
 
 .monthTitle {
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--color-text);
+  letter-spacing: -0.01em;
 }
 
 .navButton {
@@ -102,8 +105,13 @@
 }
 
 .dayToday {
-  background: #FDF0E8;
-  font-weight: 700;
+  background: var(--color-accent);
+  color: white;
+  font-weight: 600;
+}
+
+.dayToday:hover:not(:disabled) {
+  background: var(--color-accent-hover);
 }
 
 .loggedIndicator {
@@ -143,5 +151,5 @@
   width: 0.75rem;
   height: 0.75rem;
   border-radius: 0.25rem;
-  background: #FDF0E8;
+  background: var(--color-accent);
 }

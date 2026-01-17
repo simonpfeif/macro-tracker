@@ -199,19 +199,19 @@ export default function MealSlot({
                 </div>
 
                 <div className={styles.macroGrid}>
-                  <div className={styles.macroCell}>
+                  <div className={`${styles.macroCell} ${styles.macroCellProtein}`}>
                     <div className={styles.macroLabel}>Protein</div>
                     <div className={styles.macroValue}>{Math.round(selectedFood.protein * multiplier * 10) / 10}g</div>
                   </div>
-                  <div className={styles.macroCell}>
+                  <div className={`${styles.macroCell} ${styles.macroCellCarbs}`}>
                     <div className={styles.macroLabel}>Carbs</div>
                     <div className={styles.macroValue}>{Math.round(selectedFood.carbs * multiplier * 10) / 10}g</div>
                   </div>
-                  <div className={styles.macroCell}>
+                  <div className={`${styles.macroCell} ${styles.macroCellFat}`}>
                     <div className={styles.macroLabel}>Fat</div>
                     <div className={styles.macroValue}>{Math.round(selectedFood.fat * multiplier * 10) / 10}g</div>
                   </div>
-                  <div className={styles.macroCell}>
+                  <div className={`${styles.macroCell} ${styles.macroCellCalories}`}>
                     <div className={styles.macroLabel}>Cal</div>
                     <div className={styles.macroValue}>{Math.round(selectedFood.calories * multiplier)}</div>
                   </div>

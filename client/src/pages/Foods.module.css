@@ -1,12 +1,13 @@
 .page {
   min-height: 100vh;
-  background: #F5F1EB;
+  background: var(--color-bg);
 }
 
 .main {
-  padding: 1.5rem;
+  padding: 2rem 1.5rem;
   max-width: 56rem;
   margin: 0 auto;
+  animation: fadeIn var(--duration-slow) var(--ease-out);
 }
 
 .topBar {
@@ -19,7 +20,8 @@
 .pageTitle {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--color-text);
+  letter-spacing: -0.02em;
 }
 
 .addButton {
@@ -76,17 +78,17 @@
 }
 
 .emptyState {
-  background: #FFFEFA;
-  border-radius: 0.75rem;
-  padding: 3rem;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  background: linear-gradient(180deg, var(--color-card) 0%, var(--color-bg) 100%);
+  border-radius: var(--radius-lg);
+  padding: 3rem 2rem;
+  border: 2px dashed var(--color-border);
   text-align: center;
 }
 
 .emptyIcon {
   width: 4rem;
   height: 4rem;
-  background: #F5F3F0;
+  background: var(--color-accent-light);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -97,7 +99,7 @@
 .emptyIconInner {
   width: 2rem;
   height: 2rem;
-  color: #9ca3af;
+  color: var(--color-accent);
 }
 
 .emptyTitle {
@@ -123,13 +125,20 @@
 }
 
 .foodItem {
-  background: #FFFEFA;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  background: var(--color-card);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+  box-shadow: var(--shadow-sm);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  transition: transform var(--duration-normal) var(--ease-out),
+              box-shadow var(--duration-normal) var(--ease-out);
+}
+
+.foodItem:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 .foodInfo {

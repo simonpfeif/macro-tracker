@@ -1,22 +1,30 @@
 .card {
-  background: #FFFEFA;
-  border-radius: 0.5rem;
-  border: 1px solid #E8E6E3;
+  background: var(--color-card);
+  border-radius: var(--radius-md);
   overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--duration-normal) var(--ease-out),
+              box-shadow var(--duration-normal) var(--ease-out);
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.75rem 1rem;
-  background: #F5F1EB;
-  border-bottom: 1px solid #E8E6E3;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(90deg, var(--color-accent-light) 0%, transparent 100%);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .title {
   font-weight: 600;
-  color: #1f2937;
+  color: var(--color-text);
+  letter-spacing: -0.01em;
 }
 
 .headerRight {
@@ -44,7 +52,7 @@
 }
 
 .content {
-  padding: 1rem;
+  padding: 1.25rem;
 }
 
 .foodsList {
@@ -228,12 +236,46 @@
   padding: 0.5rem;
 }
 
+/* Color-coded macro cells */
+.macroCellProtein {
+  background: var(--color-protein-light);
+}
+
+.macroCellProtein .macroLabel {
+  color: var(--color-protein);
+}
+
+.macroCellCarbs {
+  background: var(--color-carbs-light);
+}
+
+.macroCellCarbs .macroLabel {
+  color: #B8A825;
+}
+
+.macroCellFat {
+  background: var(--color-fat-light);
+}
+
+.macroCellFat .macroLabel {
+  color: var(--color-fat);
+}
+
+.macroCellCalories {
+  background: var(--color-calories-light);
+}
+
+.macroCellCalories .macroLabel {
+  color: var(--color-calories);
+}
+
 .macroLabel {
   color: #6b7280;
 }
 
 .macroValue {
   font-weight: 500;
+  color: var(--color-text);
 }
 
 .cancelButton {

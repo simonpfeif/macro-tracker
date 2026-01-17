@@ -33,33 +33,41 @@ export default function Dashboard() {
 
       {/* Quick Stats */}
       <div className={styles.statsGrid}>
-        <div className={styles.statCard}>
+        <div className={`${styles.statCard} ${styles.statCardStreak}`}>
           <div className={styles.statHeader}>
-            <TrendingUp className={styles.icon} />
+            <div className={styles.statIconWrapper}>
+              <TrendingUp className={styles.statIcon} />
+            </div>
             <span className={styles.statLabel}>Streak</span>
           </div>
           <p className={styles.statValue}>0 days</p>
         </div>
 
-        <div className={styles.statCard}>
+        <div className={`${styles.statCard} ${styles.statCardWeek}`}>
           <div className={styles.statHeader}>
-            <Calendar className={styles.icon} />
+            <div className={styles.statIconWrapper}>
+              <Calendar className={styles.statIcon} />
+            </div>
             <span className={styles.statLabel}>This Week</span>
           </div>
           <p className={styles.statValue}>0/7</p>
         </div>
 
-        <div className={styles.statCard}>
+        <div className={`${styles.statCard} ${styles.statCardGoal}`}>
           <div className={styles.statHeader}>
-            <Target className={styles.icon} />
+            <div className={styles.statIconWrapper}>
+              <Target className={styles.statIcon} />
+            </div>
             <span className={styles.statLabel}>Goal</span>
           </div>
           <p className={styles.statValue}>--</p>
         </div>
 
-        <div className={styles.statCard}>
+        <div className={`${styles.statCard} ${styles.statCardToday}`}>
           <div className={styles.statHeader}>
-            <UtensilsCrossed className={styles.icon} />
+            <div className={styles.statIconWrapper}>
+              <UtensilsCrossed className={styles.statIcon} />
+            </div>
             <span className={styles.statLabel}>Today</span>
           </div>
           <p className={styles.statValue}>0 cal</p>

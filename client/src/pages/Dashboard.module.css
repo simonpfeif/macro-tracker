@@ -1,12 +1,13 @@
 .page {
   min-height: 100vh;
-  background: #F5F1EB;
+  background: var(--color-bg);
 }
 
 .main {
-  padding: 1.5rem;
+  padding: 2rem 1.5rem;
   max-width: 72rem;
   margin: 0 auto;
+  animation: fadeIn var(--duration-slow) var(--ease-out);
 }
 
 .welcomeHeader {
@@ -14,13 +15,14 @@
 }
 
 .welcomeTitle {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--color-text);
+  letter-spacing: -0.02em;
 }
 
 .welcomeSubtitle {
-  color: #6b7280;
+  color: var(--color-text-secondary);
   margin-top: 0.25rem;
 }
 
@@ -38,43 +40,110 @@
 }
 
 .statCard {
-  background: #FFFEFA;
-  border-radius: 0.75rem;
-  padding: 1rem;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  background: var(--color-card);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  border-left: 3px solid var(--color-border);
+  transition: transform var(--duration-normal) var(--ease-out),
+              box-shadow var(--duration-normal) var(--ease-out);
+}
+
+.statCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Color-coded stat cards */
+.statCardStreak {
+  border-left-color: var(--color-orange);
+}
+
+.statCardStreak .statIconWrapper {
+  background: var(--color-orange-light);
+  color: var(--color-orange);
+}
+
+.statCardWeek {
+  border-left-color: var(--color-green);
+}
+
+.statCardWeek .statIconWrapper {
+  background: var(--color-green-light);
+  color: var(--color-green);
+}
+
+.statCardGoal {
+  border-left-color: var(--color-red);
+}
+
+.statCardGoal .statIconWrapper {
+  background: var(--color-red-light);
+  color: var(--color-red);
+}
+
+.statCardToday {
+  border-left-color: var(--color-yellow);
+}
+
+.statCardToday .statIconWrapper {
+  background: var(--color-yellow-light);
+  color: #B8A825;
 }
 
 .statHeader {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #6b7280;
   margin-bottom: 0.5rem;
+}
+
+.statIconWrapper {
+  background: var(--color-accent-light);
+  border-radius: var(--radius-sm);
+  padding: 0.375rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.statIcon {
+  width: 1rem;
+  height: 1rem;
 }
 
 .statLabel {
   font-size: 0.875rem;
+  color: var(--color-text-secondary);
 }
 
 .statValue {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--color-text);
 }
 
 .weightCard {
-  background: #FFFEFA;
-  border-radius: 0.75rem;
+  background: var(--color-card);
+  border-radius: var(--radius-md);
   padding: 1.5rem;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-sm);
   margin-bottom: 2rem;
+  transition: transform var(--duration-normal) var(--ease-out),
+              box-shadow var(--duration-normal) var(--ease-out);
+}
+
+.weightCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .weightTitle {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--color-text);
   margin-bottom: 1rem;
+  letter-spacing: -0.01em;
 }
 
 .weightPlaceholder {
@@ -91,17 +160,25 @@
 }
 
 .actionsCard {
-  background: #FFFEFA;
-  border-radius: 0.75rem;
+  background: var(--color-card);
+  border-radius: var(--radius-md);
   padding: 1.5rem;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--duration-normal) var(--ease-out),
+              box-shadow var(--duration-normal) var(--ease-out);
+}
+
+.actionsCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .actionsTitle {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--color-text);
   margin-bottom: 1rem;
+  letter-spacing: -0.01em;
 }
 
 .actionsGrid {

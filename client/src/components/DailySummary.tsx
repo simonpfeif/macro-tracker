@@ -20,15 +20,15 @@ export default function DailySummary({ calories, protein, carbs, fat }: DailySum
 
       {/* Macros */}
       <div className={styles.macrosContainer}>
-        <div className={styles.macroRow}>
+        <div className={`${styles.macroRow} ${styles.macroRowProtein}`}>
           <span className={styles.macroLabel}>Protein</span>
           <span className={styles.macroValue}>{Math.round(protein * 10) / 10}g</span>
         </div>
-        <div className={styles.macroRow}>
+        <div className={`${styles.macroRow} ${styles.macroRowCarbs}`}>
           <span className={styles.macroLabel}>Carbs</span>
           <span className={styles.macroValue}>{Math.round(carbs * 10) / 10}g</span>
         </div>
-        <div className={styles.macroRow}>
+        <div className={`${styles.macroRow} ${styles.macroRowFat}`}>
           <span className={styles.macroLabel}>Fat</span>
           <span className={styles.macroValue}>{Math.round(fat * 10) / 10}g</span>
         </div>

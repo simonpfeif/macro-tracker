@@ -1,18 +1,19 @@
 .page {
   min-height: 100vh;
-  background: #F5F1EB;
+  background: var(--color-bg);
 }
 
 .main {
-  padding: 1.5rem;
+  padding: 2rem 1.5rem;
   max-width: 42rem;
   margin: 0 auto;
+  animation: fadeIn var(--duration-slow) var(--ease-out);
 }
 
 .card {
-  background: #FFFEFA;
-  border-radius: 0.75rem;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  background: var(--color-card);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
   padding: 1.5rem;
 }
 

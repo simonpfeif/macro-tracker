@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Home, Calendar, UtensilsCrossed, Settings } from "lucide-react";
 import styles from "./Header.module.css";
-import logo from "/logo32.png";
+import logo from "/android-chrome-192x192.png";
 
 type PageType = "dashboard" | "calendar" | "log" | "foods" | "goals" | "settings";
 

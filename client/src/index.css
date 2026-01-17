@@ -11,6 +11,75 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* Color palette */
+  --color-accent: #D4886A;
+  --color-accent-hover: #C67A5E;
+  --color-accent-light: #FDF0E8;
+  --color-bg: #F5F1EB;
+  --color-card: #FFFEFA;
+  --color-border: #E8E6E3;
+  --color-text: #1f2937;
+  --color-text-secondary: #6b7280;
+  --color-text-muted: #9ca3af;
+
+  /* Logo-derived accent colors */
+  --color-orange: #F5A623;
+  --color-orange-light: #FEF3E2;
+  --color-yellow: #F7DC6F;
+  --color-yellow-light: #FEF9E7;
+  --color-green: #5D9E5A;
+  --color-green-light: #EDF7ED;
+  --color-red: #E85D5D;
+  --color-red-light: #FDEAEA;
+
+  /* Semantic macro colors */
+  --color-calories: var(--color-orange);
+  --color-calories-light: var(--color-orange-light);
+  --color-protein: var(--color-red);
+  --color-protein-light: var(--color-red-light);
+  --color-carbs: var(--color-yellow);
+  --color-carbs-light: var(--color-yellow-light);
+  --color-fat: var(--color-green);
+  --color-fat-light: var(--color-green-light);
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04),
+               0 2px 4px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.04),
+               0 8px 16px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 4px 6px rgba(0, 0, 0, 0.05),
+               0 12px 24px rgba(0, 0, 0, 0.12);
+
+  /* Timing */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+
+  /* Border radius */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+}
+
+/* Page fade-in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Loading pulse animation */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 
 a {

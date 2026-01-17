@@ -83,7 +83,8 @@
 .main {
   max-width: 72rem;
   margin: 0 auto;
-  padding: 1.5rem;
+  padding: 2rem 1.5rem;
+  animation: fadeIn var(--duration-slow) var(--ease-out);
 }
 
 .loading {
@@ -94,14 +95,14 @@
 
 .content {
   display: flex;
-  gap: 1.5rem;
+  gap: 2rem;
 }
 
 .mealsColumn {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.25rem;
   flex-basis: 66.666%;
 }
 
@@ -111,10 +112,10 @@
 }
 
 .addMealCard {
-  background: #FFFEFA;
-  border-radius: 0.5rem;
-  border: 1px solid #E8E6E3;
-  padding: 1rem;
+  background: var(--color-card);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
 }
 
 .addMealForm {
