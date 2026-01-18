@@ -7,23 +7,29 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header/Header";
 import AddFoodModal from "@/components/AddFoodModal";
-import type { FoodItem } from "@/types";
+import AddMealModal from "@/components/AddMealModal";
+import type { FoodItem, MealTemplate, Food } from "@/types";
 import {
   getAllFoods,
   saveCustomFood,
   deleteCustomFood,
   searchFoods,
+  getMealTemplates,
+  saveMealTemplate,
+  deleteMealTemplate,
 } from "@/services/db";
 import styles from "./Foods.module.css";
 
 export default function Foods() {
   const [user, setUser] = useState<User | null>(null);
   const [foods, setFoods] = useState<FoodItem[]>([]);
+  const [mealTemplates, setMealTemplates] = useState<MealTemplate[]>([]);
   const [filteredFoods, setFilteredFoods] = useState<FoodItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<"all" | "custom" | "common">("all");
+  const [isMealModalOpen, setIsMealModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<"all" | "custom" | "common" | "meals">("all");
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -45,9 +51,20 @@ export default function Foods() {
     }
   }, [user]);
 
+  const loadMealTemplates = useCallback(async () => {
+    if (!user) return;
+    try {
+      const templates = await getMealTemplates(user.uid);
+      setMealTemplates(templates);
+    } catch (error) {
+      console.error("Error loading meal templates:", error);
+    }
+  }, [user]);
+
   useEffect(() => {
     loadFoods();
-  }, [loadFoods]);
+    loadMealTemplates();
+  }, [loadFoods, loadMealTemplates]);
 
   // Filter foods based on search and tab
   useEffect(() => {
@@ -100,6 +117,32 @@ export default function Foods() {
     }
   };
 
+  const handleSaveMeal = async (name: string, mealFoods: Food[]) => {
+    if (!user) return;
+    try {
+      const templateId = await saveMealTemplate(user.uid, { name, foods: mealFoods });
+      const newTemplate: MealTemplate = {
+        id: templateId,
+        name,
+        foods: mealFoods,
+        createdAt: new Date(),
+      };
+      setMealTemplates((prev) => [newTemplate, ...prev]);
+    } catch (error) {
+      console.error("Error saving meal template:", error);
+    }
+  };
+
+  const handleDeleteMealTemplate = async (templateId: string) => {
+    if (!user) return;
+    try {
+      await deleteMealTemplate(user.uid, templateId);
+      setMealTemplates((prev) => prev.filter((t) => t.id !== templateId));
+    } catch (error) {
+      console.error("Error deleting meal template:", error);
+    }
+  };
+
   const customCount = foods.filter((f) => f.source === "custom").length;
   const commonCount = foods.filter((f) => f.source === "common").length;
 
@@ -110,10 +153,16 @@ export default function Foods() {
       <main className={styles.main}>
         <div className={styles.topBar}>
           <h2 className={styles.pageTitle}>Food Database</h2>
-          <Button className={styles.addButton} onClick={() => setIsModalOpen(true)}>
-            <Plus className={styles.icon} />
-            Add Food
-          </Button>
+          <div className={styles.topBarButtons}>
+            <Button variant="outline" className={styles.addButton} onClick={() => setIsMealModalOpen(true)}>
+              <Plus className={styles.icon} />
+              Add Meal
+            </Button>
+            <Button className={styles.addButton} onClick={() => setIsModalOpen(true)}>
+              <Plus className={styles.icon} />
+              Add Food
+            </Button>
+          </div>
         </div>
 
         {/* Search */}
@@ -148,13 +197,72 @@ export default function Foods() {
           >
             Common ({commonCount})
           </button>
+          <button
+            onClick={() => setActiveTab("meals")}
+            className={`${styles.tab} ${activeTab === "meals" ? styles.tabActive : ""}`}
+          >
+            Meals ({mealTemplates.length})
+          </button>
         </div>
 
-        {/* Food List */}
+        {/* Content */}
         {loading ? (
           <div className={styles.emptyState}>
-            <p className={styles.loadingText}>Loading foods...</p>
+            <p className={styles.loadingText}>Loading...</p>
           </div>
+        ) : activeTab === "meals" ? (
+          // Meals Tab Content
+          mealTemplates.length === 0 ? (
+            <div className={styles.emptyState}>
+              <div className={styles.emptyIcon}>
+                <Search className={styles.emptyIconInner} />
+              </div>
+              <h3 className={styles.emptyTitle}>No meal templates yet</h3>
+              <p className={styles.emptyText}>
+                Create meal templates to quickly log your favorite meals.
+              </p>
+              <Button className={styles.addButton} onClick={() => setIsMealModalOpen(true)}>
+                <Plus className={styles.icon} />
+                Create Your First Meal
+              </Button>
+            </div>
+          ) : (
+            <div className={styles.foodList}>
+              {mealTemplates.map((template) => {
+                const totals = template.foods.reduce(
+                  (acc, f) => ({
+                    calories: acc.calories + f.calories,
+                    protein: acc.protein + f.protein,
+                    carbs: acc.carbs + f.carbs,
+                    fat: acc.fat + f.fat,
+                  }),
+                  { calories: 0, protein: 0, carbs: 0, fat: 0 }
+                );
+                return (
+                  <div key={template.id} className={styles.foodItem}>
+                    <div className={styles.foodInfo}>
+                      <div className={styles.foodHeader}>
+                        <h3 className={styles.foodName}>{template.name}</h3>
+                        <span className={styles.mealBadge}>Meal</span>
+                      </div>
+                      <p className={styles.foodServing}>
+                        {template.foods.length} food{template.foods.length !== 1 ? "s" : ""}
+                      </p>
+                      <p className={styles.foodMacros}>
+                        {totals.calories} cal - {totals.protein}g P - {totals.carbs}g C - {totals.fat}g F
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => handleDeleteMealTemplate(template.id)}
+                      className={styles.deleteButton}
+                    >
+                      <Trash2 className={styles.icon} />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )
         ) : filteredFoods.length === 0 ? (
           <div className={styles.emptyState}>
             <div className={styles.emptyIcon}>
@@ -187,10 +295,10 @@ export default function Foods() {
                     )}
                   </div>
                   <p className={styles.foodServing}>
-                    {food.servingSize} · {food.category}
+                    {food.servingSize} - {food.category}
                   </p>
                   <p className={styles.foodMacros}>
-                    {food.calories} cal · {food.protein}g P · {food.carbs}g C · {food.fat}g F
+                    {food.calories} cal - {food.protein}g P - {food.carbs}g C - {food.fat}g F
                   </p>
                 </div>
 
@@ -211,6 +319,13 @@ export default function Foods() {
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           onSave={handleSaveFood}
+        />
+
+        <AddMealModal
+          isOpen={isMealModalOpen}
+          onClose={() => setIsMealModalOpen(false)}
+          onSave={handleSaveMeal}
+          availableFoods={foods}
         />
       </main>
     </div>

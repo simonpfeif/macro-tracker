@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Home, Calendar, UtensilsCrossed, Settings } from "lucide-react";
+import { Home, Calendar, UtensilsCrossed, Settings, Pizza } from "lucide-react";
 import styles from "./Header.module.css";
 import logo from "/android-chrome-192x192.png";
 
@@ -16,21 +16,12 @@ const navConfig: Record<string, { to: string; icon: typeof Home; label: string }
   dashboard: { to: "/", icon: Home, label: "Dashboard" },
   calendar: { to: "/calendar", icon: Calendar, label: "Calendar" },
   log: { to: "/log", icon: UtensilsCrossed, label: "Log" },
+  foods: { to: "/foods", icon: Pizza, label: "Foods" },
   settings: { to: "/settings", icon: Settings, label: "Settings" },
 };
 
-// Define which icons to show for each page (excluding current page)
-const pageNavIcons: Record<PageType, string[]> = {
-  dashboard: ["log", "calendar", "settings"],
-  calendar: ["dashboard", "log", "settings"],
-  log: ["dashboard", "calendar", "settings"],
-  foods: ["dashboard", "log", "settings"],
-  goals: ["dashboard", "log", "settings"],
-  settings: ["dashboard", "log", "calendar"],
-};
-
 export default function Header({ title, subtitle, leftContent, currentPage }: HeaderProps) {
-  const iconsToShow = pageNavIcons[currentPage] || [];
+  const iconsToShow = Object.keys(navConfig);
 
   return (
     <header className={styles.header}>

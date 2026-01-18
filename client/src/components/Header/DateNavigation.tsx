@@ -10,7 +10,7 @@ type DateNavigationProps = {
 };
 
 export default function DateNavigation({
-  selectedDate,
+  selectedDate: _selectedDate,
   isToday,
   formattedDate,
   onPrevDay,

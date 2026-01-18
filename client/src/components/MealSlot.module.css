@@ -21,10 +21,64 @@
   border-bottom: 1px solid var(--color-border);
 }
 
+.titleContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .title {
   font-weight: 600;
   color: var(--color-text);
   letter-spacing: -0.01em;
+}
+
+.editButton {
+  opacity: 0;
+  color: #9ca3af;
+  padding: 0.25rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s, color 0.2s;
+}
+
+.titleContainer:hover .editButton {
+  opacity: 1;
+}
+
+.editButton:hover {
+  color: #4b5563;
+}
+
+.editContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.editInput {
+  flex: 1;
+  height: 2rem;
+  font-weight: 600;
+}
+
+.editActionButton {
+  color: #9ca3af;
+  padding: 0.25rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.editActionButton:hover {
+  color: #4b5563;
+}
+
+.editActionButton:first-of-type:hover {
+  color: #10b981;
 }
 
 .headerRight {
@@ -36,6 +90,32 @@
 .caloriesBadge {
   font-size: 0.875rem;
   color: #6b7280;
+}
+
+.saveButton {
+  color: #9ca3af;
+  padding: 0.25rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.saveButton:hover {
+  color: #D4886A;
+}
+
+.saveButtonSaved {
+  color: #D4886A;
+  padding: 0.25rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.saveButtonSaved:hover {
+  color: #C67A5E;
 }
 
 .deleteButton {

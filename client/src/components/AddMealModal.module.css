@@ -1,0 +1,286 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 1rem;
+}
+
+.modal {
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 32rem;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.closeButton {
+  color: #9ca3af;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  transition: color 0.2s;
+}
+
+.closeButton:hover {
+  color: #4b5563;
+}
+
+.form {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.searchContainer {
+  position: relative;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1rem;
+  height: 1rem;
+  color: #9ca3af;
+}
+
+.searchInput {
+  padding-left: 2.5rem;
+}
+
+.searchResults {
+  background: #FFFEFA;
+  border: 1px solid #E8E6E3;
+  border-radius: 0.5rem;
+  max-height: 12rem;
+  overflow-y: auto;
+  margin-top: 0.5rem;
+}
+
+.searchResultItem {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #F5F3F0;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.searchResultItem:last-child {
+  border-bottom: none;
+}
+
+.searchResultItem:hover {
+  background: #F5F1EB;
+}
+
+.searchResultName {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.searchResultDetails {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.selectedFood {
+  background: #F5F1EB;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.selectedFoodInfo {
+  margin-bottom: 0.5rem;
+}
+
+.selectedFoodName {
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.selectedFoodServing {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.servingsRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.servingsLabel {
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.servingsInput {
+  width: 5rem;
+  height: 2rem;
+}
+
+.previewMacros {
+  display: flex;
+  gap: 0.75rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-bottom: 0.75rem;
+}
+
+.selectedFoodActions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.cancelButton {
+  font-size: 0.875rem;
+  color: #6b7280;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.cancelButton:hover {
+  color: #374151;
+}
+
+.foodsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.foodsListItems {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.foodItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  background: #F5F1EB;
+  border-radius: 0.25rem;
+}
+
+.foodItemInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.foodName {
+  font-size: 0.875rem;
+  color: #1f2937;
+}
+
+.foodCalories {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.removeButton {
+  color: #9ca3af;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  transition: color 0.2s;
+}
+
+.removeButton:hover {
+  color: #ef4444;
+}
+
+.totals {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem;
+  background: #FFFEFA;
+  border: 1px solid #E8E6E3;
+  border-radius: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.totalsLabel {
+  font-weight: 500;
+  color: #374151;
+}
+
+.totalsValues {
+  display: flex;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.totalCalories {
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+}
+
+.actions button {
+  flex: 1;
+}
+
+.icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.iconSmall {
+  width: 1rem;
+  height: 1rem;
+}

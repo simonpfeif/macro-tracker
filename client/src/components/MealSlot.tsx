@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Trash2, X, Search } from "lucide-react";
+import { Plus, Trash2, X, Search, Pencil, Check, Bookmark, BookmarkCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { Food, FoodItem } from "@/types";
@@ -12,6 +12,9 @@ type MealSlotProps = {
   onAddFood: (food: Food) => void;
   onRemoveFood: (index: number) => void;
   onDelete?: () => void; // Only for custom meals
+  onRename?: (newName: string) => void;
+  onSaveAsTemplate?: () => void;
+  isSavedAsTemplate?: boolean;
   isCustom?: boolean;
 };
 
@@ -22,12 +25,17 @@ export default function MealSlot({
   onAddFood,
   onRemoveFood,
   onDelete,
+  onRename,
+  onSaveAsTemplate,
+  isSavedAsTemplate = false,
   isCustom = false,
 }: MealSlotProps) {
   const [isAdding, setIsAdding] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFood, setSelectedFood] = useState<FoodItem | null>(null);
   const [servings, setServings] = useState("1");
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedName, setEditedName] = useState(name);
 
   const filteredFoods = searchQuery.trim()
     ? availableFoods
@@ -77,16 +85,76 @@ export default function MealSlot({
     setServings("1");
   };
 
+  const handleRename = () => {
+    if (!editedName.trim() || editedName.trim() === name) {
+      setIsEditing(false);
+      setEditedName(name);
+      return;
+    }
+    onRename?.(editedName.trim());
+    setIsEditing(false);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditedName(name);
+  };
+
   const multiplier = parseFloat(servings) || 1;
 
   return (
     <div className={styles.card}>
       {/* Header */}
       <div className={styles.header}>
-        <h3 className={styles.title}>{name}</h3>
+        {isEditing ? (
+          <div className={styles.editContainer}>
+            <Input
+              type="text"
+              value={editedName}
+              onChange={(e) => setEditedName(e.target.value)}
+              className={styles.editInput}
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleRename();
+                if (e.key === "Escape") handleCancelEdit();
+              }}
+            />
+            <button onClick={handleRename} className={styles.editActionButton}>
+              <Check className={styles.icon} />
+            </button>
+            <button onClick={handleCancelEdit} className={styles.editActionButton}>
+              <X className={styles.icon} />
+            </button>
+          </div>
+        ) : (
+          <div className={styles.titleContainer}>
+            <h3 className={styles.title}>{name}</h3>
+            {onRename && (
+              <button
+                onClick={() => setIsEditing(true)}
+                className={styles.editButton}
+              >
+                <Pencil className={styles.icon} />
+              </button>
+            )}
+          </div>
+        )}
         <div className={styles.headerRight}>
           {foods.length > 0 && (
             <span className={styles.caloriesBadge}>{totals.calories} cal</span>
+          )}
+          {foods.length > 0 && onSaveAsTemplate && (
+            <button
+              onClick={onSaveAsTemplate}
+              className={isSavedAsTemplate ? styles.saveButtonSaved : styles.saveButton}
+              title={isSavedAsTemplate ? "Saved as template" : "Save as template"}
+            >
+              {isSavedAsTemplate ? (
+                <BookmarkCheck className={styles.icon} />
+              ) : (
+                <Bookmark className={styles.icon} />
+              )}
+            </button>
           )}
           {isCustom && onDelete && (
             <button

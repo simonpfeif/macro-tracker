@@ -10,6 +10,8 @@ import {
   deleteMeal,
   getTodayDate,
   getAllFoods,
+  saveMealTemplate,
+  getMealTemplates,
 } from "@/services/db";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,8 +22,6 @@ import MealSlot from "@/components/MealSlot";
 import DailySummary from "@/components/DailySummary";
 import styles from "./DailyLog.module.css";
 
-const DEFAULT_MEALS = ["Breakfast", "Lunch", "Dinner"];
-
 export default function DailyLog() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [user, setUser] = useState<User | null>(null);
@@ -30,6 +30,8 @@ export default function DailyLog() {
   const [loading, setLoading] = useState(true);
   const [isAddingMeal, setIsAddingMeal] = useState(false);
   const [newMealName, setNewMealName] = useState("");
+  const [savedToast, setSavedToast] = useState<string | null>(null);
+  const [savedTemplateNames, setSavedTemplateNames] = useState<Set<string>>(new Set());
 
   const selectedDate = searchParams.get("date") || getTodayDate();
   const isToday = selectedDate === getTodayDate();
@@ -72,6 +74,17 @@ export default function DailyLog() {
     }
   }, [user]);
 
+  const loadMealTemplates = useCallback(async () => {
+    if (!user) return;
+    try {
+      const templates = await getMealTemplates(user.uid);
+      const names = new Set(templates.map((t) => t.name));
+      setSavedTemplateNames(names);
+    } catch (error) {
+      console.error("Error loading meal templates:", error);
+    }
+  }, [user]);
+
   useEffect(() => {
     loadMeals();
   }, [loadMeals]);
@@ -79,6 +92,10 @@ export default function DailyLog() {
   useEffect(() => {
     loadFoods();
   }, [loadFoods]);
+
+  useEffect(() => {
+    loadMealTemplates();
+  }, [loadMealTemplates]);
 
   // Get meal by name or return undefined
   const getMealByName = (name: string) => meals.find((m) => m.name === name);
@@ -166,16 +183,58 @@ export default function DailyLog() {
   };
 
   // Add custom meal
-  const handleAddCustomMeal = () => {
-    if (!newMealName.trim()) return;
-    // The meal will be created when user adds first food
-    // For now, just close the input
+  const handleAddCustomMeal = async () => {
+    if (!newMealName.trim() || !user) return;
+    const newId = await saveMeal(user.uid, {
+      name: newMealName.trim(),
+      foods: [],
+      date: selectedDate,
+    });
+    setMeals((prev) => [
+      ...prev,
+      { id: newId, name: newMealName.trim(), foods: [], date: selectedDate, createdAt: new Date() },
+    ]);
     setIsAddingMeal(false);
     setNewMealName("");
   };
 
-  // Get custom meals (meals that aren't Breakfast, Lunch, Dinner)
-  const customMeals = meals.filter((m) => !DEFAULT_MEALS.includes(m.name));
+  // Rename a meal
+  const handleRenameMeal = async (oldName: string, newName: string) => {
+    if (!user) return;
+
+    const existingMeal = getMealByName(oldName);
+    if (!existingMeal) return;
+
+    // Delete old and save with new name
+    await deleteMeal(user.uid, existingMeal.id);
+    const newId = await saveMeal(user.uid, {
+      name: newName,
+      foods: existingMeal.foods,
+      date: selectedDate,
+    });
+    setMeals((prev) =>
+      prev.map((m) =>
+        m.id === existingMeal.id ? { ...m, id: newId, name: newName } : m
+      )
+    );
+  };
+
+  // Save meal as template
+  const handleSaveAsTemplate = async (mealName: string) => {
+    if (!user) return;
+
+    const meal = getMealByName(mealName);
+    if (!meal || meal.foods.length === 0) return;
+
+    await saveMealTemplate(user.uid, {
+      name: meal.name,
+      foods: meal.foods,
+    });
+
+    setSavedTemplateNames((prev) => new Set(prev).add(meal.name));
+    setSavedToast(mealName);
+    setTimeout(() => setSavedToast(null), 2000);
+  };
 
   // Calculate daily totals
   const dailyTotals = meals.reduce(
@@ -235,23 +294,8 @@ export default function DailyLog() {
           <div className={styles.content}>
             {/* Left Column - Meals (2/3) */}
             <div className={styles.mealsColumn}>
-              {/* Default Meals */}
-              {DEFAULT_MEALS.map((mealName) => {
-                const meal = getMealByName(mealName);
-                return (
-                  <MealSlot
-                    key={mealName}
-                    name={mealName}
-                    foods={meal?.foods || []}
-                    availableFoods={availableFoods}
-                    onAddFood={(food) => handleAddFood(mealName, food)}
-                    onRemoveFood={(index) => handleRemoveFood(mealName, index)}
-                  />
-                );
-              })}
-
-              {/* Custom Meals */}
-              {customMeals.map((meal) => (
+              {/* Meals */}
+              {meals.map((meal) => (
                 <MealSlot
                   key={meal.id}
                   name={meal.name}
@@ -260,6 +304,9 @@ export default function DailyLog() {
                   onAddFood={(food) => handleAddFood(meal.name, food)}
                   onRemoveFood={(index) => handleRemoveFood(meal.name, index)}
                   onDelete={() => handleDeleteMeal(meal.name)}
+                  onRename={(newName) => handleRenameMeal(meal.name, newName)}
+                  onSaveAsTemplate={() => handleSaveAsTemplate(meal.name)}
+                  isSavedAsTemplate={savedTemplateNames.has(meal.name)}
                   isCustom
                 />
               ))}
@@ -306,6 +353,13 @@ export default function DailyLog() {
           </div>
         )}
       </main>
+
+      {/* Toast notification */}
+      {savedToast && (
+        <div className={styles.toast}>
+          Saved "{savedToast}" as template!
+        </div>
+      )}
     </div>
   );
 }
