@@ -1,0 +1,234 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 1rem;
+}
+
+.modal {
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 28rem;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #e5e7eb;
+  gap: 0.5rem;
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  flex: 1;
+}
+
+.backButton {
+  color: #6b7280;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  transition: color 0.2s;
+  margin-right: 0.25rem;
+}
+
+.backButton:hover {
+  color: #374151;
+}
+
+.closeButton {
+  color: #9ca3af;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  transition: color 0.2s;
+}
+
+.closeButton:hover {
+  color: #4b5563;
+}
+
+.icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.iconSmall {
+  width: 1rem;
+  height: 1rem;
+}
+
+.content {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.foodPreview {
+  background: #F5F1EB;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+}
+
+.foodInfo {
+  margin-bottom: 0.5rem;
+}
+
+.foodName {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.foodServing {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.servingsRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.servingsLabel {
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.servingsInput {
+  width: 5rem;
+  height: 2rem;
+}
+
+.macros {
+  display: flex;
+  gap: 0.75rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.calories {
+  font-weight: 500;
+  color: #374151;
+}
+
+.dateSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mealSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: #6b7280;
+}
+
+.mealList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mealItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: #FFFEFA;
+  border: 1px solid #E8E6E3;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+  text-align: left;
+}
+
+.mealItem:hover:not(:disabled) {
+  background: #F5F1EB;
+  border-color: #d1d5db;
+}
+
+.mealItem:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.mealItemInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.mealItemName {
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.mealItemCalories {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.newMealButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: transparent;
+  border: 2px dashed #d1d5db;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  color: #6b7280;
+  font-size: 0.875rem;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.newMealButton:hover {
+  border-color: #22c55e;
+  color: #22c55e;
+}
+
+.newMealForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: #FFFEFA;
+  border: 1px solid #E8E6E3;
+  border-radius: 0.5rem;
+}
+
+.newMealActions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}

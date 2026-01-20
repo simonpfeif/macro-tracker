@@ -233,6 +233,10 @@
   background: #F5F1EB;
 }
 
+.searchResultItemHighlighted {
+  background: #F5F1EB;
+}
+
 .searchResultName {
   font-size: 0.875rem;
   font-weight: 500;
@@ -260,6 +264,24 @@
 
 .selectedFoodInfo {
   flex: 1;
+}
+
+.selectedFoodActions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.confirmButton {
+  color: #9ca3af;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.confirmButton:hover {
+  color: #10b981;
 }
 
 .selectedFoodName {

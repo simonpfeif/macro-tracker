@@ -20,7 +20,7 @@ const navConfig: Record<string, { to: string; icon: typeof Home; label: string }
   settings: { to: "/settings", icon: Settings, label: "Settings" },
 };
 
-export default function Header({ title, subtitle, leftContent, currentPage }: HeaderProps) {
+export default function Header({ title, subtitle, leftContent, currentPage: _currentPage }: HeaderProps) {
   const iconsToShow = Object.keys(navConfig);
 
   return (

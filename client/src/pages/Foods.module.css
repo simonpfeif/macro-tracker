@@ -189,6 +189,25 @@
   margin-top: 0.25rem;
 }
 
+.itemActions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.addToLogButton {
+  color: #9ca3af;
+  padding: 0.5rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.addToLogButton:hover {
+  color: #22c55e;
+}
+
 .deleteButton {
   color: #9ca3af;
   padding: 0.5rem;

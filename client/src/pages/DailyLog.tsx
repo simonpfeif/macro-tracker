@@ -100,47 +100,73 @@ export default function DailyLog() {
   // Get meal by name or return undefined
   const getMealByName = (name: string) => meals.find((m) => m.name === name);
 
-  // Add food to a meal (create meal if doesn't exist)
+  // Add food to a meal (create meal if doesn't exist) - optimistic update
   const handleAddFood = async (mealName: string, food: Food) => {
     if (!user) return;
 
     const existingMeal = getMealByName(mealName);
+    const previousMeals = meals; // Save for rollback
 
     if (existingMeal) {
-      // Update existing meal
       const updatedFoods = [...existingMeal.foods, food];
-      await deleteMeal(user.uid, existingMeal.id);
-      const newId = await saveMeal(user.uid, {
-        name: mealName,
-        foods: updatedFoods,
-        date: selectedDate,
-      });
+
+      // Optimistic: Update foods in UI immediately
       setMeals((prev) =>
         prev.map((m) =>
-          m.id === existingMeal.id
-            ? { ...m, id: newId, foods: updatedFoods }
-            : m
+          m.id === existingMeal.id ? { ...m, foods: updatedFoods } : m
         )
       );
+
+      // Database call in background
+      try {
+        await deleteMeal(user.uid, existingMeal.id);
+        const newId = await saveMeal(user.uid, {
+          name: mealName,
+          foods: updatedFoods,
+          date: selectedDate,
+        });
+        setMeals((prev) =>
+          prev.map((m) =>
+            m.id === existingMeal.id ? { ...m, id: newId } : m
+          )
+        );
+      } catch (error) {
+        console.error("Failed to add food:", error);
+        setMeals(previousMeals); // Rollback on error
+      }
     } else {
-      // Create new meal
-      const newId = await saveMeal(user.uid, {
-        name: mealName,
-        foods: [food],
-        date: selectedDate,
-      });
+      // New meal - generate temp ID for optimistic UI
+      const tempId = `temp-${Date.now()}`;
       const newMeal: Meal = {
-        id: newId,
+        id: tempId,
         name: mealName,
         foods: [food],
         date: selectedDate,
         createdAt: new Date(),
       };
+
+      // Optimistic: Add new meal to UI immediately
       setMeals((prev) => [...prev, newMeal]);
+
+      // Database call in background
+      try {
+        const realId = await saveMeal(user.uid, {
+          name: mealName,
+          foods: [food],
+          date: selectedDate,
+        });
+        // Replace temp ID with real ID
+        setMeals((prev) =>
+          prev.map((m) => (m.id === tempId ? { ...m, id: realId } : m))
+        );
+      } catch (error) {
+        console.error("Failed to create meal:", error);
+        setMeals(previousMeals); // Rollback on error
+      }
     }
   };
 
-  // Remove food from a meal
+  // Remove food from a meal (optimistic update)
   const handleRemoveFood = async (mealName: string, foodIndex: number) => {
     if (!user) return;
 
@@ -148,54 +174,98 @@ export default function DailyLog() {
     if (!existingMeal) return;
 
     const updatedFoods = existingMeal.foods.filter((_, i) => i !== foodIndex);
+    const previousMeals = meals; // Save for rollback
 
     if (updatedFoods.length === 0) {
-      // Delete meal if no foods left
-      await deleteMeal(user.uid, existingMeal.id);
+      // Optimistic: Remove meal from UI immediately
       setMeals((prev) => prev.filter((m) => m.id !== existingMeal.id));
+
+      // Database call in background
+      try {
+        await deleteMeal(user.uid, existingMeal.id);
+      } catch (error) {
+        console.error("Failed to delete meal:", error);
+        setMeals(previousMeals); // Rollback on error
+      }
     } else {
-      // Update meal
-      await deleteMeal(user.uid, existingMeal.id);
-      const newId = await saveMeal(user.uid, {
-        name: mealName,
-        foods: updatedFoods,
-        date: selectedDate,
-      });
+      // Optimistic: Update foods in UI immediately
       setMeals((prev) =>
         prev.map((m) =>
-          m.id === existingMeal.id
-            ? { ...m, id: newId, foods: updatedFoods }
-            : m
+          m.id === existingMeal.id ? { ...m, foods: updatedFoods } : m
         )
       );
+
+      // Database call in background
+      try {
+        await deleteMeal(user.uid, existingMeal.id);
+        const newId = await saveMeal(user.uid, {
+          name: mealName,
+          foods: updatedFoods,
+          date: selectedDate,
+        });
+        // Update with real ID (silent, no visual change)
+        setMeals((prev) =>
+          prev.map((m) =>
+            m.id === existingMeal.id ? { ...m, id: newId } : m
+          )
+        );
+      } catch (error) {
+        console.error("Failed to update meal:", error);
+        setMeals(previousMeals); // Rollback on error
+      }
     }
   };
 
-  // Delete entire custom meal
+  // Delete entire custom meal (optimistic update)
   const handleDeleteMeal = async (mealName: string) => {
     if (!user) return;
 
     const existingMeal = getMealByName(mealName);
     if (!existingMeal) return;
 
-    await deleteMeal(user.uid, existingMeal.id);
+    const previousMeals = meals; // Save for rollback
+
+    // Optimistic: Remove meal from UI immediately
     setMeals((prev) => prev.filter((m) => m.id !== existingMeal.id));
+
+    // Database call in background
+    try {
+      await deleteMeal(user.uid, existingMeal.id);
+    } catch (error) {
+      console.error("Failed to delete meal:", error);
+      setMeals(previousMeals); // Rollback on error
+    }
   };
 
   // Add custom meal
   const handleAddCustomMeal = async () => {
     if (!newMealName.trim() || !user) return;
-    const newId = await saveMeal(user.uid, {
-      name: newMealName.trim(),
-      foods: [],
-      date: selectedDate,
-    });
+
+    const tempId = `temp-${Date.now()}`;
+    const trimmedName = newMealName.trim();
+
+    // Optimistic: Add meal to UI immediately
     setMeals((prev) => [
       ...prev,
-      { id: newId, name: newMealName.trim(), foods: [], date: selectedDate, createdAt: new Date() },
+      { id: tempId, name: trimmedName, foods: [], date: selectedDate, createdAt: new Date() },
     ]);
     setIsAddingMeal(false);
     setNewMealName("");
+
+    // Database call in background
+    try {
+      const realId = await saveMeal(user.uid, {
+        name: trimmedName,
+        foods: [],
+        date: selectedDate,
+      });
+      setMeals((prev) =>
+        prev.map((m) => (m.id === tempId ? { ...m, id: realId } : m))
+      );
+    } catch (error) {
+      console.error("Failed to create meal:", error);
+      setMeals((prev) => prev.filter((m) => m.id !== tempId));
+    }
   };
 
   // Rename a meal
@@ -205,18 +275,32 @@ export default function DailyLog() {
     const existingMeal = getMealByName(oldName);
     if (!existingMeal) return;
 
-    // Delete old and save with new name
-    await deleteMeal(user.uid, existingMeal.id);
-    const newId = await saveMeal(user.uid, {
-      name: newName,
-      foods: existingMeal.foods,
-      date: selectedDate,
-    });
+    const previousMeals = meals;
+
+    // Optimistic: Update name in UI immediately
     setMeals((prev) =>
       prev.map((m) =>
-        m.id === existingMeal.id ? { ...m, id: newId, name: newName } : m
+        m.id === existingMeal.id ? { ...m, name: newName } : m
       )
     );
+
+    // Database call in background
+    try {
+      await deleteMeal(user.uid, existingMeal.id);
+      const newId = await saveMeal(user.uid, {
+        name: newName,
+        foods: existingMeal.foods,
+        date: selectedDate,
+      });
+      setMeals((prev) =>
+        prev.map((m) =>
+          m.id === existingMeal.id ? { ...m, id: newId } : m
+        )
+      );
+    } catch (error) {
+      console.error("Failed to rename meal:", error);
+      setMeals(previousMeals);
+    }
   };
 
   // Save meal as template
@@ -226,14 +310,23 @@ export default function DailyLog() {
     const meal = getMealByName(mealName);
     if (!meal || meal.foods.length === 0) return;
 
-    await saveMealTemplate(user.uid, {
-      name: meal.name,
-      foods: meal.foods,
-    });
+    const previousTemplateNames = savedTemplateNames;
 
+    // Optimistic: Update UI immediately
     setSavedTemplateNames((prev) => new Set(prev).add(meal.name));
     setSavedToast(mealName);
     setTimeout(() => setSavedToast(null), 2000);
+
+    // Database call in background
+    try {
+      await saveMealTemplate(user.uid, {
+        name: meal.name,
+        foods: meal.foods,
+      });
+    } catch (error) {
+      console.error("Failed to save template:", error);
+      setSavedTemplateNames(previousTemplateNames);
+    }
   };
 
   // Calculate daily totals
@@ -320,6 +413,15 @@ export default function DailyLog() {
                       placeholder="Meal name (e.g., Snack)"
                       value={newMealName}
                       onChange={(e) => setNewMealName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && newMealName.trim()) {
+                          handleAddCustomMeal();
+                        }
+                        if (e.key === "Escape") {
+                          setIsAddingMeal(false);
+                          setNewMealName("");
+                        }
+                      }}
                       autoFocus
                     />
                     <Button onClick={handleAddCustomMeal} disabled={!newMealName.trim()}>

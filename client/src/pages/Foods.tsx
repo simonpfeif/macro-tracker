@@ -2,12 +2,14 @@ import { useEffect, useState, useCallback } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import type { User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import { Search, Plus, Trash2 } from "lucide-react";
+import { Search, Plus, Trash2, CalendarPlus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header/Header";
 import AddFoodModal from "@/components/AddFoodModal";
 import AddMealModal from "@/components/AddMealModal";
+import AddMealToLogModal from "@/components/AddMealToLogModal/AddMealToLogModal";
+import AddFoodToLogModal from "@/components/AddFoodToLogModal/AddFoodToLogModal";
 import type { FoodItem, MealTemplate, Food } from "@/types";
 import {
   getAllFoods,
@@ -17,6 +19,7 @@ import {
   getMealTemplates,
   saveMealTemplate,
   deleteMealTemplate,
+  saveMeal,
 } from "@/services/db";
 import styles from "./Foods.module.css";
 
@@ -29,6 +32,10 @@ export default function Foods() {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMealModalOpen, setIsMealModalOpen] = useState(false);
+  const [isMealToLogModalOpen, setIsMealToLogModalOpen] = useState(false);
+  const [isFoodToLogModalOpen, setIsFoodToLogModalOpen] = useState(false);
+  const [selectedMealTemplate, setSelectedMealTemplate] = useState<MealTemplate | null>(null);
+  const [selectedFood, setSelectedFood] = useState<FoodItem | null>(null);
   const [activeTab, setActiveTab] = useState<"all" | "custom" | "common" | "meals">("all");
 
   useEffect(() => {
@@ -93,53 +100,116 @@ export default function Foods() {
     category: string;
   }) => {
     if (!user) return;
+
+    const tempId = `temp-${Date.now()}`;
+    const newFood: FoodItem = {
+      id: tempId,
+      ...foodData,
+      source: "custom",
+      createdAt: new Date(),
+    };
+
+    // Optimistic: Add food to UI immediately
+    setFoods((prev) => [...prev, newFood].sort((a, b) => a.name.localeCompare(b.name)));
+
+    // Database call in background
     try {
       const foodId = await saveCustomFood(user.uid, foodData);
-      const newFood: FoodItem = {
-        id: foodId,
-        ...foodData,
-        source: "custom",
-        createdAt: new Date(),
-      };
-      setFoods((prev) => [...prev, newFood].sort((a, b) => a.name.localeCompare(b.name)));
+      setFoods((prev) =>
+        prev.map((f) => (f.id === tempId ? { ...f, id: foodId } : f))
+      );
     } catch (error) {
       console.error("Error saving food:", error);
+      setFoods((prev) => prev.filter((f) => f.id !== tempId));
     }
   };
 
   const handleDeleteFood = async (foodId: string) => {
     if (!user) return;
+
+    const previousFoods = foods;
+
+    // Optimistic: Remove food from UI immediately
+    setFoods((prev) => prev.filter((f) => f.id !== foodId));
+
+    // Database call in background
     try {
       await deleteCustomFood(user.uid, foodId);
-      setFoods((prev) => prev.filter((f) => f.id !== foodId));
     } catch (error) {
       console.error("Error deleting food:", error);
+      setFoods(previousFoods);
     }
   };
 
   const handleSaveMeal = async (name: string, mealFoods: Food[]) => {
     if (!user) return;
+
+    const tempId = `temp-${Date.now()}`;
+    const newTemplate: MealTemplate = {
+      id: tempId,
+      name,
+      foods: mealFoods,
+      createdAt: new Date(),
+    };
+
+    // Optimistic: Add template to UI immediately
+    setMealTemplates((prev) => [newTemplate, ...prev]);
+
+    // Database call in background
     try {
       const templateId = await saveMealTemplate(user.uid, { name, foods: mealFoods });
-      const newTemplate: MealTemplate = {
-        id: templateId,
-        name,
-        foods: mealFoods,
-        createdAt: new Date(),
-      };
-      setMealTemplates((prev) => [newTemplate, ...prev]);
+      setMealTemplates((prev) =>
+        prev.map((t) => (t.id === tempId ? { ...t, id: templateId } : t))
+      );
     } catch (error) {
       console.error("Error saving meal template:", error);
+      setMealTemplates((prev) => prev.filter((t) => t.id !== tempId));
     }
   };
 
   const handleDeleteMealTemplate = async (templateId: string) => {
     if (!user) return;
+
+    const previousTemplates = mealTemplates;
+
+    // Optimistic: Remove template from UI immediately
+    setMealTemplates((prev) => prev.filter((t) => t.id !== templateId));
+
+    // Database call in background
     try {
       await deleteMealTemplate(user.uid, templateId);
-      setMealTemplates((prev) => prev.filter((t) => t.id !== templateId));
     } catch (error) {
       console.error("Error deleting meal template:", error);
+      setMealTemplates(previousTemplates);
+    }
+  };
+
+  const handleOpenMealToLog = (template: MealTemplate) => {
+    setSelectedMealTemplate(template);
+    setIsMealToLogModalOpen(true);
+  };
+
+  const handleOpenFoodToLog = (food: FoodItem) => {
+    setSelectedFood(food);
+    setIsFoodToLogModalOpen(true);
+  };
+
+  const handleAddMealToLog = async (dates: string[]) => {
+    if (!user || !selectedMealTemplate) return;
+
+    // Close modal immediately (optimistic)
+    setIsMealToLogModalOpen(false);
+    setSelectedMealTemplate(null);
+
+    // Database calls in background (fire and forget for different dates)
+    for (const date of dates) {
+      saveMeal(user.uid, {
+        name: selectedMealTemplate.name,
+        foods: selectedMealTemplate.foods,
+        date,
+      }).catch((error) => {
+        console.error("Error saving meal to log:", error);
+      });
     }
   };
 
@@ -252,12 +322,22 @@ export default function Foods() {
                         {totals.calories} cal - {totals.protein}g P - {totals.carbs}g C - {totals.fat}g F
                       </p>
                     </div>
-                    <button
-                      onClick={() => handleDeleteMealTemplate(template.id)}
-                      className={styles.deleteButton}
-                    >
-                      <Trash2 className={styles.icon} />
-                    </button>
+                    <div className={styles.itemActions}>
+                      <button
+                        onClick={() => handleOpenMealToLog(template)}
+                        className={styles.addToLogButton}
+                        title="Add to log"
+                      >
+                        <CalendarPlus className={styles.icon} />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteMealTemplate(template.id)}
+                        className={styles.deleteButton}
+                        title="Delete"
+                      >
+                        <Trash2 className={styles.icon} />
+                      </button>
+                    </div>
                   </div>
                 );
               })}
@@ -302,14 +382,24 @@ export default function Foods() {
                   </p>
                 </div>
 
-                {food.source === "custom" && (
+                <div className={styles.itemActions}>
                   <button
-                    onClick={() => handleDeleteFood(food.id)}
-                    className={styles.deleteButton}
+                    onClick={() => handleOpenFoodToLog(food)}
+                    className={styles.addToLogButton}
+                    title="Add to log"
                   >
-                    <Trash2 className={styles.icon} />
+                    <CalendarPlus className={styles.icon} />
                   </button>
-                )}
+                  {food.source === "custom" && (
+                    <button
+                      onClick={() => handleDeleteFood(food.id)}
+                      className={styles.deleteButton}
+                      title="Delete"
+                    >
+                      <Trash2 className={styles.icon} />
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
           </div>
@@ -326,6 +416,26 @@ export default function Foods() {
           onClose={() => setIsMealModalOpen(false)}
           onSave={handleSaveMeal}
           availableFoods={foods}
+        />
+
+        <AddMealToLogModal
+          isOpen={isMealToLogModalOpen}
+          onClose={() => {
+            setIsMealToLogModalOpen(false);
+            setSelectedMealTemplate(null);
+          }}
+          mealTemplate={selectedMealTemplate}
+          onSave={handleAddMealToLog}
+        />
+
+        <AddFoodToLogModal
+          isOpen={isFoodToLogModalOpen}
+          onClose={() => {
+            setIsFoodToLogModalOpen(false);
+            setSelectedFood(null);
+          }}
+          food={selectedFood}
+          userId={user?.uid || ""}
         />
       </main>
     </div>

@@ -1,6 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Trash2, X, Search, Pencil, Check, Bookmark, BookmarkCheck } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { Food, FoodItem } from "@/types";
 import styles from "./MealSlot.module.css";
@@ -36,12 +35,18 @@ export default function MealSlot({
   const [servings, setServings] = useState("1");
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(name);
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
 
   const filteredFoods = searchQuery.trim()
     ? availableFoods
         .filter((f) => f.name.toLowerCase().includes(searchQuery.toLowerCase()))
         .slice(0, 6)
     : [];
+
+  // Reset highlighted index when search results change
+  useEffect(() => {
+    setHighlightedIndex(-1);
+  }, [searchQuery]);
 
   const totals = foods.reduce(
     (acc, food) => ({
@@ -211,6 +216,27 @@ export default function MealSlot({
                     setSelectedFood(null);
                   }
                 }}
+                onKeyDown={(e) => {
+                  if (e.key === "ArrowDown") {
+                    e.preventDefault();
+                    if (filteredFoods.length > 0) {
+                      setHighlightedIndex((prev) =>
+                        prev < filteredFoods.length - 1 ? prev + 1 : prev
+                      );
+                    }
+                  } else if (e.key === "ArrowUp") {
+                    e.preventDefault();
+                    setHighlightedIndex((prev) => (prev > 0 ? prev - 1 : prev));
+                  } else if (e.key === "Enter") {
+                    e.preventDefault();
+                    if (filteredFoods.length > 0) {
+                      const indexToSelect = highlightedIndex >= 0 ? highlightedIndex : 0;
+                      handleSelectFood(filteredFoods[indexToSelect]);
+                    }
+                  } else if (e.key === "Escape") {
+                    handleCancel();
+                  }
+                }}
                 className={styles.searchInput}
                 autoFocus
               />
@@ -219,12 +245,12 @@ export default function MealSlot({
             {/* Search Results */}
             {!selectedFood && filteredFoods.length > 0 && (
               <div className={styles.searchResults}>
-                {filteredFoods.map((food) => (
+                {filteredFoods.map((food, index) => (
                   <button
                     key={food.id}
                     type="button"
                     onClick={() => handleSelectFood(food)}
-                    className={styles.searchResultItem}
+                    className={`${styles.searchResultItem} ${index === highlightedIndex ? styles.searchResultItemHighlighted : ""}`}
                   >
                     <div className={styles.searchResultName}>{food.name}</div>
                     <div className={styles.searchResultDetails}>
@@ -243,15 +269,20 @@ export default function MealSlot({
                     <div className={styles.selectedFoodName}>{selectedFood.name}</div>
                     <div className={styles.selectedFoodServing}>{selectedFood.servingSize}</div>
                   </div>
-                  <button
-                    onClick={() => {
-                      setSelectedFood(null);
-                      setSearchQuery("");
-                    }}
-                    className={styles.clearButton}
-                  >
-                    <X className={styles.icon} />
-                  </button>
+                  <div className={styles.selectedFoodActions}>
+                    <button onClick={handleAddFood} className={styles.confirmButton}>
+                      <Check className={styles.icon} />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedFood(null);
+                        setSearchQuery("");
+                      }}
+                      className={styles.clearButton}
+                    >
+                      <X className={styles.icon} />
+                    </button>
+                  </div>
                 </div>
 
                 <div className={styles.servingsContainer}>
@@ -262,6 +293,11 @@ export default function MealSlot({
                     min="0.25"
                     value={servings}
                     onChange={(e) => setServings(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleAddFood();
+                      }
+                    }}
                     className={styles.servingsInput}
                   />
                 </div>
@@ -284,10 +320,6 @@ export default function MealSlot({
                     <div className={styles.macroValue}>{Math.round(selectedFood.calories * multiplier)}</div>
                   </div>
                 </div>
-
-                <Button onClick={handleAddFood} size="sm" className="w-full">
-                  Add to {name}
-                </Button>
               </div>
             )}
 
