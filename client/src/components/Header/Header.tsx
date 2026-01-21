@@ -9,6 +9,7 @@ type HeaderProps = {
   title?: string;
   subtitle?: string;
   leftContent?: React.ReactNode;
+  centerContent?: React.ReactNode;
   currentPage: PageType;
 };
 
@@ -20,7 +21,7 @@ const navConfig: Record<string, { to: string; icon: typeof Home; label: string }
   settings: { to: "/settings", icon: Settings, label: "Settings" },
 };
 
-export default function Header({ title, subtitle, leftContent, currentPage: _currentPage }: HeaderProps) {
+export default function Header({ title, subtitle, leftContent, centerContent }: HeaderProps) {
   const iconsToShow = Object.keys(navConfig);
 
   return (
@@ -40,6 +41,11 @@ export default function Header({ title, subtitle, leftContent, currentPage: _cur
             </div>
           )}
         </div>
+
+        {/* Center Section */}
+        {centerContent && (
+          <div className={styles.centerSection}>{centerContent}</div>
+        )}
 
         {/* Right Section - Navigation Icons */}
         <nav className={styles.navIcons}>

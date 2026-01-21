@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
 import type { User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import type { Meal, FoodItem, Food } from "@/types";
+import type { Meal, FoodItem, Food, UserProfile, DailyLogStatus } from "@/types";
 import {
   saveMeal,
   getMealsByDate,
@@ -12,6 +12,10 @@ import {
   getAllFoods,
   saveMealTemplate,
   getMealTemplates,
+  getUserProfile,
+  getDailyLog,
+  setDailyLogStatus,
+  getDateLimits,
 } from "@/services/db";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -32,9 +36,17 @@ export default function DailyLog() {
   const [newMealName, setNewMealName] = useState("");
   const [savedToast, setSavedToast] = useState<string | null>(null);
   const [savedTemplateNames, setSavedTemplateNames] = useState<Set<string>>(new Set());
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [logStatus, setLogStatus] = useState<DailyLogStatus>("unlogged");
 
   const selectedDate = searchParams.get("date") || getTodayDate();
   const isToday = selectedDate === getTodayDate();
+
+  // Calculate date limits based on user tier
+  const dateLimits = getDateLimits(
+    userProfile?.subscriptionTier || "free",
+    userProfile?.birthday
+  );
 
   const setSelectedDate = (date: string) => {
     if (date === getTodayDate()) {
@@ -97,12 +109,80 @@ export default function DailyLog() {
     loadMealTemplates();
   }, [loadMealTemplates]);
 
+  // Load user profile
+  const loadUserProfile = useCallback(async () => {
+    if (!user) return;
+    try {
+      const profile = await getUserProfile(user.uid);
+      setUserProfile(profile);
+    } catch (error) {
+      console.error("Error loading user profile:", error);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    loadUserProfile();
+  }, [loadUserProfile]);
+
+  // Load daily log status
+  const loadDailyLogStatus = useCallback(async () => {
+    if (!user) return;
+    try {
+      const log = await getDailyLog(user.uid, selectedDate);
+      setLogStatus(log?.status || "unlogged");
+    } catch (error) {
+      console.error("Error loading daily log status:", error);
+    }
+  }, [user, selectedDate]);
+
+  useEffect(() => {
+    loadDailyLogStatus();
+  }, [loadDailyLogStatus]);
+
+  // Sync log status with meals: if meals with foods exist but status is unlogged, mark as started
+  useEffect(() => {
+    if (meals.length > 0 && logStatus === "unlogged" && user && !loading) {
+      const hasFoods = meals.some((m) => m.foods.length > 0);
+      if (hasFoods) {
+        markAsStartedIfNeeded();
+      }
+    }
+  }, [meals, logStatus, user, loading]);
+
+  // Handler to mark log as complete
+  const handleCompleteLog = async () => {
+    if (!user) return;
+    try {
+      await setDailyLogStatus(user.uid, selectedDate, "complete");
+      setLogStatus("complete");
+    } catch (error) {
+      console.error("Error completing log:", error);
+    }
+  };
+
+  // Helper to set status to "started" if currently unlogged
+  const markAsStartedIfNeeded = async () => {
+    if (!user || logStatus !== "unlogged") return;
+    try {
+      await setDailyLogStatus(user.uid, selectedDate, "started");
+      setLogStatus("started");
+    } catch (error) {
+      console.error("Error marking log as started:", error);
+    }
+  };
+
   // Get meal by name or return undefined
   const getMealByName = (name: string) => meals.find((m) => m.name === name);
 
   // Add food to a meal (create meal if doesn't exist) - optimistic update
   const handleAddFood = async (mealName: string, food: Food) => {
     if (!user) return;
+
+    // Mark log as started if this is the first food being added
+    const totalFoodsBeforeAdd = meals.reduce((sum, m) => sum + m.foods.length, 0);
+    if (totalFoodsBeforeAdd === 0) {
+      markAsStartedIfNeeded();
+    }
 
     const existingMeal = getMealByName(mealName);
     const previousMeals = meals; // Save for rollback
@@ -353,9 +433,7 @@ export default function DailyLog() {
     const date = new Date(selectedDate + "T12:00:00");
     date.setDate(date.getDate() + 1);
     const nextDate = date.toISOString().split("T")[0];
-    if (nextDate <= getTodayDate()) {
-      setSelectedDate(nextDate);
-    }
+    setSelectedDate(nextDate);
   };
 
   const formattedDate = new Date(selectedDate + "T12:00:00").toLocaleDateString("en-US", {
@@ -368,13 +446,15 @@ export default function DailyLog() {
     <div className={styles.page}>
       <Header
         currentPage="log"
-        leftContent={
+        centerContent={
           <DateNavigation
             selectedDate={selectedDate}
             isToday={isToday}
             formattedDate={formattedDate}
             onPrevDay={goToPrevDay}
             onNextDay={goToNextDay}
+            minDate={dateLimits.minDate}
+            maxDate={dateLimits.maxDate}
           />
         }
       />
@@ -450,6 +530,8 @@ export default function DailyLog() {
                 protein={dailyTotals.protein}
                 carbs={dailyTotals.carbs}
                 fat={dailyTotals.fat}
+                logStatus={logStatus}
+                onCompleteLog={handleCompleteLog}
               />
             </div>
           </div>

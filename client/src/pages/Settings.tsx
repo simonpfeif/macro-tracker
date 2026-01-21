@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import type { User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
-import { LogOut, User as UserIcon, Bell, Shield, Database } from "lucide-react";
-import { seedCommonFoods, getCommonFoods } from "@/services/db";
+import { LogOut, User as UserIcon, Bell, Shield, Database, Cake, Crown } from "lucide-react";
+import { seedCommonFoods, getCommonFoods, getUserProfile, saveUserProfile } from "@/services/db";
 import { commonFoodsData } from "@/data/commonFoods";
+import type { UserProfile } from "@/types";
 import Header from "@/components/Header/Header";
 import styles from "./Settings.module.css";
 
@@ -14,6 +15,8 @@ export default function Settings() {
   const [seeding, setSeeding] = useState(false);
   const [seedStatus, setSeedStatus] = useState<"idle" | "success" | "error" | "exists">("idle");
   const [foodCount, setFoodCount] = useState<number | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [birthday, setBirthday] = useState("");
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -37,6 +40,45 @@ export default function Settings() {
     }
     checkFoods();
   }, []);
+
+  // Load user profile
+  const loadUserProfile = useCallback(async () => {
+    if (!user) return;
+    try {
+      const profile = await getUserProfile(user.uid);
+      setUserProfile(profile);
+      if (profile?.birthday) {
+        setBirthday(profile.birthday);
+      }
+    } catch (error) {
+      console.error("Error loading user profile:", error);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    loadUserProfile();
+  }, [loadUserProfile]);
+
+  const handleBirthdayChange = async (newBirthday: string) => {
+    if (!user) return;
+    setBirthday(newBirthday);
+
+    try {
+      await saveUserProfile(user.uid, { birthday: newBirthday });
+      setUserProfile((prev) =>
+        prev
+          ? { ...prev, birthday: newBirthday, updatedAt: new Date() }
+          : {
+              birthday: newBirthday,
+              subscriptionTier: "free",
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            }
+      );
+    } catch (error) {
+      console.error("Error saving birthday:", error);
+    }
+  };
 
   const handleSignOut = async () => {
     try {
@@ -93,6 +135,33 @@ export default function Settings() {
               </div>
             </div>
           )}
+        </div>
+
+        {/* Profile Section */}
+        <div className={styles.card}>
+          <div className={styles.cardHeader}>
+            <Cake className={styles.cardIcon} />
+            <h2 className={styles.cardTitle}>Profile</h2>
+          </div>
+
+          <div className={styles.profileInfo}>
+            <div className={styles.profileRow}>
+              <span className={styles.profileLabel}>Birthday</span>
+              <input
+                type="date"
+                value={birthday}
+                onChange={(e) => handleBirthdayChange(e.target.value)}
+                className={styles.dateInput}
+              />
+            </div>
+            <div className={`${styles.profileRow} ${styles.profileRowLast}`}>
+              <span className={styles.profileLabel}>Subscription</span>
+              <div className={styles.subscriptionBadge}>
+                <Crown className={styles.subscriptionIcon} />
+                <span>{userProfile?.subscriptionTier === "premium" ? "Premium" : "Free"}</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Database Section */}

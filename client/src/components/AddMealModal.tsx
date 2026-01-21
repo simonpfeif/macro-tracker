@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, Search, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,14 +23,20 @@ export default function AddMealModal({
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFood, setSelectedFood] = useState<FoodItem | null>(null);
   const [servings, setServings] = useState("1");
-
-  if (!isOpen) return null;
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
 
   const filteredFoods = searchQuery.trim()
     ? availableFoods
         .filter((f) => f.name.toLowerCase().includes(searchQuery.toLowerCase()))
         .slice(0, 6)
     : [];
+
+  // Reset highlighted index when search results change
+  useEffect(() => {
+    setHighlightedIndex(-1);
+  }, [searchQuery]);
+
+  if (!isOpen) return null;
 
   const totals = foods.reduce(
     (acc, food) => ({
@@ -136,6 +142,28 @@ export default function AddMealModal({
                     setSelectedFood(null);
                   }
                 }}
+                onKeyDown={(e) => {
+                  if (e.key === "ArrowDown") {
+                    e.preventDefault();
+                    if (filteredFoods.length > 0) {
+                      setHighlightedIndex((prev) =>
+                        prev < filteredFoods.length - 1 ? prev + 1 : prev
+                      );
+                    }
+                  } else if (e.key === "ArrowUp") {
+                    e.preventDefault();
+                    setHighlightedIndex((prev) => (prev > 0 ? prev - 1 : prev));
+                  } else if (e.key === "Enter" && !selectedFood) {
+                    e.preventDefault();
+                    if (filteredFoods.length > 0) {
+                      const indexToSelect = highlightedIndex >= 0 ? highlightedIndex : 0;
+                      handleSelectFood(filteredFoods[indexToSelect]);
+                    }
+                  } else if (e.key === "Escape") {
+                    setSearchQuery("");
+                    setSelectedFood(null);
+                  }
+                }}
                 className={styles.searchInput}
               />
             </div>
@@ -143,12 +171,12 @@ export default function AddMealModal({
             {/* Search Results */}
             {!selectedFood && filteredFoods.length > 0 && (
               <div className={styles.searchResults}>
-                {filteredFoods.map((food) => (
+                {filteredFoods.map((food, index) => (
                   <button
                     key={food.id}
                     type="button"
                     onClick={() => handleSelectFood(food)}
-                    className={styles.searchResultItem}
+                    className={`${styles.searchResultItem} ${index === highlightedIndex ? styles.searchResultItemHighlighted : ""}`}
                   >
                     <div className={styles.searchResultName}>{food.name}</div>
                     <div className={styles.searchResultDetails}>
@@ -174,6 +202,12 @@ export default function AddMealModal({
                     min="0.25"
                     value={servings}
                     onChange={(e) => setServings(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleAddFood();
+                      }
+                    }}
                     className={styles.servingsInput}
                   />
                 </div>

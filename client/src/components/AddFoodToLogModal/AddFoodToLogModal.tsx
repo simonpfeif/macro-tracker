@@ -238,6 +238,11 @@ export default function AddFoodToLogModal({
                         placeholder="Meal name (e.g., Breakfast)"
                         value={newMealName}
                         onChange={(e) => setNewMealName(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && newMealName.trim()) {
+                            handleCreateNewMeal();
+                          }
+                        }}
                         autoFocus
                       />
                       <div className={styles.newMealActions}>

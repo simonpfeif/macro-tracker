@@ -303,7 +303,7 @@
 }
 
 .clearButton:hover {
-  color: #4b5563;
+  color: #ef4444;
 }
 
 .servingsContainer {
@@ -392,7 +392,8 @@
 }
 
 .cancelButton:hover {
-  color: #374151;
+  color: #1f2937;
+  background: rgba(0, 0, 0, 0.05);
 }
 
 .addFoodButton {
@@ -409,7 +410,8 @@
 }
 
 .addFoodButton:hover {
-  color: #C67A5E;
+  color: #B8704F;
+  background: rgba(212, 136, 106, 0.1);
 }
 
 .icon {

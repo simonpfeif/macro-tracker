@@ -229,7 +229,9 @@ export default function MealSlot({
                     setHighlightedIndex((prev) => (prev > 0 ? prev - 1 : prev));
                   } else if (e.key === "Enter") {
                     e.preventDefault();
-                    if (filteredFoods.length > 0) {
+                    if (selectedFood) {
+                      handleAddFood();
+                    } else if (filteredFoods.length > 0) {
                       const indexToSelect = highlightedIndex >= 0 ? highlightedIndex : 0;
                       handleSelectFood(filteredFoods[indexToSelect]);
                     }

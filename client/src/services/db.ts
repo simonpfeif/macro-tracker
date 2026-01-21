@@ -2,7 +2,9 @@ import {
   collection,
   doc,
   addDoc,
+  getDoc,
   getDocs,
+  setDoc,
   deleteDoc,
   query,
   where,
@@ -10,7 +12,16 @@ import {
   Timestamp,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import type { Meal, MealTemplate, Food, FoodItem } from "@/types";
+import type {
+  Meal,
+  MealTemplate,
+  Food,
+  FoodItem,
+  UserProfile,
+  DailyLog,
+  DailyLogStatus,
+  SubscriptionTier,
+} from "@/types";
 
 // Helper to get today's date in YYYY-MM-DD format
 export function getTodayDate(): string {
@@ -230,5 +241,150 @@ export async function seedCommonFoods(
       category: food.category,
       createdAt: Timestamp.now(),
     });
+  }
+}
+
+// ============ USER PROFILE ============
+
+export async function getUserProfile(userId: string): Promise<UserProfile | null> {
+  const profileRef = doc(db, "users", userId, "profile", "main");
+  const snapshot = await getDoc(profileRef);
+
+  if (!snapshot.exists()) {
+    return null;
+  }
+
+  const data = snapshot.data();
+  return {
+    birthday: data.birthday,
+    subscriptionTier: data.subscriptionTier || "free",
+    createdAt: data.createdAt?.toDate() || new Date(),
+    updatedAt: data.updatedAt?.toDate() || new Date(),
+  };
+}
+
+export async function saveUserProfile(
+  userId: string,
+  data: Partial<Omit<UserProfile, "createdAt" | "updatedAt">>
+): Promise<void> {
+  const profileRef = doc(db, "users", userId, "profile", "main");
+  const existingProfile = await getDoc(profileRef);
+
+  if (existingProfile.exists()) {
+    await setDoc(
+      profileRef,
+      {
+        ...data,
+        updatedAt: Timestamp.now(),
+      },
+      { merge: true }
+    );
+  } else {
+    await setDoc(profileRef, {
+      subscriptionTier: "free",
+      ...data,
+      createdAt: Timestamp.now(),
+      updatedAt: Timestamp.now(),
+    });
+  }
+}
+
+// ============ DAILY LOGS ============
+
+export async function getDailyLog(
+  userId: string,
+  date: string
+): Promise<DailyLog | null> {
+  const logRef = doc(db, "users", userId, "dailyLogs", date);
+  const snapshot = await getDoc(logRef);
+
+  if (!snapshot.exists()) {
+    return null;
+  }
+
+  const data = snapshot.data();
+  return {
+    date: date,
+    status: data.status || "unlogged",
+    updatedAt: data.updatedAt?.toDate() || new Date(),
+  };
+}
+
+export async function setDailyLogStatus(
+  userId: string,
+  date: string,
+  status: DailyLogStatus
+): Promise<void> {
+  const logRef = doc(db, "users", userId, "dailyLogs", date);
+  await setDoc(
+    logRef,
+    {
+      date,
+      status,
+      updatedAt: Timestamp.now(),
+    },
+    { merge: true }
+  );
+}
+
+export async function getDailyLogsForRange(
+  userId: string,
+  startDate: string,
+  endDate: string
+): Promise<DailyLog[]> {
+  const logsRef = collection(db, "users", userId, "dailyLogs");
+  const q = query(
+    logsRef,
+    where("date", ">=", startDate),
+    where("date", "<=", endDate)
+  );
+  const snapshot = await getDocs(q);
+
+  return snapshot.docs.map((doc) => {
+    const data = doc.data();
+    return {
+      date: doc.id,
+      status: data.status || "unlogged",
+      updatedAt: data.updatedAt?.toDate() || new Date(),
+    };
+  });
+}
+
+// ============ DATE LIMITS ============
+
+function addDays(date: Date, days: number): string {
+  const result = new Date(date);
+  result.setDate(result.getDate() + days);
+  return result.toISOString().split("T")[0];
+}
+
+function subtractDays(date: Date, days: number): string {
+  return addDays(date, -days);
+}
+
+function addYears(date: Date, years: number): string {
+  const result = new Date(date);
+  result.setFullYear(result.getFullYear() + years);
+  return result.toISOString().split("T")[0];
+}
+
+export function getDateLimits(
+  tier: SubscriptionTier,
+  birthday?: string
+): { minDate: string; maxDate: string } {
+  const today = new Date();
+
+  if (tier === "free") {
+    // Free tier: 30 days past, 30 days future
+    return {
+      minDate: subtractDays(today, 30),
+      maxDate: addDays(today, 30),
+    };
+  } else {
+    // Premium: back to birthday (or 2020-01-01), 1 year future
+    return {
+      minDate: birthday || "2020-01-01",
+      maxDate: addYears(today, 1),
+    };
   }
 }

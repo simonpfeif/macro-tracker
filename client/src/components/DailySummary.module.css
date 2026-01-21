@@ -15,12 +15,36 @@
   box-shadow: var(--shadow-md);
 }
 
+.titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
 .title {
   font-size: 1.125rem;
   font-weight: 600;
   color: var(--color-text);
-  margin-bottom: 1rem;
+  margin: 0;
   letter-spacing: -0.01em;
+}
+
+.statusBadge {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+}
+
+.statusStarted {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.statusComplete {
+  background: #d1fae5;
+  color: #047857;
 }
 
 .caloriesSection {
@@ -96,4 +120,31 @@
 .macroValue {
   font-weight: 600;
   color: #1f2937;
+}
+
+.completeLogButton {
+  width: 100%;
+  margin-top: 1.25rem;
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: #059669;
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-out);
+}
+
+.completeLogButton:hover {
+  background: #047857;
+}
+
+.completeIcon {
+  width: 1rem;
+  height: 1rem;
 }

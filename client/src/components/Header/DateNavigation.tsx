@@ -7,18 +7,32 @@ type DateNavigationProps = {
   formattedDate: string;
   onPrevDay: () => void;
   onNextDay: () => void;
+  minDate?: string;
+  maxDate?: string;
 };
 
 export default function DateNavigation({
-  selectedDate: _selectedDate,
+  selectedDate,
   isToday,
   formattedDate,
   onPrevDay,
   onNextDay,
+  minDate,
+  maxDate,
 }: DateNavigationProps) {
+  // Check if we can navigate backward
+  const canGoPrev = !minDate || selectedDate > minDate;
+
+  // Check if we can navigate forward
+  const canGoNext = !maxDate || selectedDate < maxDate;
+
   return (
     <div className={styles.dateNavigation}>
-      <button onClick={onPrevDay} className={styles.navButton}>
+      <button
+        onClick={onPrevDay}
+        disabled={!canGoPrev}
+        className={`${styles.navButton} ${!canGoPrev ? styles.navButtonDisabled : ""}`}
+      >
         <ChevronLeft className={styles.icon} />
       </button>
 
@@ -29,8 +43,8 @@ export default function DateNavigation({
 
       <button
         onClick={onNextDay}
-        disabled={isToday}
-        className={`${styles.navButton} ${isToday ? styles.navButtonInvisible : ""}`}
+        disabled={!canGoNext}
+        className={`${styles.navButton} ${!canGoNext ? styles.navButtonDisabled : ""}`}
       >
         <ChevronRight className={styles.icon} />
       </button>

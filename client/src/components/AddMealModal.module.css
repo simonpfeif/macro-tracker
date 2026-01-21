@@ -111,6 +111,10 @@
   background: #F5F1EB;
 }
 
+.searchResultItemHighlighted {
+  background: #F5F1EB;
+}
+
 .searchResultName {
   font-size: 0.875rem;
   font-weight: 500;

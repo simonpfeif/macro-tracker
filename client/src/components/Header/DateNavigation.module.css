@@ -24,8 +24,12 @@
   cursor: not-allowed;
 }
 
-.navButtonInvisible {
-  visibility: hidden;
+.navButtonDisabled {
+  opacity: 0.3;
+}
+
+.navButtonDisabled:hover {
+  background: transparent;
 }
 
 .dateContainer {

@@ -137,7 +137,8 @@
 }
 
 .addMealButton:hover {
-  color: #C67A5E;
+  color: #B8704F;
+  background: rgba(212, 136, 106, 0.1);
 }
 
 .icon {
