@@ -46,6 +46,12 @@ export async function saveMeal(
     date: meal.date,
     createdAt: Timestamp.now(),
   });
+
+  // Auto-set daily log to "started" when saving meal with foods
+  if (meal.foods.length > 0) {
+    ensureDailyLogStarted(userId, meal.date);
+  }
+
   return docRef.id;
 }
 
@@ -348,6 +354,13 @@ export async function getDailyLogsForRange(
       updatedAt: data.updatedAt?.toDate() || new Date(),
     };
   });
+}
+
+async function ensureDailyLogStarted(userId: string, date: string): Promise<void> {
+  const log = await getDailyLog(userId, date);
+  if (!log || log.status === "unlogged") {
+    await setDailyLogStatus(userId, date, "started");
+  }
 }
 
 // ============ DATE LIMITS ============

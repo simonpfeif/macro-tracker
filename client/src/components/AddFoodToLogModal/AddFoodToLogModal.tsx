@@ -76,6 +76,7 @@ export default function AddFoodToLogModal({
 
   const handleBackToDate = () => {
     setStep("date");
+    setSelectedDate(null);
     setMealsForDate([]);
     setShowNewMealInput(false);
     setNewMealName("");
@@ -241,6 +242,10 @@ export default function AddFoodToLogModal({
                         onKeyDown={(e) => {
                           if (e.key === "Enter" && newMealName.trim()) {
                             handleCreateNewMeal();
+                          }
+                          if (e.key === "Escape") {
+                            setShowNewMealInput(false);
+                            setNewMealName("");
                           }
                         }}
                         autoFocus

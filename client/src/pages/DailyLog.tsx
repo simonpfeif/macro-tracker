@@ -171,11 +171,11 @@ export default function DailyLog() {
     }
   };
 
-  // Get meal by name or return undefined
-  const getMealByName = (name: string) => meals.find((m) => m.name === name);
+  // Get meal by ID or return undefined
+  const getMealById = (id: string) => meals.find((m) => m.id === id);
 
-  // Add food to a meal (create meal if doesn't exist) - optimistic update
-  const handleAddFood = async (mealName: string, food: Food) => {
+  // Add food to a meal - optimistic update
+  const handleAddFood = async (mealId: string, food: Food) => {
     if (!user) return;
 
     // Mark log as started if this is the first food being added
@@ -184,73 +184,43 @@ export default function DailyLog() {
       markAsStartedIfNeeded();
     }
 
-    const existingMeal = getMealByName(mealName);
+    const existingMeal = getMealById(mealId);
+    if (!existingMeal) return;
+
     const previousMeals = meals; // Save for rollback
+    const updatedFoods = [...existingMeal.foods, food];
 
-    if (existingMeal) {
-      const updatedFoods = [...existingMeal.foods, food];
+    // Optimistic: Update foods in UI immediately
+    setMeals((prev) =>
+      prev.map((m) =>
+        m.id === existingMeal.id ? { ...m, foods: updatedFoods } : m
+      )
+    );
 
-      // Optimistic: Update foods in UI immediately
+    // Database call in background
+    try {
+      await deleteMeal(user.uid, existingMeal.id);
+      const newId = await saveMeal(user.uid, {
+        name: existingMeal.name,
+        foods: updatedFoods,
+        date: selectedDate,
+      });
       setMeals((prev) =>
         prev.map((m) =>
-          m.id === existingMeal.id ? { ...m, foods: updatedFoods } : m
+          m.id === existingMeal.id ? { ...m, id: newId } : m
         )
       );
-
-      // Database call in background
-      try {
-        await deleteMeal(user.uid, existingMeal.id);
-        const newId = await saveMeal(user.uid, {
-          name: mealName,
-          foods: updatedFoods,
-          date: selectedDate,
-        });
-        setMeals((prev) =>
-          prev.map((m) =>
-            m.id === existingMeal.id ? { ...m, id: newId } : m
-          )
-        );
-      } catch (error) {
-        console.error("Failed to add food:", error);
-        setMeals(previousMeals); // Rollback on error
-      }
-    } else {
-      // New meal - generate temp ID for optimistic UI
-      const tempId = `temp-${Date.now()}`;
-      const newMeal: Meal = {
-        id: tempId,
-        name: mealName,
-        foods: [food],
-        date: selectedDate,
-        createdAt: new Date(),
-      };
-
-      // Optimistic: Add new meal to UI immediately
-      setMeals((prev) => [...prev, newMeal]);
-
-      // Database call in background
-      try {
-        const realId = await saveMeal(user.uid, {
-          name: mealName,
-          foods: [food],
-          date: selectedDate,
-        });
-        // Replace temp ID with real ID
-        setMeals((prev) =>
-          prev.map((m) => (m.id === tempId ? { ...m, id: realId } : m))
-        );
-      } catch (error) {
-        console.error("Failed to create meal:", error);
-        setMeals(previousMeals); // Rollback on error
-      }
+    } catch (error) {
+      console.error("Failed to add food:", error);
+      setMeals(previousMeals); // Rollback on error
     }
   };
 
   // Remove food from a meal (optimistic update)
-  const handleRemoveFood = async (mealName: string, foodIndex: number) => {
+  const handleRemoveFood = async (mealId: string, foodIndex: number) => {
     if (!user) return;
 
-    const existingMeal = getMealByName(mealName);
+    const existingMeal = getMealById(mealId);
     if (!existingMeal) return;
 
     const updatedFoods = existingMeal.foods.filter((_, i) => i !== foodIndex);
@@ -279,7 +249,7 @@ export default function DailyLog() {
       try {
         await deleteMeal(user.uid, existingMeal.id);
         const newId = await saveMeal(user.uid, {
-          name: mealName,
+          name: existingMeal.name,
           foods: updatedFoods,
           date: selectedDate,
         });
@@ -297,10 +267,10 @@ export default function DailyLog() {
   };
 
   // Delete entire custom meal (optimistic update)
-  const handleDeleteMeal = async (mealName: string) => {
+  const handleDeleteMeal = async (mealId: string) => {
     if (!user) return;
 
-    const existingMeal = getMealByName(mealName);
+    const existingMeal = getMealById(mealId);
     if (!existingMeal) return;
 
     const previousMeals = meals; // Save for rollback
@@ -349,10 +319,10 @@ export default function DailyLog() {
   };
 
   // Rename a meal
-  const handleRenameMeal = async (oldName: string, newName: string) => {
+  const handleRenameMeal = async (mealId: string, newName: string) => {
     if (!user) return;
 
-    const existingMeal = getMealByName(oldName);
+    const existingMeal = getMealById(mealId);
     if (!existingMeal) return;
 
     const previousMeals = meals;
@@ -384,17 +354,17 @@ export default function DailyLog() {
   };
 
   // Save meal as template
-  const handleSaveAsTemplate = async (mealName: string) => {
+  const handleSaveAsTemplate = async (mealId: string) => {
     if (!user) return;
 
-    const meal = getMealByName(mealName);
+    const meal = getMealById(mealId);
     if (!meal || meal.foods.length === 0) return;
 
     const previousTemplateNames = savedTemplateNames;
 
     // Optimistic: Update UI immediately
     setSavedTemplateNames((prev) => new Set(prev).add(meal.name));
-    setSavedToast(mealName);
+    setSavedToast(meal.name);
     setTimeout(() => setSavedToast(null), 2000);
 
     // Database call in background
@@ -474,11 +444,11 @@ export default function DailyLog() {
                   name={meal.name}
                   foods={meal.foods}
                   availableFoods={availableFoods}
-                  onAddFood={(food) => handleAddFood(meal.name, food)}
-                  onRemoveFood={(index) => handleRemoveFood(meal.name, index)}
-                  onDelete={() => handleDeleteMeal(meal.name)}
-                  onRename={(newName) => handleRenameMeal(meal.name, newName)}
-                  onSaveAsTemplate={() => handleSaveAsTemplate(meal.name)}
+                  onAddFood={(food) => handleAddFood(meal.id, food)}
+                  onRemoveFood={(index) => handleRemoveFood(meal.id, index)}
+                  onDelete={() => handleDeleteMeal(meal.id)}
+                  onRename={(newName) => handleRenameMeal(meal.id, newName)}
+                  onSaveAsTemplate={() => handleSaveAsTemplate(meal.id)}
                   isSavedAsTemplate={savedTemplateNames.has(meal.name)}
                   isCustom
                 />

@@ -222,8 +222,8 @@
   flex-direction: column;
   gap: 0.75rem;
   padding: 0.75rem;
-  background: #FFFEFA;
-  border: 1px solid #E8E6E3;
+  background: var(--color-card);
+  box-shadow: var(--shadow-sm);
   border-radius: 0.5rem;
 }
 

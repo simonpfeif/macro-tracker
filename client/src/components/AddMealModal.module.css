@@ -87,6 +87,7 @@
   background: #FFFEFA;
   border: 1px solid #E8E6E3;
   border-radius: 0.5rem;
+  min-height: 12rem;
   max-height: 12rem;
   overflow-y: auto;
   margin-top: 0.5rem;
@@ -113,6 +114,8 @@
 
 .searchResultItemHighlighted {
   background: #F5F1EB;
+  border-left: 3px solid #D4886A;
+  padding-left: calc(0.75rem - 3px);
 }
 
 .searchResultName {
@@ -133,8 +136,14 @@
   margin-top: 0.5rem;
 }
 
-.selectedFoodInfo {
+.selectedFoodHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
   margin-bottom: 0.5rem;
+}
+
+.selectedFoodInfo {
 }
 
 .selectedFoodName {
@@ -164,31 +173,91 @@
   height: 2rem;
 }
 
-.previewMacros {
-  display: flex;
-  gap: 0.75rem;
+/* Macro Grid */
+.macroGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  text-align: center;
   font-size: 0.75rem;
+}
+
+.macroCell {
+  background: #F5F1EB;
+  border-radius: 0.25rem;
+  padding: 0.5rem;
+}
+
+/* Color-coded macro cells */
+.macroCellProtein {
+  background: var(--color-protein-light);
+}
+
+.macroCellProtein .macroLabel {
+  color: var(--color-protein);
+}
+
+.macroCellCarbs {
+  background: var(--color-carbs-light);
+}
+
+.macroCellCarbs .macroLabel {
+  color: #B8A825;
+}
+
+.macroCellFat {
+  background: var(--color-fat-light);
+}
+
+.macroCellFat .macroLabel {
+  color: var(--color-fat);
+}
+
+.macroCellCalories {
+  background: var(--color-calories-light);
+}
+
+.macroCellCalories .macroLabel {
+  color: var(--color-calories);
+}
+
+.macroLabel {
   color: #6b7280;
-  margin-bottom: 0.75rem;
+}
+
+.macroValue {
+  font-weight: 500;
+  color: var(--color-text);
 }
 
 .selectedFoodActions {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.25rem;
 }
 
-.cancelButton {
-  font-size: 0.875rem;
-  color: #6b7280;
+.confirmButton {
+  color: #9ca3af;
   background: transparent;
   border: none;
   cursor: pointer;
   transition: color 0.2s;
 }
 
-.cancelButton:hover {
-  color: #374151;
+.confirmButton:hover {
+  color: #10b981;
+}
+
+.clearButton {
+  color: #9ca3af;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.clearButton:hover {
+  color: #ef4444;
 }
 
 .foodsList {

@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { X, Search, Plus } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { X, Search, Plus, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { Food, FoodItem } from "@/types";
@@ -24,6 +24,7 @@ export default function AddMealModal({
   const [selectedFood, setSelectedFood] = useState<FoodItem | null>(null);
   const [servings, setServings] = useState("1");
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const filteredFoods = searchQuery.trim()
     ? availableFoods
@@ -70,6 +71,7 @@ export default function AddMealModal({
     setSearchQuery("");
     setSelectedFood(null);
     setServings("1");
+    setHighlightedIndex(-1);
   };
 
   const handleRemoveFood = (index: number) => {
@@ -123,6 +125,12 @@ export default function AddMealModal({
               placeholder="e.g., Post-Workout Shake"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  searchInputRef.current?.focus();
+                }
+              }}
               required
             />
           </div>
@@ -133,6 +141,7 @@ export default function AddMealModal({
             <div className={styles.searchContainer}>
               <Search className={styles.searchIcon} />
               <Input
+                ref={searchInputRef}
                 type="text"
                 placeholder="Search foods..."
                 value={searchQuery}
@@ -153,9 +162,11 @@ export default function AddMealModal({
                   } else if (e.key === "ArrowUp") {
                     e.preventDefault();
                     setHighlightedIndex((prev) => (prev > 0 ? prev - 1 : prev));
-                  } else if (e.key === "Enter" && !selectedFood) {
+                  } else if (e.key === "Enter") {
                     e.preventDefault();
-                    if (filteredFoods.length > 0) {
+                    if (selectedFood) {
+                      handleAddFood();
+                    } else if (filteredFoods.length > 0) {
                       const indexToSelect = highlightedIndex >= 0 ? highlightedIndex : 0;
                       handleSelectFood(filteredFoods[indexToSelect]);
                     }
@@ -190,9 +201,26 @@ export default function AddMealModal({
             {/* Selected Food */}
             {selectedFood && (
               <div className={styles.selectedFood}>
-                <div className={styles.selectedFoodInfo}>
-                  <div className={styles.selectedFoodName}>{selectedFood.name}</div>
-                  <div className={styles.selectedFoodServing}>{selectedFood.servingSize}</div>
+                <div className={styles.selectedFoodHeader}>
+                  <div className={styles.selectedFoodInfo}>
+                    <div className={styles.selectedFoodName}>{selectedFood.name}</div>
+                    <div className={styles.selectedFoodServing}>{selectedFood.servingSize}</div>
+                  </div>
+                  <div className={styles.selectedFoodActions}>
+                    <button type="button" onClick={handleAddFood} className={styles.confirmButton}>
+                      <Check className={styles.icon} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedFood(null);
+                        setSearchQuery("");
+                      }}
+                      className={styles.clearButton}
+                    >
+                      <X className={styles.icon} />
+                    </button>
+                  </div>
                 </div>
                 <div className={styles.servingsRow}>
                   <label className={styles.servingsLabel}>Servings:</label>
@@ -211,27 +239,23 @@ export default function AddMealModal({
                     className={styles.servingsInput}
                   />
                 </div>
-                <div className={styles.previewMacros}>
-                  <span>{Math.round(selectedFood.calories * multiplier)} cal</span>
-                  <span>{Math.round(selectedFood.protein * multiplier * 10) / 10}g P</span>
-                  <span>{Math.round(selectedFood.carbs * multiplier * 10) / 10}g C</span>
-                  <span>{Math.round(selectedFood.fat * multiplier * 10) / 10}g F</span>
-                </div>
-                <div className={styles.selectedFoodActions}>
-                  <Button type="button" size="sm" onClick={handleAddFood}>
-                    <Plus className={styles.iconSmall} />
-                    Add
-                  </Button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedFood(null);
-                      setSearchQuery("");
-                    }}
-                    className={styles.cancelButton}
-                  >
-                    Cancel
-                  </button>
+                <div className={styles.macroGrid}>
+                  <div className={`${styles.macroCell} ${styles.macroCellProtein}`}>
+                    <div className={styles.macroLabel}>Protein</div>
+                    <div className={styles.macroValue}>{Math.round(selectedFood.protein * multiplier * 10) / 10}g</div>
+                  </div>
+                  <div className={`${styles.macroCell} ${styles.macroCellCarbs}`}>
+                    <div className={styles.macroLabel}>Carbs</div>
+                    <div className={styles.macroValue}>{Math.round(selectedFood.carbs * multiplier * 10) / 10}g</div>
+                  </div>
+                  <div className={`${styles.macroCell} ${styles.macroCellFat}`}>
+                    <div className={styles.macroLabel}>Fat</div>
+                    <div className={styles.macroValue}>{Math.round(selectedFood.fat * multiplier * 10) / 10}g</div>
+                  </div>
+                  <div className={`${styles.macroCell} ${styles.macroCellCalories}`}>
+                    <div className={styles.macroLabel}>Cal</div>
+                    <div className={styles.macroValue}>{Math.round(selectedFood.calories * multiplier)}</div>
+                  </div>
                 </div>
               </div>
             )}
