@@ -225,3 +225,76 @@
   width: 1rem;
   height: 1rem;
 }
+
+/* Expandable Meal Cards */
+.mealCard {
+  background: var(--color-card);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: transform var(--duration-normal) var(--ease-out),
+              box-shadow var(--duration-normal) var(--ease-out);
+}
+
+.mealCard:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.mealCard .foodItem {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.mealCard .foodItem:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.expandButton {
+  color: #9ca3af;
+  padding: 0.5rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+  flex-shrink: 0;
+}
+
+.expandButton:hover {
+  color: #4b5563;
+}
+
+.mealFoodsList {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+  background: #F5F1EB;
+  border-top: 1px solid var(--color-border);
+}
+
+.mealFoodsListExpanded {
+  max-height: 500px;
+  transition: max-height 0.3s ease-in;
+}
+
+.mealFoodItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.875rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.mealFoodItem:last-child {
+  border-bottom: none;
+}
+
+.mealFoodName {
+  color: #4b5563;
+}
+
+.mealFoodCalories {
+  color: #6b7280;
+}

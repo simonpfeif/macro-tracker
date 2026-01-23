@@ -8,8 +8,34 @@
 }
 
 .card:hover {
-  transform: translateY(-2px);
   box-shadow: var(--shadow-md);
+}
+
+.card.dragging {
+  opacity: 0.5;
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+}
+
+.dragHandle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  background: transparent;
+  border: none;
+  cursor: grab;
+  color: #9ca3af;
+  transition: color 0.2s;
+  touch-action: none;
+}
+
+.dragHandle:hover {
+  color: #4b5563;
+}
+
+.dragHandle:active {
+  cursor: grabbing;
 }
 
 .header {
@@ -85,6 +111,34 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+.reorderButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.reorderButton {
+  color: #9ca3af;
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 1rem;
+}
+
+.reorderButton:hover:not(:disabled) {
+  color: #4b5563;
+}
+
+.reorderButton:disabled {
+  color: #e5e7eb;
+  cursor: default;
 }
 
 .caloriesBadge {
@@ -207,6 +261,11 @@
 }
 
 .searchResults {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 10;
   background: #FFFEFA;
   border: 1px solid #E8E6E3;
   border-radius: 0.5rem;

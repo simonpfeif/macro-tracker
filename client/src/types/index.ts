@@ -26,6 +26,7 @@ export type Meal = {
   name: string;
   foods: Food[];
   date: string; // YYYY-MM-DD format
+  order?: number;
   createdAt: Date;
 };
 

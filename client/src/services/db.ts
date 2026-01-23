@@ -44,6 +44,7 @@ export async function saveMeal(
     name: meal.name,
     foods: meal.foods,
     date: meal.date,
+    order: meal.order ?? Date.now(),
     createdAt: Timestamp.now(),
   });
 
@@ -62,26 +63,45 @@ export async function getMealsByDate(
   const mealsRef = collection(db, "users", userId, "meals");
   const q = query(
     mealsRef,
-    where("date", "==", date),
-    orderBy("createdAt", "desc")
+    where("date", "==", date)
   );
   const snapshot = await getDocs(q);
 
-  return snapshot.docs.map((doc) => {
+  const meals = snapshot.docs.map((doc) => {
     const data = doc.data();
     return {
       id: doc.id,
       name: data.name,
       foods: data.foods as Food[],
       date: data.date,
+      order: data.order,
       createdAt: data.createdAt.toDate(),
     };
+  });
+
+  // Sort client-side: by order if exists, otherwise by createdAt
+  return meals.sort((a, b) => {
+    if (a.order !== undefined && b.order !== undefined) {
+      return a.order - b.order;
+    }
+    if (a.order !== undefined) return -1;
+    if (b.order !== undefined) return 1;
+    return b.createdAt.getTime() - a.createdAt.getTime();
   });
 }
 
 export async function deleteMeal(userId: string, mealId: string): Promise<void> {
   const mealRef = doc(db, "users", userId, "meals", mealId);
   await deleteDoc(mealRef);
+}
+
+export async function updateMealOrder(
+  userId: string,
+  mealId: string,
+  order: number
+): Promise<void> {
+  const mealRef = doc(db, "users", userId, "meals", mealId);
+  await setDoc(mealRef, { order }, { merge: true });
 }
 
 // ============ MEAL TEMPLATES ============
@@ -121,6 +141,45 @@ export async function deleteMealTemplate(
 ): Promise<void> {
   const templateRef = doc(db, "users", userId, "mealTemplates", templateId);
   await deleteDoc(templateRef);
+}
+
+export async function getMealTemplateByName(
+  userId: string,
+  name: string
+): Promise<MealTemplate | null> {
+  const templatesRef = collection(db, "users", userId, "mealTemplates");
+  const q = query(templatesRef, where("name", "==", name));
+  const snapshot = await getDocs(q);
+
+  if (snapshot.empty) {
+    return null;
+  }
+
+  const doc = snapshot.docs[0];
+  const data = doc.data();
+  return {
+    id: doc.id,
+    name: data.name,
+    foods: data.foods as Food[],
+    createdAt: data.createdAt.toDate(),
+  };
+}
+
+export async function updateMealTemplate(
+  userId: string,
+  templateId: string,
+  template: Omit<MealTemplate, "id" | "createdAt">
+): Promise<void> {
+  const templateRef = doc(db, "users", userId, "mealTemplates", templateId);
+  await setDoc(
+    templateRef,
+    {
+      name: template.name,
+      foods: template.foods,
+      updatedAt: Timestamp.now(),
+    },
+    { merge: true }
+  );
 }
 
 // ============ FOODS ============

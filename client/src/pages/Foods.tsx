@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import type { User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import { Search, Plus, Trash2, CalendarPlus } from "lucide-react";
+import { Search, Plus, Trash2, CalendarPlus, ChevronDown, ChevronUp } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header/Header";
@@ -37,6 +37,7 @@ export default function Foods() {
   const [selectedMealTemplate, setSelectedMealTemplate] = useState<MealTemplate | null>(null);
   const [selectedFood, setSelectedFood] = useState<FoodItem | null>(null);
   const [activeTab, setActiveTab] = useState<"all" | "custom" | "common" | "meals">("all");
+  const [expandedMeals, setExpandedMeals] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -194,6 +195,18 @@ export default function Foods() {
     setIsFoodToLogModalOpen(true);
   };
 
+  const toggleMealExpansion = (templateId: string) => {
+    setExpandedMeals((prev) => {
+      const next = new Set(prev);
+      if (next.has(templateId)) {
+        next.delete(templateId);
+      } else {
+        next.add(templateId);
+      }
+      return next;
+    });
+  };
+
   const handleAddMealToLog = async (dates: string[]) => {
     if (!user || !selectedMealTemplate) return;
 
@@ -308,35 +321,57 @@ export default function Foods() {
                   }),
                   { calories: 0, protein: 0, carbs: 0, fat: 0 }
                 );
+                const isExpanded = expandedMeals.has(template.id);
                 return (
-                  <div key={template.id} className={styles.foodItem}>
-                    <div className={styles.foodInfo}>
-                      <div className={styles.foodHeader}>
-                        <h3 className={styles.foodName}>{template.name}</h3>
-                        <span className={styles.mealBadge}>Meal</span>
+                  <div key={template.id} className={styles.mealCard}>
+                    <div className={styles.foodItem}>
+                      <button
+                        onClick={() => toggleMealExpansion(template.id)}
+                        className={styles.expandButton}
+                        title={isExpanded ? "Collapse" : "Expand"}
+                      >
+                        {isExpanded ? (
+                          <ChevronUp className={styles.icon} />
+                        ) : (
+                          <ChevronDown className={styles.icon} />
+                        )}
+                      </button>
+                      <div className={styles.foodInfo}>
+                        <div className={styles.foodHeader}>
+                          <h3 className={styles.foodName}>{template.name}</h3>
+                          <span className={styles.mealBadge}>Meal</span>
+                        </div>
+                        <p className={styles.foodServing}>
+                          {template.foods.length} food{template.foods.length !== 1 ? "s" : ""}
+                        </p>
+                        <p className={styles.foodMacros}>
+                          {totals.calories} cal - {totals.protein}g P - {totals.carbs}g C - {totals.fat}g F
+                        </p>
                       </div>
-                      <p className={styles.foodServing}>
-                        {template.foods.length} food{template.foods.length !== 1 ? "s" : ""}
-                      </p>
-                      <p className={styles.foodMacros}>
-                        {totals.calories} cal - {totals.protein}g P - {totals.carbs}g C - {totals.fat}g F
-                      </p>
+                      <div className={styles.itemActions}>
+                        <button
+                          onClick={() => handleOpenMealToLog(template)}
+                          className={styles.addToLogButton}
+                          title="Add to log"
+                        >
+                          <CalendarPlus className={styles.icon} />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteMealTemplate(template.id)}
+                          className={styles.deleteButton}
+                          title="Delete"
+                        >
+                          <Trash2 className={styles.icon} />
+                        </button>
+                      </div>
                     </div>
-                    <div className={styles.itemActions}>
-                      <button
-                        onClick={() => handleOpenMealToLog(template)}
-                        className={styles.addToLogButton}
-                        title="Add to log"
-                      >
-                        <CalendarPlus className={styles.icon} />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteMealTemplate(template.id)}
-                        className={styles.deleteButton}
-                        title="Delete"
-                      >
-                        <Trash2 className={styles.icon} />
-                      </button>
+                    <div className={`${styles.mealFoodsList} ${isExpanded ? styles.mealFoodsListExpanded : ""}`}>
+                      {template.foods.map((food, index) => (
+                        <div key={index} className={styles.mealFoodItem}>
+                          <span className={styles.mealFoodName}>{food.name}</span>
+                          <span className={styles.mealFoodCalories}>{food.calories} cal</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 );
@@ -416,6 +451,7 @@ export default function Foods() {
           onClose={() => setIsMealModalOpen(false)}
           onSave={handleSaveMeal}
           availableFoods={foods}
+          existingTemplateNames={new Set(mealTemplates.map((t) => t.name.toLowerCase()))}
         />
 
         <AddMealToLogModal

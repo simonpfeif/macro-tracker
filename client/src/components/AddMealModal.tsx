@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { X, Search, Plus, Check } from "lucide-react";
+import { X, Search, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { Food, FoodItem } from "@/types";
@@ -10,6 +10,7 @@ type AddMealModalProps = {
   onClose: () => void;
   onSave: (name: string, foods: Food[]) => void;
   availableFoods: FoodItem[];
+  existingTemplateNames?: Set<string>;
 };
 
 export default function AddMealModal({
@@ -17,6 +18,7 @@ export default function AddMealModal({
   onClose,
   onSave,
   availableFoods,
+  existingTemplateNames = new Set(),
 }: AddMealModalProps) {
   const [name, setName] = useState("");
   const [foods, setFoods] = useState<Food[]>([]);
@@ -24,7 +26,9 @@ export default function AddMealModal({
   const [selectedFood, setSelectedFood] = useState<FoodItem | null>(null);
   const [servings, setServings] = useState("1");
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const [nameError, setNameError] = useState<string | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const nameValidationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const filteredFoods = searchQuery.trim()
     ? availableFoods
@@ -36,6 +40,33 @@ export default function AddMealModal({
   useEffect(() => {
     setHighlightedIndex(-1);
   }, [searchQuery]);
+
+  // Debounced validation for duplicate name check
+  useEffect(() => {
+    if (nameValidationTimeoutRef.current) {
+      clearTimeout(nameValidationTimeoutRef.current);
+    }
+
+    if (!name.trim()) {
+      setNameError(null);
+      return;
+    }
+
+    nameValidationTimeoutRef.current = setTimeout(() => {
+      const normalizedName = name.trim().toLowerCase();
+      if (existingTemplateNames.has(normalizedName)) {
+        setNameError("A meal template with this name already exists");
+      } else {
+        setNameError(null);
+      }
+    }, 300);
+
+    return () => {
+      if (nameValidationTimeoutRef.current) {
+        clearTimeout(nameValidationTimeoutRef.current);
+      }
+    };
+  }, [name, existingTemplateNames]);
 
   if (!isOpen) return null;
 
@@ -81,7 +112,7 @@ export default function AddMealModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!name.trim() || foods.length === 0) {
+    if (!name.trim() || foods.length === 0 || nameError) {
       return;
     }
 
@@ -93,6 +124,7 @@ export default function AddMealModal({
     setSearchQuery("");
     setSelectedFood(null);
     setServings("1");
+    setNameError(null);
     onClose();
   };
 
@@ -102,6 +134,7 @@ export default function AddMealModal({
     setSearchQuery("");
     setSelectedFood(null);
     setServings("1");
+    setNameError(null);
     onClose();
   };
 
@@ -131,8 +164,10 @@ export default function AddMealModal({
                   searchInputRef.current?.focus();
                 }
               }}
+              className={nameError ? styles.inputError : ""}
               required
             />
+            {nameError && <span className={styles.errorMessage}>{nameError}</span>}
           </div>
 
           {/* Food Search */}
@@ -300,7 +335,7 @@ export default function AddMealModal({
             <Button type="button" variant="outline" onClick={handleClose}>
               Cancel
             </Button>
-            <Button type="submit" disabled={!name.trim() || foods.length === 0}>
+            <Button type="submit" disabled={!name.trim() || foods.length === 0 || !!nameError}>
               Save Meal
             </Button>
           </div>

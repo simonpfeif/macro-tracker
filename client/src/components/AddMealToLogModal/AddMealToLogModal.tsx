@@ -19,7 +19,7 @@ export default function AddMealToLogModal({
   onSave,
 }: AddMealToLogModalProps) {
   const [selectedDates, setSelectedDates] = useState<Set<string>>(new Set());
-  const [saving, setSaving] = useState(false);
+  const [saving] = useState(false);
 
   if (!isOpen || !mealTemplate) return null;
 

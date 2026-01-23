@@ -4,19 +4,26 @@ import { onAuthStateChanged } from "firebase/auth";
 import type { User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import type { Meal, FoodItem, Food, UserProfile, DailyLogStatus } from "@/types";
+import { DndContext, closestCenter } from "@dnd-kit/core";
+import type { DragEndEvent } from "@dnd-kit/core";
+import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import {
   saveMeal,
   getMealsByDate,
   deleteMeal,
+  updateMealOrder,
   getTodayDate,
   getAllFoods,
   saveMealTemplate,
   getMealTemplates,
+  getMealTemplateByName,
+  updateMealTemplate,
   getUserProfile,
   getDailyLog,
   setDailyLogStatus,
   getDateLimits,
 } from "@/services/db";
+import { hashFoods } from "@/utils/mealHash";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +31,7 @@ import Header from "@/components/Header/Header";
 import DateNavigation from "@/components/Header/DateNavigation";
 import MealSlot from "@/components/MealSlot";
 import DailySummary from "@/components/DailySummary";
+import SaveTemplateDialog from "@/components/SaveTemplateDialog/SaveTemplateDialog";
 import styles from "./DailyLog.module.css";
 
 export default function DailyLog() {
@@ -35,8 +43,9 @@ export default function DailyLog() {
   const [isAddingMeal, setIsAddingMeal] = useState(false);
   const [newMealName, setNewMealName] = useState("");
   const [savedToast, setSavedToast] = useState<string | null>(null);
-  const [savedTemplateNames, setSavedTemplateNames] = useState<Set<string>>(new Set());
+  const [templateContentHashes, setTemplateContentHashes] = useState<Map<string, string>>(new Map());
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [saveDialogMealId, setSaveDialogMealId] = useState<string | null>(null);
   const [logStatus, setLogStatus] = useState<DailyLogStatus>("unlogged");
 
   const selectedDate = searchParams.get("date") || getTodayDate();
@@ -90,8 +99,11 @@ export default function DailyLog() {
     if (!user) return;
     try {
       const templates = await getMealTemplates(user.uid);
-      const names = new Set(templates.map((t) => t.name));
-      setSavedTemplateNames(names);
+      const hashes = new Map<string, string>();
+      templates.forEach((t) => {
+        hashes.set(t.name, hashFoods(t.foods));
+      });
+      setTemplateContentHashes(hashes);
     } catch (error) {
       console.error("Error loading meal templates:", error);
     }
@@ -353,30 +365,157 @@ export default function DailyLog() {
     }
   };
 
-  // Save meal as template
+  // Save meal as template - check for conflicts first
   const handleSaveAsTemplate = async (mealId: string) => {
     if (!user) return;
 
     const meal = getMealById(mealId);
     if (!meal || meal.foods.length === 0) return;
 
-    const previousTemplateNames = savedTemplateNames;
+    // Check if template with this name already exists and has different content
+    const existingHash = templateContentHashes.get(meal.name);
+    const currentHash = hashFoods(meal.foods);
+
+    if (existingHash !== undefined && existingHash !== currentHash) {
+      // Show conflict dialog
+      setSaveDialogMealId(mealId);
+      return;
+    }
+
+    // No conflict, save directly
+    await saveTemplateDirectly(meal.name, meal.foods);
+  };
+
+  // Actually save the template (used after conflict resolution)
+  const saveTemplateDirectly = async (name: string, foods: Food[]) => {
+    if (!user) return;
+
+    const previousTemplateHashes = templateContentHashes;
+    const mealHash = hashFoods(foods);
 
     // Optimistic: Update UI immediately
-    setSavedTemplateNames((prev) => new Set(prev).add(meal.name));
-    setSavedToast(meal.name);
+    setTemplateContentHashes((prev) => {
+      const next = new Map(prev);
+      next.set(name, mealHash);
+      return next;
+    });
+    setSavedToast(name);
     setTimeout(() => setSavedToast(null), 2000);
 
     // Database call in background
     try {
-      await saveMealTemplate(user.uid, {
-        name: meal.name,
-        foods: meal.foods,
-      });
+      await saveMealTemplate(user.uid, { name, foods });
     } catch (error) {
       console.error("Failed to save template:", error);
-      setSavedTemplateNames(previousTemplateNames);
+      setTemplateContentHashes(previousTemplateHashes);
     }
+  };
+
+  // Replace existing template
+  const handleReplaceTemplate = async () => {
+    if (!user || !saveDialogMealId) return;
+
+    const meal = getMealById(saveDialogMealId);
+    if (!meal) return;
+
+    const previousTemplateHashes = templateContentHashes;
+    const mealHash = hashFoods(meal.foods);
+
+    // Optimistic: Update UI immediately
+    setTemplateContentHashes((prev) => {
+      const next = new Map(prev);
+      next.set(meal.name, mealHash);
+      return next;
+    });
+    setSavedToast(meal.name);
+    setTimeout(() => setSavedToast(null), 2000);
+
+    // Find and update the existing template
+    try {
+      const existingTemplate = await getMealTemplateByName(user.uid, meal.name);
+      if (existingTemplate) {
+        await updateMealTemplate(user.uid, existingTemplate.id, {
+          name: meal.name,
+          foods: meal.foods,
+        });
+      } else {
+        // Fallback: create new if not found
+        await saveMealTemplate(user.uid, {
+          name: meal.name,
+          foods: meal.foods,
+        });
+      }
+    } catch (error) {
+      console.error("Failed to replace template:", error);
+      setTemplateContentHashes(previousTemplateHashes);
+    }
+  };
+
+  // Save with a new name
+  const handleSaveWithNewName = async (newName: string) => {
+    if (!user || !saveDialogMealId) return;
+
+    const meal = getMealById(saveDialogMealId);
+    if (!meal) return;
+
+    await saveTemplateDirectly(newName, meal.foods);
+  };
+
+  // Reorder meals - shared logic for both arrow buttons and drag-and-drop
+  const reorderMeals = async (fromIndex: number, toIndex: number) => {
+    if (!user) return;
+    if (fromIndex === toIndex) return;
+
+    const previousMeals = meals;
+    const newMeals = [...meals];
+
+    // Remove meal from old position and insert at new position
+    const [movedMeal] = newMeals.splice(fromIndex, 1);
+    newMeals.splice(toIndex, 0, movedMeal);
+
+    // Reassign sequential order values
+    const updatedMeals = newMeals.map((meal, index) => ({
+      ...meal,
+      order: index,
+    }));
+
+    // Optimistic update
+    setMeals(updatedMeals);
+
+    // Persist to database
+    try {
+      await Promise.all(
+        updatedMeals.map((meal, index) =>
+          updateMealOrder(user.uid, meal.id, index)
+        )
+      );
+    } catch (error) {
+      console.error("Failed to reorder meals:", error);
+      setMeals(previousMeals);
+    }
+  };
+
+  // Handle arrow button reordering
+  const handleMoveMeal = async (mealId: string, direction: "up" | "down") => {
+    if (!user) return;
+
+    const mealIndex = meals.findIndex((m) => m.id === mealId);
+    if (mealIndex === -1) return;
+    if (direction === "up" && mealIndex === 0) return;
+    if (direction === "down" && mealIndex === meals.length - 1) return;
+
+    const newIndex = direction === "up" ? mealIndex - 1 : mealIndex + 1;
+    reorderMeals(mealIndex, newIndex);
+  };
+
+  // Handle drag-and-drop reordering
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = meals.findIndex((m) => m.id === active.id);
+    const newIndex = meals.findIndex((m) => m.id === over.id);
+    reorderMeals(oldIndex, newIndex);
   };
 
   // Calculate daily totals
@@ -438,21 +577,35 @@ export default function DailyLog() {
             {/* Left Column - Meals (2/3) */}
             <div className={styles.mealsColumn}>
               {/* Meals */}
-              {meals.map((meal) => (
-                <MealSlot
-                  key={meal.id}
-                  name={meal.name}
-                  foods={meal.foods}
-                  availableFoods={availableFoods}
-                  onAddFood={(food) => handleAddFood(meal.id, food)}
-                  onRemoveFood={(index) => handleRemoveFood(meal.id, index)}
-                  onDelete={() => handleDeleteMeal(meal.id)}
-                  onRename={(newName) => handleRenameMeal(meal.id, newName)}
-                  onSaveAsTemplate={() => handleSaveAsTemplate(meal.id)}
-                  isSavedAsTemplate={savedTemplateNames.has(meal.name)}
-                  isCustom
-                />
-              ))}
+              <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                <SortableContext items={meals.map((m) => m.id)} strategy={verticalListSortingStrategy}>
+                  {meals.map((meal, index) => {
+                    const mealHash = hashFoods(meal.foods);
+                    const templateHash = templateContentHashes.get(meal.name);
+                    const isSavedAsTemplate = templateHash !== undefined && templateHash === mealHash;
+                    return (
+                      <MealSlot
+                        key={meal.id}
+                        id={meal.id}
+                        name={meal.name}
+                        foods={meal.foods}
+                        availableFoods={availableFoods}
+                        onAddFood={(food) => handleAddFood(meal.id, food)}
+                        onRemoveFood={(index) => handleRemoveFood(meal.id, index)}
+                        onDelete={() => handleDeleteMeal(meal.id)}
+                        onRename={(newName) => handleRenameMeal(meal.id, newName)}
+                        onSaveAsTemplate={() => handleSaveAsTemplate(meal.id)}
+                        isSavedAsTemplate={isSavedAsTemplate}
+                        isCustom
+                        onMoveUp={() => handleMoveMeal(meal.id, "up")}
+                        onMoveDown={() => handleMoveMeal(meal.id, "down")}
+                        canMoveUp={index > 0}
+                        canMoveDown={index < meals.length - 1}
+                      />
+                    );
+                  })}
+                </SortableContext>
+              </DndContext>
 
               {/* Add Custom Meal */}
               {isAddingMeal ? (
@@ -514,6 +667,16 @@ export default function DailyLog() {
           Saved "{savedToast}" as template!
         </div>
       )}
+
+      {/* Save Template Dialog */}
+      <SaveTemplateDialog
+        isOpen={saveDialogMealId !== null}
+        mealName={saveDialogMealId ? getMealById(saveDialogMealId)?.name || "" : ""}
+        onClose={() => setSaveDialogMealId(null)}
+        onReplace={handleReplaceTemplate}
+        onSaveWithNewName={handleSaveWithNewName}
+        existingTemplateNames={new Set([...templateContentHashes.keys()].map((n) => n.toLowerCase()))}
+      />
     </div>
   );
 }

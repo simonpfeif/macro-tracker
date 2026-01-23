@@ -27,7 +27,7 @@ export default function AddFoodToLogModal({
   const [newMealName, setNewMealName] = useState("");
   const [showNewMealInput, setShowNewMealInput] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [saving, setSaving] = useState(false);
+  const [saving] = useState(false);
 
   // Reset state when modal closes
   useEffect(() => {

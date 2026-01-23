@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
-import { Plus, Trash2, X, Search, Pencil, Check, Bookmark, BookmarkCheck } from "lucide-react";
+import { Plus, Trash2, X, Search, Pencil, Check, Bookmark, BookmarkCheck, ChevronUp, ChevronDown, GripVertical } from "lucide-react";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { Input } from "@/components/ui/input";
 import type { Food, FoodItem } from "@/types";
 import styles from "./MealSlot.module.css";
 
 type MealSlotProps = {
+  id: string;
   name: string;
   foods: Food[];
   availableFoods: FoodItem[];
@@ -15,9 +18,14 @@ type MealSlotProps = {
   onSaveAsTemplate?: () => void;
   isSavedAsTemplate?: boolean;
   isCustom?: boolean;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
+  canMoveUp?: boolean;
+  canMoveDown?: boolean;
 };
 
 export default function MealSlot({
+  id,
   name,
   foods,
   availableFoods,
@@ -28,7 +36,25 @@ export default function MealSlot({
   onSaveAsTemplate,
   isSavedAsTemplate = false,
   isCustom = false,
+  onMoveUp,
+  onMoveDown,
+  canMoveUp = true,
+  canMoveDown = true,
 }: MealSlotProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
   const [isAdding, setIsAdding] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFood, setSelectedFood] = useState<FoodItem | null>(null);
@@ -108,9 +134,21 @@ export default function MealSlot({
   const multiplier = parseFloat(servings) || 1;
 
   return (
-    <div className={styles.card}>
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`${styles.card} ${isDragging ? styles.dragging : ""}`}
+    >
       {/* Header */}
       <div className={styles.header}>
+        <button
+          {...attributes}
+          {...listeners}
+          className={styles.dragHandle}
+          title="Drag to reorder"
+        >
+          <GripVertical className={styles.icon} />
+        </button>
         {isEditing ? (
           <div className={styles.editContainer}>
             <Input
@@ -145,6 +183,26 @@ export default function MealSlot({
           </div>
         )}
         <div className={styles.headerRight}>
+          {(onMoveUp || onMoveDown) && (
+            <div className={styles.reorderButtons}>
+              <button
+                onClick={onMoveUp}
+                className={styles.reorderButton}
+                disabled={!canMoveUp}
+                title="Move up"
+              >
+                <ChevronUp className={styles.icon} />
+              </button>
+              <button
+                onClick={onMoveDown}
+                className={styles.reorderButton}
+                disabled={!canMoveDown}
+                title="Move down"
+              >
+                <ChevronDown className={styles.icon} />
+              </button>
+            </div>
+          )}
           {foods.length > 0 && (
             <span className={styles.caloriesBadge}>{totals.calories} cal</span>
           )}
