@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import type { User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
@@ -8,6 +8,7 @@ import { seedCommonFoods, getCommonFoods, getUserProfile, saveUserProfile } from
 import { commonFoodsData } from "@/data/commonFoods";
 import type { UserProfile } from "@/types";
 import Header from "@/components/Header/Header";
+import DatePickerCalendar from "@/components/DatePickerCalendar/DatePickerCalendar";
 import styles from "./Settings.module.css";
 
 export default function Settings() {
@@ -17,12 +18,25 @@ export default function Settings() {
   const [foodCount, setFoodCount] = useState<number | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [birthday, setBirthday] = useState("");
+  const [showBirthdayPicker, setShowBirthdayPicker] = useState(false);
+  const birthdayRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
     });
     return () => unsubscribe();
+  }, []);
+
+  // Click outside handler for birthday picker
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (birthdayRef.current && !birthdayRef.current.contains(event.target as Node)) {
+        setShowBirthdayPicker(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // Check if foods already exist
@@ -62,6 +76,7 @@ export default function Settings() {
   const handleBirthdayChange = async (newBirthday: string) => {
     if (!user) return;
     setBirthday(newBirthday);
+    setShowBirthdayPicker(false);
 
     try {
       await saveUserProfile(user.uid, { birthday: newBirthday });
@@ -78,6 +93,12 @@ export default function Settings() {
     } catch (error) {
       console.error("Error saving birthday:", error);
     }
+  };
+
+  const formatBirthday = (dateStr: string) => {
+    if (!dateStr) return "Select birthday";
+    const date = new Date(dateStr + "T00:00:00");
+    return date.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
   };
 
   const handleSignOut = async () => {
@@ -147,12 +168,25 @@ export default function Settings() {
           <div className={styles.profileInfo}>
             <div className={styles.profileRow}>
               <span className={styles.profileLabel}>Birthday</span>
-              <input
-                type="date"
-                value={birthday}
-                onChange={(e) => handleBirthdayChange(e.target.value)}
-                className={styles.dateInput}
-              />
+              <div ref={birthdayRef} className={styles.birthdayPickerContainer}>
+                <button
+                  type="button"
+                  onClick={() => setShowBirthdayPicker(!showBirthdayPicker)}
+                  className={styles.birthdayTrigger}
+                >
+                  {formatBirthday(birthday)}
+                </button>
+                {showBirthdayPicker && (
+                  <div className={styles.birthdayDropdown}>
+                    <DatePickerCalendar
+                      singleSelect
+                      selectedDate={birthday}
+                      onSingleDateSelect={handleBirthdayChange}
+                      allowFutureDates={false}
+                    />
+                  </div>
+                )}
+              </div>
             </div>
             <div className={`${styles.profileRow} ${styles.profileRowLast}`}>
               <span className={styles.profileLabel}>Subscription</span>

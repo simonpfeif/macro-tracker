@@ -4,17 +4,29 @@ import { getTodayDate } from "@/services/db";
 import styles from "./DatePickerCalendar.module.css";
 
 type DatePickerCalendarProps = {
-  selectedDates: Set<string>;
-  onDateSelect: (date: string) => void;
+  selectedDates?: Set<string>;
+  onDateSelect?: (date: string) => void;
   allowFutureDates?: boolean;
+  // Single selection mode props
+  singleSelect?: boolean;
+  selectedDate?: string;
+  onSingleDateSelect?: (date: string) => void;
 };
 
 export default function DatePickerCalendar({
   selectedDates,
   onDateSelect,
   allowFutureDates = true,
+  singleSelect = false,
+  selectedDate,
+  onSingleDateSelect,
 }: DatePickerCalendarProps) {
-  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [currentMonth, setCurrentMonth] = useState(() => {
+    if (singleSelect && selectedDate) {
+      return new Date(selectedDate + "T00:00:00");
+    }
+    return new Date();
+  });
   const today = getTodayDate();
 
   const calendarDays = useMemo(() => {
@@ -77,7 +89,12 @@ export default function DatePickerCalendar({
   const handleDayClick = (date: string) => {
     const isFuture = date > today;
     if (!allowFutureDates && isFuture) return;
-    onDateSelect(date);
+
+    if (singleSelect && onSingleDateSelect) {
+      onSingleDateSelect(date);
+    } else if (onDateSelect) {
+      onDateSelect(date);
+    }
   };
 
   return (
@@ -106,7 +123,7 @@ export default function DatePickerCalendar({
       <div className={styles.calendarGrid}>
         {calendarDays.map(({ date, day, isCurrentMonth }) => {
           const isToday = date === today;
-          const isSelected = selectedDates.has(date);
+          const isSelected = singleSelect ? date === selectedDate : selectedDates?.has(date);
           const isFuture = date > today;
           const isDisabled = !allowFutureDates && isFuture;
 
