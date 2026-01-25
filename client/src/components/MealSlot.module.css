@@ -1,7 +1,6 @@
 .card {
   background: var(--color-card);
   border-radius: var(--radius-md);
-  overflow: hidden;
   box-shadow: var(--shadow-sm);
   transition: transform var(--duration-normal) var(--ease-out),
               box-shadow var(--duration-normal) var(--ease-out);
@@ -261,16 +260,13 @@
 }
 
 .searchResults {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  z-index: 10;
   background: #FFFEFA;
   border: 1px solid #E8E6E3;
   border-radius: 0.5rem;
+  min-height: 12rem;
   max-height: 12rem;
   overflow-y: auto;
+  margin-top: 0.5rem;
 }
 
 .searchResultItem {

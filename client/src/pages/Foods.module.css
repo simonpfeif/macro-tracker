@@ -138,6 +138,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 1rem;
   transition: transform var(--duration-normal) var(--ease-out),
               box-shadow var(--duration-normal) var(--ease-out);
 }
@@ -145,6 +146,14 @@
 .foodItem:hover {
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
+}
+
+.foodHeaderLeft {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 .foodInfo {
@@ -158,8 +167,14 @@
 }
 
 .foodName {
-  font-weight: 500;
+  font-size: 1.125rem;
+  font-weight: 700;
   color: #1f2937;
+  margin: 0;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .customBadge {
@@ -168,6 +183,7 @@
   color: #C67A5E;
   padding: 0.125rem 0.5rem;
   border-radius: 0.25rem;
+  flex-shrink: 0;
 }
 
 .mealBadge {
@@ -181,6 +197,8 @@
 .foodServing {
   font-size: 0.875rem;
   color: #6b7280;
+  margin: 0;
+  line-height: 1.3;
 }
 
 .foodMacros {
@@ -226,7 +244,7 @@
   height: 1rem;
 }
 
-/* Expandable Meal Cards */
+/* Redesigned Meal Cards */
 .mealCard {
   background: var(--color-card);
   border-radius: var(--radius-md);
@@ -241,60 +259,164 @@
   box-shadow: var(--shadow-md);
 }
 
-.mealCard .foodItem {
-  border-radius: 0;
-  box-shadow: none;
-}
-
-.mealCard .foodItem:hover {
-  transform: none;
-  box-shadow: none;
-}
-
-.expandButton {
-  color: #9ca3af;
-  padding: 0.5rem;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  transition: color 0.2s;
-  flex-shrink: 0;
-}
-
-.expandButton:hover {
-  color: #4b5563;
-}
-
-.mealFoodsList {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.3s ease-out;
-  background: #F5F1EB;
-  border-top: 1px solid var(--color-border);
-}
-
-.mealFoodsListExpanded {
-  max-height: 500px;
-  transition: max-height 0.3s ease-in;
-}
-
-.mealFoodItem {
+.mealCardHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.5rem 1.25rem;
-  font-size: 0.875rem;
-  border-bottom: 1px solid var(--color-border);
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #f0ede9;
+  gap: 1rem;
 }
 
-.mealFoodItem:last-child {
-  border-bottom: none;
+.mealHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.mealHeaderContent {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.mealCardLeft {
+  flex: 0 1 auto;
+}
+
+.mealCardInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.mealCardTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mealCardName {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Macro grid */
+.macrosGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.6rem 0.5rem;
+  text-align: center;
+  flex: 0 0 auto;
+}
+
+.gridHeader {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0 0.25rem;
+}
+
+.gridValue {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  padding: 0.25rem;
+}
+
+.gridValue.macroProtein {
+  color: var(--color-protein);
+}
+
+.gridValue.macroCarbs {
+  color: #B8A825;
+}
+
+.gridValue.macroFat {
+  color: var(--color-fat);
+}
+
+/* Macro chips row */
+.mealCardMacros {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.macroChip {
+  font-size: 0.8125rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: 0.375rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.macroChip:not([class*="macro"]) {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.macroProtein {
+  background: var(--color-protein-light);
+  color: var(--color-protein);
+}
+
+.macroCarbs {
+  background: var(--color-carbs-light);
+  color: #B8A825;
+}
+
+.macroFat {
+  background: var(--color-fat-light);
+  color: var(--color-fat);
+}
+
+/* Foods list section */
+.mealFoodsList {
+  padding: 0.875rem 1.25rem;
+  background: #fafaf8;
+}
+
+/* Food items in list */
+.mealFoodItem {
+  padding: 0.375rem 0;
+  font-size: 0.875rem;
+  line-height: 1.4;
 }
 
 .mealFoodName {
   color: #4b5563;
+  font-weight: 500;
 }
 
-.mealFoodCalories {
+/* Show more/less button */
+.showMoreButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.375rem 0;
+  margin-top: 0.25rem;
+  font-size: 0.8125rem;
+  color: #9ca3af;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.showMoreButton:hover {
   color: #6b7280;
 }

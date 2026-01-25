@@ -321,32 +321,27 @@ export default function Foods() {
                   }),
                   { calories: 0, protein: 0, carbs: 0, fat: 0 }
                 );
+                const hasMoreThanThree = template.foods.length > 3;
                 const isExpanded = expandedMeals.has(template.id);
+                const visibleFoods = hasMoreThanThree ? template.foods.slice(0, 3) : template.foods;
+                const hiddenFoods = hasMoreThanThree ? template.foods.slice(3) : [];
+
                 return (
                   <div key={template.id} className={styles.mealCard}>
-                    <div className={styles.foodItem}>
-                      <button
-                        onClick={() => toggleMealExpansion(template.id)}
-                        className={styles.expandButton}
-                        title={isExpanded ? "Collapse" : "Expand"}
-                      >
-                        {isExpanded ? (
-                          <ChevronUp className={styles.icon} />
-                        ) : (
-                          <ChevronDown className={styles.icon} />
-                        )}
-                      </button>
-                      <div className={styles.foodInfo}>
-                        <div className={styles.foodHeader}>
-                          <h3 className={styles.foodName}>{template.name}</h3>
-                          <span className={styles.mealBadge}>Meal</span>
-                        </div>
-                        <p className={styles.foodServing}>
-                          {template.foods.length} food{template.foods.length !== 1 ? "s" : ""}
-                        </p>
-                        <p className={styles.foodMacros}>
-                          {totals.calories} cal - {totals.protein}g P - {totals.carbs}g C - {totals.fat}g F
-                        </p>
+                    <div className={styles.mealCardHeader}>
+                      <div className={styles.mealHeaderLeft}>
+                        <h3 className={styles.mealCardName}>{template.name}</h3>
+                      </div>
+                      <div className={styles.macrosGrid}>
+                        <div className={styles.gridHeader}>Cal</div>
+                        <div className={styles.gridHeader}>P</div>
+                        <div className={styles.gridHeader}>C</div>
+                        <div className={styles.gridHeader}>F</div>
+                        
+                        <div className={styles.gridValue}>{Math.round(totals.calories)}</div>
+                        <div className={`${styles.gridValue} ${styles.macroProtein}`}>{Math.round(totals.protein)}g</div>
+                        <div className={`${styles.gridValue} ${styles.macroCarbs}`}>{Math.round(totals.carbs)}g</div>
+                        <div className={`${styles.gridValue} ${styles.macroFat}`}>{Math.round(totals.fat)}g</div>
                       </div>
                       <div className={styles.itemActions}>
                         <button
@@ -365,13 +360,34 @@ export default function Foods() {
                         </button>
                       </div>
                     </div>
-                    <div className={`${styles.mealFoodsList} ${isExpanded ? styles.mealFoodsListExpanded : ""}`}>
-                      {template.foods.map((food, index) => (
+
+                    <div className={styles.mealFoodsList}>
+                      {visibleFoods.map((food, index) => (
                         <div key={index} className={styles.mealFoodItem}>
                           <span className={styles.mealFoodName}>{food.name}</span>
-                          <span className={styles.mealFoodCalories}>{food.calories} cal</span>
                         </div>
                       ))}
+                      {hasMoreThanThree && !isExpanded && (
+                        <button
+                          onClick={() => toggleMealExpansion(template.id)}
+                          className={styles.showMoreButton}
+                        >
+                          +{hiddenFoods.length} more <ChevronDown className={styles.icon} />
+                        </button>
+                      )}
+                      {isExpanded && hiddenFoods.map((food, index) => (
+                        <div key={`hidden-${index}`} className={styles.mealFoodItem}>
+                          <span className={styles.mealFoodName}>{food.name}</span>
+                        </div>
+                      ))}
+                      {hasMoreThanThree && isExpanded && (
+                        <button
+                          onClick={() => toggleMealExpansion(template.id)}
+                          className={styles.showMoreButton}
+                        >
+                          Show less <ChevronUp className={styles.icon} />
+                        </button>
+                      )}
                     </div>
                   </div>
                 );
@@ -402,19 +418,26 @@ export default function Foods() {
           <div className={styles.foodList}>
             {filteredFoods.map((food) => (
               <div key={food.id} className={styles.foodItem}>
-                <div className={styles.foodInfo}>
-                  <div className={styles.foodHeader}>
-                    <h3 className={styles.foodName}>{food.name}</h3>
-                    {food.source === "custom" && (
-                      <span className={styles.customBadge}>Custom</span>
-                    )}
-                  </div>
+                <div className={styles.foodHeaderLeft}>
+                  <h3 className={styles.foodName}>{food.name}</h3>
+                  {food.source === "custom" && (
+                    <span className={styles.customBadge}>Custom</span>
+                  )}
                   <p className={styles.foodServing}>
                     {food.servingSize} - {food.category}
                   </p>
-                  <p className={styles.foodMacros}>
-                    {food.calories} cal - {food.protein}g P - {food.carbs}g C - {food.fat}g F
-                  </p>
+                </div>
+
+                <div className={styles.macrosGrid}>
+                  <div className={styles.gridHeader}>Cal</div>
+                  <div className={styles.gridHeader}>P</div>
+                  <div className={styles.gridHeader}>C</div>
+                  <div className={styles.gridHeader}>F</div>
+                  
+                  <div className={styles.gridValue}>{food.calories}</div>
+                  <div className={`${styles.gridValue} ${styles.macroProtein}`}>{food.protein}g</div>
+                  <div className={`${styles.gridValue} ${styles.macroCarbs}`}>{food.carbs}g</div>
+                  <div className={`${styles.gridValue} ${styles.macroFat}`}>{food.fat}g</div>
                 </div>
 
                 <div className={styles.itemActions}>
