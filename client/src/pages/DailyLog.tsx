@@ -495,19 +495,6 @@ export default function DailyLog() {
     }
   };
 
-  // Handle arrow button reordering
-  const handleMoveMeal = async (mealId: string, direction: "up" | "down") => {
-    if (!user) return;
-
-    const mealIndex = meals.findIndex((m) => m.id === mealId);
-    if (mealIndex === -1) return;
-    if (direction === "up" && mealIndex === 0) return;
-    if (direction === "down" && mealIndex === meals.length - 1) return;
-
-    const newIndex = direction === "up" ? mealIndex - 1 : mealIndex + 1;
-    reorderMeals(mealIndex, newIndex);
-  };
-
   // Handle drag-and-drop reordering
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -579,7 +566,7 @@ export default function DailyLog() {
               {/* Meals */}
               <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                 <SortableContext items={meals.map((m) => m.id)} strategy={verticalListSortingStrategy}>
-                  {meals.map((meal, index) => {
+                  {meals.map((meal) => {
                     const mealHash = hashFoods(meal.foods);
                     const templateHash = templateContentHashes.get(meal.name);
                     const isSavedAsTemplate = templateHash !== undefined && templateHash === mealHash;
@@ -597,10 +584,6 @@ export default function DailyLog() {
                         onSaveAsTemplate={() => handleSaveAsTemplate(meal.id)}
                         isSavedAsTemplate={isSavedAsTemplate}
                         isCustom
-                        onMoveUp={() => handleMoveMeal(meal.id, "up")}
-                        onMoveDown={() => handleMoveMeal(meal.id, "down")}
-                        canMoveUp={index > 0}
-                        canMoveDown={index < meals.length - 1}
                       />
                     );
                   })}

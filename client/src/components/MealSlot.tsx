@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Trash2, X, Search, Pencil, Check, Bookmark, BookmarkCheck, ChevronUp, ChevronDown, GripVertical } from "lucide-react";
+import { Plus, Trash2, X, Search, Pencil, Check, Bookmark, BookmarkCheck } from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Input } from "@/components/ui/input";
@@ -18,10 +18,6 @@ type MealSlotProps = {
   onSaveAsTemplate?: () => void;
   isSavedAsTemplate?: boolean;
   isCustom?: boolean;
-  onMoveUp?: () => void;
-  onMoveDown?: () => void;
-  canMoveUp?: boolean;
-  canMoveDown?: boolean;
 };
 
 export default function MealSlot({
@@ -36,10 +32,6 @@ export default function MealSlot({
   onSaveAsTemplate,
   isSavedAsTemplate = false,
   isCustom = false,
-  onMoveUp,
-  onMoveDown,
-  canMoveUp = true,
-  canMoveDown = true,
 }: MealSlotProps) {
   const {
     attributes,
@@ -140,17 +132,13 @@ export default function MealSlot({
       className={`${styles.card} ${isDragging ? styles.dragging : ""}`}
     >
       {/* Header */}
-      <div className={styles.header}>
-        <button
-          {...attributes}
-          {...listeners}
-          className={styles.dragHandle}
-          title="Drag to reorder"
-        >
-          <GripVertical className={styles.icon} />
-        </button>
+      <div
+        className={styles.header}
+        {...attributes}
+        {...listeners}
+      >
         {isEditing ? (
-          <div className={styles.editContainer}>
+          <div className={styles.editContainer} onClick={(e) => e.stopPropagation()}>
             <Input
               type="text"
               value={editedName}
@@ -174,7 +162,8 @@ export default function MealSlot({
             <h3 className={styles.title}>{name}</h3>
             {onRename && (
               <button
-                onClick={() => setIsEditing(true)}
+                onClick={(e) => { e.stopPropagation(); setIsEditing(true); }}
+                onPointerDown={(e) => e.stopPropagation()}
                 className={styles.editButton}
               >
                 <Pencil className={styles.icon} />
@@ -182,33 +171,34 @@ export default function MealSlot({
             )}
           </div>
         )}
-        <div className={styles.headerRight}>
-          {(onMoveUp || onMoveDown) && (
-            <div className={styles.reorderButtons}>
-              <button
-                onClick={onMoveUp}
-                className={styles.reorderButton}
-                disabled={!canMoveUp}
-                title="Move up"
-              >
-                <ChevronUp className={styles.icon} />
-              </button>
-              <button
-                onClick={onMoveDown}
-                className={styles.reorderButton}
-                disabled={!canMoveDown}
-                title="Move down"
-              >
-                <ChevronDown className={styles.icon} />
-              </button>
+
+        {/* Macro totals grid (when foods exist) */}
+        {foods.length > 0 && (
+          <div className={styles.mealMacrosGrid}>
+            <div className={styles.mealMacroCell}>
+              <div className={styles.mealMacroCellLabel}>Cal</div>
+              <div className={styles.mealMacroCellValue}>{Math.round(totals.calories)}</div>
             </div>
-          )}
-          {foods.length > 0 && (
-            <span className={styles.caloriesBadge}>{totals.calories} cal</span>
-          )}
+            <div className={`${styles.mealMacroCell} ${styles.mealMacroCellProtein}`}>
+              <div className={styles.mealMacroCellLabel}>P</div>
+              <div className={styles.mealMacroCellValue}>{Math.round(totals.protein)}g</div>
+            </div>
+            <div className={`${styles.mealMacroCell} ${styles.mealMacroCellCarbs}`}>
+              <div className={styles.mealMacroCellLabel}>C</div>
+              <div className={styles.mealMacroCellValue}>{Math.round(totals.carbs)}g</div>
+            </div>
+            <div className={`${styles.mealMacroCell} ${styles.mealMacroCellFat}`}>
+              <div className={styles.mealMacroCellLabel}>F</div>
+              <div className={styles.mealMacroCellValue}>{Math.round(totals.fat)}g</div>
+            </div>
+          </div>
+        )}
+
+        <div className={styles.headerRight}>
           {foods.length > 0 && onSaveAsTemplate && (
             <button
-              onClick={onSaveAsTemplate}
+              onClick={(e) => { e.stopPropagation(); onSaveAsTemplate(); }}
+              onPointerDown={(e) => e.stopPropagation()}
               className={isSavedAsTemplate ? styles.saveButtonSaved : styles.saveButton}
               title={isSavedAsTemplate ? "Saved as template" : "Save as template"}
             >
@@ -221,7 +211,8 @@ export default function MealSlot({
           )}
           {isCustom && onDelete && (
             <button
-              onClick={onDelete}
+              onClick={(e) => { e.stopPropagation(); onDelete(); }}
+              onPointerDown={(e) => e.stopPropagation()}
               className={styles.deleteButton}
             >
               <Trash2 className={styles.icon} />
@@ -239,11 +230,14 @@ export default function MealSlot({
                 key={index}
                 className={styles.foodItem}
               >
-                <div>
+                <div className={styles.foodItemInfo}>
                   <span className={styles.foodName}>{food.name}</span>
-                  <span className={styles.foodCalories}>
-                    {food.calories} cal
-                  </span>
+                  <div className={styles.foodMacros}>
+                    <span>{food.calories} cal</span>
+                    <span className={styles.macroProtein}>{food.protein}g P</span>
+                    <span className={styles.macroCarbs}>{food.carbs}g C</span>
+                    <span className={styles.macroFat}>{food.fat}g F</span>
+                  </div>
                 </div>
                 <button
                   onClick={() => onRemoveFood(index)}
