@@ -10,6 +10,7 @@ import AddFoodModal from "@/components/AddFoodModal";
 import AddMealModal from "@/components/AddMealModal";
 import AddMealToLogModal from "@/components/AddMealToLogModal/AddMealToLogModal";
 import AddFoodToLogModal from "@/components/AddFoodToLogModal/AddFoodToLogModal";
+import MealDetailModal from "@/components/MealDetailModal";
 import type { FoodItem, MealTemplate, Food } from "@/types";
 import {
   getAllFoods,
@@ -19,6 +20,7 @@ import {
   getMealTemplates,
   saveMealTemplate,
   deleteMealTemplate,
+  updateMealTemplate,
   saveMeal,
 } from "@/services/db";
 import styles from "./Foods.module.css";
@@ -38,6 +40,8 @@ export default function Foods() {
   const [selectedFood, setSelectedFood] = useState<FoodItem | null>(null);
   const [activeTab, setActiveTab] = useState<"all" | "custom" | "common" | "meals">("all");
   const [expandedMeals, setExpandedMeals] = useState<Set<string>>(new Set());
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [mealToEdit, setMealToEdit] = useState<MealTemplate | null>(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -226,6 +230,32 @@ export default function Foods() {
     }
   };
 
+  const handleOpenEditModal = (template: MealTemplate) => {
+    setMealToEdit(template);
+    setIsEditModalOpen(true);
+  };
+
+  const handleUpdateMeal = async (templateId: string, name: string, mealFoods: Food[]) => {
+    if (!user) return;
+
+    const previousTemplates = mealTemplates;
+
+    // Optimistic: Update template in UI immediately
+    setMealTemplates((prev) =>
+      prev.map((t) =>
+        t.id === templateId ? { ...t, name, foods: mealFoods } : t
+      )
+    );
+
+    // Database call in background
+    try {
+      await updateMealTemplate(user.uid, templateId, { name, foods: mealFoods });
+    } catch (error) {
+      console.error("Error updating meal template:", error);
+      setMealTemplates(previousTemplates);
+    }
+  };
+
   const customCount = foods.filter((f) => f.source === "custom").length;
   const commonCount = foods.filter((f) => f.source === "common").length;
 
@@ -327,7 +357,12 @@ export default function Foods() {
                 const hiddenFoods = hasMoreThanThree ? template.foods.slice(3) : [];
 
                 return (
-                  <div key={template.id} className={styles.mealCard}>
+                  <div
+                    key={template.id}
+                    className={styles.mealCard}
+                    onClick={() => handleOpenEditModal(template)}
+                    style={{ cursor: "pointer" }}
+                  >
                     <div className={styles.mealCardHeader}>
                       <div className={styles.mealHeaderLeft}>
                         <h3 className={styles.mealCardName}>{template.name}</h3>
@@ -337,7 +372,7 @@ export default function Foods() {
                         <div className={styles.gridHeader}>P</div>
                         <div className={styles.gridHeader}>C</div>
                         <div className={styles.gridHeader}>F</div>
-                        
+
                         <div className={styles.gridValue}>{Math.round(totals.calories)}</div>
                         <div className={`${styles.gridValue} ${styles.macroProtein}`}>{Math.round(totals.protein)}g</div>
                         <div className={`${styles.gridValue} ${styles.macroCarbs}`}>{Math.round(totals.carbs)}g</div>
@@ -345,14 +380,20 @@ export default function Foods() {
                       </div>
                       <div className={styles.itemActions}>
                         <button
-                          onClick={() => handleOpenMealToLog(template)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenMealToLog(template);
+                          }}
                           className={styles.addToLogButton}
                           title="Add to log"
                         >
                           <CalendarPlus className={styles.icon} />
                         </button>
                         <button
-                          onClick={() => handleDeleteMealTemplate(template.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteMealTemplate(template.id);
+                          }}
                           className={styles.deleteButton}
                           title="Delete"
                         >
@@ -369,7 +410,10 @@ export default function Foods() {
                       ))}
                       {hasMoreThanThree && !isExpanded && (
                         <button
-                          onClick={() => toggleMealExpansion(template.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleMealExpansion(template.id);
+                          }}
                           className={styles.showMoreButton}
                         >
                           +{hiddenFoods.length} more <ChevronDown className={styles.icon} />
@@ -382,7 +426,10 @@ export default function Foods() {
                       ))}
                       {hasMoreThanThree && isExpanded && (
                         <button
-                          onClick={() => toggleMealExpansion(template.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleMealExpansion(template.id);
+                          }}
                           className={styles.showMoreButton}
                         >
                           Show less <ChevronUp className={styles.icon} />
@@ -495,6 +542,22 @@ export default function Foods() {
           }}
           food={selectedFood}
           userId={user?.uid || ""}
+        />
+
+        <MealDetailModal
+          isOpen={isEditModalOpen}
+          onClose={() => {
+            setIsEditModalOpen(false);
+            setMealToEdit(null);
+          }}
+          mealTemplate={mealToEdit}
+          onSave={handleUpdateMeal}
+          availableFoods={foods}
+          existingTemplateNames={new Set(
+            mealTemplates
+              .filter((t) => t.id !== mealToEdit?.id)
+              .map((t) => t.name.toLowerCase())
+          )}
         />
       </main>
     </div>

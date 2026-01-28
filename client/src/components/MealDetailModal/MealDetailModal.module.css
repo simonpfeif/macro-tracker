@@ -1,0 +1,470 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 1rem;
+}
+
+.modal {
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 32rem;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Mobile full-screen */
+@media (max-width: 640px) {
+  .overlay {
+    padding: 0;
+  }
+  .modal {
+    max-width: 100%;
+    max-height: 100%;
+    height: 100%;
+    border-radius: 0;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #e5e7eb;
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.closeButton {
+  color: #9ca3af;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  transition: color 0.2s;
+}
+
+.closeButton:hover {
+  color: #4b5563;
+}
+
+.form {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+/* Macro Totals Grid - 4 columns */
+.totalsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.macroTotalsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+}
+
+.macroTotalCell {
+  background: #f3f4f6;
+  border-radius: 0.5rem;
+  padding: 0.75rem 0.5rem;
+  text-align: center;
+}
+
+.macroTotalLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+
+.macroTotalValue {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.macroTotalProtein {
+  background: var(--color-protein-light);
+}
+
+.macroTotalProtein .macroTotalLabel {
+  color: var(--color-protein);
+}
+
+.macroTotalProtein .macroTotalValue {
+  color: var(--color-protein);
+}
+
+.macroTotalCarbs {
+  background: var(--color-carbs-light);
+}
+
+.macroTotalCarbs .macroTotalLabel {
+  color: #B8A825;
+}
+
+.macroTotalCarbs .macroTotalValue {
+  color: #B8A825;
+}
+
+.macroTotalFat {
+  background: var(--color-fat-light);
+}
+
+.macroTotalFat .macroTotalLabel {
+  color: var(--color-fat);
+}
+
+.macroTotalFat .macroTotalValue {
+  color: var(--color-fat);
+}
+
+/* Foods List */
+.foodsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.foodsListItems {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.foodItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.625rem 0.75rem;
+  background: #F5F1EB;
+  border-radius: 0.375rem;
+  gap: 0.5rem;
+}
+
+.foodItemInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.foodName {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1f2937;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.foodMacros {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+  flex-wrap: wrap;
+}
+
+.foodMacros .macroProtein {
+  color: var(--color-protein);
+}
+
+.foodMacros .macroCarbs {
+  color: #B8A825;
+}
+
+.foodMacros .macroFat {
+  color: var(--color-fat);
+}
+
+.removeButton {
+  color: #9ca3af;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  transition: color 0.2s;
+  flex-shrink: 0;
+}
+
+.removeButton:hover {
+  color: #ef4444;
+}
+
+/* Search */
+.searchContainer {
+  position: relative;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1rem;
+  height: 1rem;
+  color: #9ca3af;
+}
+
+.searchInput {
+  padding-left: 2.5rem;
+}
+
+.searchResults {
+  background: #FFFEFA;
+  border: 1px solid #E8E6E3;
+  border-radius: 0.5rem;
+  min-height: 12rem;
+  max-height: 12rem;
+  overflow-y: auto;
+  margin-top: 0.5rem;
+}
+
+.searchResultItem {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #F5F3F0;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.searchResultItem:last-child {
+  border-bottom: none;
+}
+
+.searchResultItem:hover {
+  background: #F5F1EB;
+}
+
+.searchResultItemHighlighted {
+  background: #F5F1EB;
+  border-left: 3px solid #D4886A;
+  padding-left: calc(0.75rem - 3px);
+}
+
+.searchResultName {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.searchResultDetails {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+/* Selected Food */
+.selectedFood {
+  background: #F5F1EB;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.selectedFoodHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.selectedFoodInfo {
+}
+
+.selectedFoodName {
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.selectedFoodServing {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.servingsRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.servingsLabel {
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.servingsInput {
+  width: 5rem;
+  height: 2rem;
+}
+
+/* Macro Grid for selected food */
+.macroGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  text-align: center;
+  font-size: 0.75rem;
+}
+
+.macroCell {
+  background: #F5F1EB;
+  border-radius: 0.25rem;
+  padding: 0.5rem;
+}
+
+/* Color-coded macro cells */
+.macroCellProtein {
+  background: var(--color-protein-light);
+}
+
+.macroCellProtein .macroLabel {
+  color: var(--color-protein);
+}
+
+.macroCellCarbs {
+  background: var(--color-carbs-light);
+}
+
+.macroCellCarbs .macroLabel {
+  color: #B8A825;
+}
+
+.macroCellFat {
+  background: var(--color-fat-light);
+}
+
+.macroCellFat .macroLabel {
+  color: var(--color-fat);
+}
+
+.macroCellCalories {
+  background: var(--color-calories-light);
+}
+
+.macroCellCalories .macroLabel {
+  color: var(--color-calories);
+}
+
+.macroLabel {
+  color: #6b7280;
+}
+
+.macroValue {
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.selectedFoodActions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.confirmButton {
+  color: #9ca3af;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.confirmButton:hover {
+  color: #10b981;
+}
+
+.clearButton {
+  color: #9ca3af;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.clearButton:hover {
+  color: #ef4444;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+  margin-top: auto;
+}
+
+.actions button {
+  flex: 1;
+}
+
+/* Icons */
+.icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.iconSmall {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Error states */
+.inputError {
+  border-color: #ef4444;
+}
+
+.inputError:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
+
+.errorMessage {
+  font-size: 0.75rem;
+  color: #ef4444;
+  margin-top: 0.25rem;
+}
