@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import DatePickerCalendar from "@/components/DatePickerCalendar/DatePickerCalendar";
 import type { FoodItem, Meal, Food } from "@/types";
 import { getMealsByDate, saveMeal, deleteMeal } from "@/services/db";
+import { ServingDisplay } from "@/components/ServingDisplay";
 import styles from "./AddFoodToLogModal.module.css";
 
 type AddFoodToLogModalProps = {
@@ -154,7 +155,7 @@ export default function AddFoodToLogModal({
           <div className={styles.foodPreview}>
             <div className={styles.foodInfo}>
               <h3 className={styles.foodName}>{food.name}</h3>
-              <p className={styles.foodServing}>{food.servingSize}</p>
+              <p className={styles.foodServing}><ServingDisplay servingSize={food.servingSize} foodId={food.id} foodName={food.name} editable /></p>
             </div>
             <div className={styles.servingsRow}>
               <label className={styles.servingsLabel}>Servings:</label>

@@ -4,6 +4,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Input } from "@/components/ui/input";
 import type { Food, FoodItem } from "@/types";
+import { ServingDisplay } from "./ServingDisplay";
 import styles from "./MealSlot.module.css";
 
 type MealSlotProps = {
@@ -321,7 +322,7 @@ export default function MealSlot({
                 <div className={styles.selectedFoodHeader}>
                   <div className={styles.selectedFoodInfo}>
                     <div className={styles.selectedFoodName}>{selectedFood.name}</div>
-                    <div className={styles.selectedFoodServing}>{selectedFood.servingSize}</div>
+                    <div className={styles.selectedFoodServing}><ServingDisplay servingSize={selectedFood.servingSize} foodId={selectedFood.id} foodName={selectedFood.name} editable /></div>
                   </div>
                   <div className={styles.selectedFoodActions}>
                     <button onClick={handleAddFood} className={styles.confirmButton}>

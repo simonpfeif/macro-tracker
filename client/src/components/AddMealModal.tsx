@@ -3,6 +3,7 @@ import { X, Search, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { Food, FoodItem } from "@/types";
+import { ServingDisplay } from "./ServingDisplay";
 import styles from "./AddMealModal.module.css";
 
 type AddMealModalProps = {
@@ -239,7 +240,7 @@ export default function AddMealModal({
                 <div className={styles.selectedFoodHeader}>
                   <div className={styles.selectedFoodInfo}>
                     <div className={styles.selectedFoodName}>{selectedFood.name}</div>
-                    <div className={styles.selectedFoodServing}>{selectedFood.servingSize}</div>
+                    <div className={styles.selectedFoodServing}><ServingDisplay servingSize={selectedFood.servingSize} foodId={selectedFood.id} foodName={selectedFood.name} editable /></div>
                   </div>
                   <div className={styles.selectedFoodActions}>
                     <button type="button" onClick={handleAddFood} className={styles.confirmButton}>

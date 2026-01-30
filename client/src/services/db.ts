@@ -21,6 +21,7 @@ import type {
   DailyLog,
   DailyLogStatus,
   SubscriptionTier,
+  ServingSizeOverride,
 } from "@/types";
 
 // Helper to get today's date in YYYY-MM-DD format
@@ -199,10 +200,22 @@ export async function getCommonFoods(): Promise<FoodItem[]> {
       carbs: data.carbs,
       fat: data.fat,
       calories: data.calories,
+      fiber: data.fiber,
       servingSize: data.servingSize,
       category: data.category,
       source: "common" as const,
       createdAt: data.createdAt?.toDate() || new Date(),
+      // Micronutrients (optional)
+      saturatedFat: data.saturatedFat,
+      transFat: data.transFat,
+      cholesterol: data.cholesterol,
+      sodium: data.sodium,
+      sugar: data.sugar,
+      addedSugar: data.addedSugar,
+      vitaminD: data.vitaminD,
+      calcium: data.calcium,
+      iron: data.iron,
+      potassium: data.potassium,
     };
   });
 }
@@ -222,10 +235,22 @@ export async function getCustomFoods(userId: string): Promise<FoodItem[]> {
       carbs: data.carbs,
       fat: data.fat,
       calories: data.calories,
+      fiber: data.fiber,
       servingSize: data.servingSize,
       category: data.category,
       source: "custom" as const,
       createdAt: data.createdAt?.toDate() || new Date(),
+      // Micronutrients (optional)
+      saturatedFat: data.saturatedFat,
+      transFat: data.transFat,
+      cholesterol: data.cholesterol,
+      sodium: data.sodium,
+      sugar: data.sugar,
+      addedSugar: data.addedSugar,
+      vitaminD: data.vitaminD,
+      calcium: data.calcium,
+      iron: data.iron,
+      potassium: data.potassium,
     };
   });
 }
@@ -242,8 +267,20 @@ export async function saveCustomFood(
     carbs: food.carbs,
     fat: food.fat,
     calories: food.calories,
+    fiber: food.fiber ?? 0,
     servingSize: food.servingSize,
     category: food.category,
+    // Micronutrients (optional)
+    saturatedFat: food.saturatedFat,
+    transFat: food.transFat,
+    cholesterol: food.cholesterol,
+    sodium: food.sodium,
+    sugar: food.sugar,
+    addedSugar: food.addedSugar,
+    vitaminD: food.vitaminD,
+    calcium: food.calcium,
+    iron: food.iron,
+    potassium: food.potassium,
     createdAt: Timestamp.now(),
   });
   return docRef.id;
@@ -459,4 +496,48 @@ export function getDateLimits(
       maxDate: addYears(today, 1),
     };
   }
+}
+
+// ============ SERVING SIZE OVERRIDES ============
+
+export async function getServingSizeOverrides(
+  userId: string
+): Promise<Map<string, ServingSizeOverride>> {
+  const overridesRef = collection(db, "users", userId, "servingSizeOverrides");
+  const snapshot = await getDocs(overridesRef);
+
+  const overrides = new Map<string, ServingSizeOverride>();
+  snapshot.docs.forEach((doc) => {
+    const data = doc.data();
+    overrides.set(doc.id, {
+      foodId: doc.id,
+      foodName: data.foodName,
+      customServingSize: data.customServingSize,
+      updatedAt: data.updatedAt?.toDate() || new Date(),
+    });
+  });
+
+  return overrides;
+}
+
+export async function saveServingSizeOverride(
+  userId: string,
+  foodId: string,
+  foodName: string,
+  customServingSize: string
+): Promise<void> {
+  const overrideRef = doc(db, "users", userId, "servingSizeOverrides", foodId);
+  await setDoc(overrideRef, {
+    foodName,
+    customServingSize,
+    updatedAt: Timestamp.now(),
+  });
+}
+
+export async function deleteServingSizeOverride(
+  userId: string,
+  foodId: string
+): Promise<void> {
+  const overrideRef = doc(db, "users", userId, "servingSizeOverrides", foodId);
+  await deleteDoc(overrideRef);
 }

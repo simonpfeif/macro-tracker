@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { Food, FoodItem } from "@/types";
 import { Search } from "lucide-react";
+import { ServingDisplay } from "./ServingDisplay";
 import styles from "./FoodForm.module.css";
 
 type FoodFormProps = {
@@ -257,7 +258,7 @@ export default function FoodForm({ onAddFood, foods }: FoodFormProps) {
               <div className={styles.selectedFoodHeader}>
                 <div className={styles.selectedFoodInfo}>
                   <div className={styles.selectedFoodName}>{selectedFood.name}</div>
-                  <div className={styles.selectedFoodServing}>{selectedFood.servingSize}</div>
+                  <div className={styles.selectedFoodServing}><ServingDisplay servingSize={selectedFood.servingSize} foodId={selectedFood.id} foodName={selectedFood.name} editable /></div>
                 </div>
                 <button
                   type="button"

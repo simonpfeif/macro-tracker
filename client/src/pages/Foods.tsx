@@ -101,8 +101,20 @@ export default function Foods() {
     carbs: number;
     fat: number;
     calories: number;
+    fiber: number;
     servingSize: string;
     category: string;
+    // Micronutrients
+    saturatedFat?: number;
+    transFat?: number;
+    cholesterol?: number;
+    sodium?: number;
+    sugar?: number;
+    addedSugar?: number;
+    vitaminD?: number;
+    calcium?: number;
+    iron?: number;
+    potassium?: number;
   }) => {
     if (!user) return;
 
