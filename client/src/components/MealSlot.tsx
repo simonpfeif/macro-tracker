@@ -19,6 +19,7 @@ type MealSlotProps = {
   onSaveAsTemplate?: () => void;
   isSavedAsTemplate?: boolean;
   isCustom?: boolean;
+  onFoodClick?: (food: Food) => void;
 };
 
 export default function MealSlot({
@@ -33,6 +34,7 @@ export default function MealSlot({
   onSaveAsTemplate,
   isSavedAsTemplate = false,
   isCustom = false,
+  onFoodClick,
 }: MealSlotProps) {
   const {
     attributes,
@@ -93,6 +95,7 @@ export default function MealSlot({
       carbs: Math.round(selectedFood.carbs * multiplier * 10) / 10,
       fat: Math.round(selectedFood.fat * multiplier * 10) / 10,
       calories: Math.round(selectedFood.calories * multiplier),
+      foodId: selectedFood.id,
     };
 
     onAddFood(food);
@@ -232,7 +235,13 @@ export default function MealSlot({
                 className={styles.foodItem}
               >
                 <div className={styles.foodItemInfo}>
-                  <span className={styles.foodName}>{food.name}</span>
+                  <span
+                    className={`${styles.foodName} ${onFoodClick && food.foodId ? styles.foodNameClickable : ""}`}
+                    onClick={() => onFoodClick && food.foodId && onFoodClick(food)}
+                    style={{ cursor: onFoodClick && food.foodId ? "pointer" : "default" }}
+                  >
+                    {food.name}
+                  </span>
                   <div className={styles.foodMacros}>
                     <span>{food.calories} cal</span>
                     <span className={styles.macroProtein}>{food.protein}g P</span>

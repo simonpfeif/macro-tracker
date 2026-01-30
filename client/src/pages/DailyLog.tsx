@@ -32,6 +32,7 @@ import DateNavigation from "@/components/Header/DateNavigation";
 import MealSlot from "@/components/MealSlot";
 import DailySummary from "@/components/DailySummary";
 import SaveTemplateDialog from "@/components/SaveTemplateDialog/SaveTemplateDialog";
+import FoodDetailModal from "@/components/FoodDetailModal";
 import styles from "./DailyLog.module.css";
 
 export default function DailyLog() {
@@ -47,6 +48,8 @@ export default function DailyLog() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [saveDialogMealId, setSaveDialogMealId] = useState<string | null>(null);
   const [logStatus, setLogStatus] = useState<DailyLogStatus>("unlogged");
+  const [isFoodDetailOpen, setIsFoodDetailOpen] = useState(false);
+  const [selectedFoodForDetail, setSelectedFoodForDetail] = useState<FoodItem | null>(null);
 
   const selectedDate = searchParams.get("date") || getTodayDate();
   const isToday = selectedDate === getTodayDate();
@@ -216,6 +219,7 @@ export default function DailyLog() {
         name: existingMeal.name,
         foods: updatedFoods,
         date: selectedDate,
+        order: existingMeal.order,
       });
       setMeals((prev) =>
         prev.map((m) =>
@@ -264,6 +268,7 @@ export default function DailyLog() {
           name: existingMeal.name,
           foods: updatedFoods,
           date: selectedDate,
+          order: existingMeal.order,
         });
         // Update with real ID (silent, no visual change)
         setMeals((prev) =>
@@ -353,6 +358,7 @@ export default function DailyLog() {
         name: newName,
         foods: existingMeal.foods,
         date: selectedDate,
+        order: existingMeal.order,
       });
       setMeals((prev) =>
         prev.map((m) =>
@@ -459,6 +465,17 @@ export default function DailyLog() {
     if (!meal) return;
 
     await saveTemplateDirectly(newName, meal.foods);
+  };
+
+  // Handle clicking on a food to view details
+  const handleFoodClick = (food: Food) => {
+    if (food.foodId) {
+      const fullFood = availableFoods.find((f) => f.id === food.foodId);
+      if (fullFood) {
+        setSelectedFoodForDetail(fullFood);
+        setIsFoodDetailOpen(true);
+      }
+    }
   };
 
   // Reorder meals - shared logic for both arrow buttons and drag-and-drop
@@ -584,6 +601,7 @@ export default function DailyLog() {
                         onSaveAsTemplate={() => handleSaveAsTemplate(meal.id)}
                         isSavedAsTemplate={isSavedAsTemplate}
                         isCustom
+                        onFoodClick={handleFoodClick}
                       />
                     );
                   })}
@@ -659,6 +677,16 @@ export default function DailyLog() {
         onReplace={handleReplaceTemplate}
         onSaveWithNewName={handleSaveWithNewName}
         existingTemplateNames={new Set([...templateContentHashes.keys()].map((n) => n.toLowerCase()))}
+      />
+
+      {/* Food Detail Modal */}
+      <FoodDetailModal
+        isOpen={isFoodDetailOpen}
+        onClose={() => {
+          setIsFoodDetailOpen(false);
+          setSelectedFoodForDetail(null);
+        }}
+        food={selectedFoodForDetail}
       />
     </div>
   );

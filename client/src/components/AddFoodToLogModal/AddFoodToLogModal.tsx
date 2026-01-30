@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, ChevronLeft, Plus } from "lucide-react";
+import { X, ChevronLeft, Plus, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import DatePickerCalendar from "@/components/DatePickerCalendar/DatePickerCalendar";
@@ -29,6 +29,7 @@ export default function AddFoodToLogModal({
   const [showNewMealInput, setShowNewMealInput] = useState(false);
   const [loading, setLoading] = useState(false);
   const [saving] = useState(false);
+  const [selectedMealIds, setSelectedMealIds] = useState<Set<string>>(new Set());
 
   // Reset state when modal closes
   useEffect(() => {
@@ -39,6 +40,7 @@ export default function AddFoodToLogModal({
       setServings("1");
       setNewMealName("");
       setShowNewMealInput(false);
+      setSelectedMealIds(new Set());
     }
   }, [isOpen]);
 
@@ -59,6 +61,40 @@ export default function AddFoodToLogModal({
     }
   }, [selectedDate, step, userId]);
 
+  // Handle keyboard shortcuts
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+
+      if (e.key === "Escape") {
+        handleClose();
+      }
+
+      if (e.key === "Enter" && step === "meal" && selectedMealIds.size > 0 && !showNewMealInput) {
+        // If Enter was pressed while focusing a meal item/button or an input inside the modal,
+        // let the native handler toggle selection or submit the form — don't auto-add immediately.
+        if (
+          target &&
+          (target.closest(`.${styles.mealItem}`) ||
+            target.closest(`.${styles.newMealForm}`) ||
+            target.tagName === "BUTTON" ||
+            target.tagName === "INPUT" ||
+            target.tagName === "TEXTAREA")
+        ) {
+          return;
+        }
+
+        e.preventDefault();
+        handleAddToSelectedMeals();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, step, selectedMealIds, showNewMealInput]);
+
   if (!isOpen || !food) return null;
 
   const multiplier = parseFloat(servings) || 1;
@@ -68,6 +104,7 @@ export default function AddFoodToLogModal({
     carbs: Math.round(food.carbs * multiplier * 10) / 10,
     fat: Math.round(food.fat * multiplier * 10) / 10,
     calories: Math.round(food.calories * multiplier),
+    foodId: food.id,
   };
 
   const handleDateSelect = (date: string) => {
@@ -81,23 +118,56 @@ export default function AddFoodToLogModal({
     setMealsForDate([]);
     setShowNewMealInput(false);
     setNewMealName("");
+    setSelectedMealIds(new Set());
   };
 
-  const handleAddToExistingMeal = async (meal: Meal) => {
+  const toggleMealSelection = (mealId: string) => {
+    setSelectedMealIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(mealId)) {
+        next.delete(mealId);
+      } else {
+        next.add(mealId);
+      }
+      return next;
+    });
+  };
+
+  const handleAddToSelectedMeals = async () => {
+    if (selectedMealIds.size === 0) return;
+
     // Optimistic: Close modal immediately
     handleClose();
 
-    // Database call in background
+    // Database calls in background
     try {
-      const updatedFoods = [...meal.foods, scaledFood];
-      await deleteMeal(userId, meal.id);
-      await saveMeal(userId, {
-        name: meal.name,
-        foods: updatedFoods,
-        date: meal.date,
-      });
+      for (const mealId of selectedMealIds) {
+        const meal = mealsForDate.find((m) => m.id === mealId);
+        if (meal) {
+          // Avoid adding duplicate (e.g., when a newly created temp meal already contains the scaled food)
+          const alreadyHas = meal.foods.some((f) => f.name === scaledFood.name && f.calories === scaledFood.calories && f.protein === scaledFood.protein);
+          if (alreadyHas) continue;
+
+          const updatedFoods = [...meal.foods, scaledFood];
+
+          // Preserve the original order when re-saving so list order doesn't change
+          await deleteMeal(userId, meal.id);
+          await saveMeal(userId, {
+            name: meal.name,
+            foods: updatedFoods,
+            date: meal.date,
+            order: meal.order,
+          });
+        }
+      }
     } catch (error) {
-      console.error("Error adding food to meal:", error);
+      console.error("Error adding food to meals:", error);
+    }
+  };
+
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      handleClose();
     }
   };
 
@@ -106,18 +176,52 @@ export default function AddFoodToLogModal({
 
     const mealName = newMealName.trim();
 
-    // Optimistic: Close modal immediately
-    handleClose();
+    // Optimistic: add new meal to the list and keep modal open so user can select it
+    const tempId = `temp-${Date.now()}`;
+    const tempMeal = {
+      id: tempId,
+      name: mealName,
+      foods: [scaledFood],
+      date: selectedDate,
+      order: Date.now(),
+      createdAt: new Date(),
+    };
 
-    // Database call in background
+    setMealsForDate((prev) => [...prev, tempMeal]);
+    setSelectedMealIds((prev) => {
+      const next = new Set(prev);
+      next.add(tempId);
+      return next;
+    });
+    setShowNewMealInput(false);
+    setNewMealName("");
+
+    // Database call in background - replace temp id with real id when saved
     try {
-      await saveMeal(userId, {
+      const realId = await saveMeal(userId, {
         name: mealName,
         foods: [scaledFood],
         date: selectedDate,
+        order: tempMeal.order,
+      });
+
+      setMealsForDate((prev) =>
+        prev.map((m) => (m.id === tempId ? { ...m, id: realId } : m))
+      );
+
+      setSelectedMealIds((prev) => {
+        const next = new Set(Array.from(prev).map((id) => (id === tempId ? realId : id)));
+        return next;
       });
     } catch (error) {
       console.error("Error creating new meal:", error);
+      // Rollback optimistic add
+      setMealsForDate((prev) => prev.filter((m) => m.id !== tempId));
+      setSelectedMealIds((prev) => {
+        const next = new Set(prev);
+        next.delete(tempId);
+        return next;
+      });
     }
   };
 
@@ -128,13 +232,14 @@ export default function AddFoodToLogModal({
     setServings("1");
     setNewMealName("");
     setShowNewMealInput(false);
+    setSelectedMealIds(new Set());
     onClose();
   };
 
   const selectedDatesSet = selectedDate ? new Set([selectedDate]) : new Set<string>();
 
   return (
-    <div className={styles.overlay}>
+    <div className={styles.overlay} onClick={handleOverlayClick}>
       <div className={styles.modal}>
         <div className={styles.header}>
           {step === "meal" && (
@@ -206,12 +311,13 @@ export default function AddFoodToLogModal({
                   {/* Existing Meals */}
                   {mealsForDate.map((meal) => {
                     const mealCalories = meal.foods.reduce((sum, f) => sum + f.calories, 0);
+                    const isSelected = selectedMealIds.has(meal.id);
                     return (
                       <button
                         key={meal.id}
-                        onClick={() => handleAddToExistingMeal(meal)}
+                        onClick={() => toggleMealSelection(meal.id)}
                         disabled={saving}
-                        className={styles.mealItem}
+                        className={`${styles.mealItem} ${isSelected ? styles.mealItemSelected : ""}`}
                       >
                         <div className={styles.mealItemInfo}>
                           <span className={styles.mealItemName}>{meal.name}</span>
@@ -219,7 +325,11 @@ export default function AddFoodToLogModal({
                             {mealCalories} cal - {meal.foods.length} food{meal.foods.length !== 1 ? "s" : ""}
                           </span>
                         </div>
-                        <Plus className={styles.iconSmall} />
+                        {isSelected ? (
+                          <Check className={styles.iconSmall} />
+                        ) : (
+                          <Plus className={styles.iconSmall} />
+                        )}
                       </button>
                     );
                   })}
@@ -242,9 +352,14 @@ export default function AddFoodToLogModal({
                         onChange={(e) => setNewMealName(e.target.value)}
                         onKeyDown={(e) => {
                           if (e.key === "Enter" && newMealName.trim()) {
+                            // Prevent the global handler from also acting
+                            e.preventDefault();
+                            e.stopPropagation();
                             handleCreateNewMeal();
                           }
                           if (e.key === "Escape") {
+                            e.preventDefault();
+                            e.stopPropagation();
                             setShowNewMealInput(false);
                             setNewMealName("");
                           }
@@ -274,6 +389,20 @@ export default function AddFoodToLogModal({
                   )}
                 </div>
               )}
+
+              {/* Action Buttons */}
+              <div className={styles.actionButtons}>
+                <button className={styles.cancelButton} onClick={handleClose}>
+                  Cancel
+                </button>
+                <button
+                  className={styles.addButton}
+                  onClick={handleAddToSelectedMeals}
+                  disabled={selectedMealIds.size === 0}
+                >
+                  Add to {selectedMealIds.size || ""} meal{selectedMealIds.size !== 1 ? "s" : ""}
+                </button>
+              </div>
             </div>
           )}
         </div>

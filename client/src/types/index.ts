@@ -5,6 +5,7 @@ export type Food = {
   carbs: number;
   fat: number;
   calories: number;
+  foodId?: string; // Reference to original FoodItem for detail lookup
 };
 
 // Stored food item in database (shared or custom)

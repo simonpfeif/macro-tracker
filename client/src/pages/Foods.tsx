@@ -11,6 +11,7 @@ import AddMealModal from "@/components/AddMealModal";
 import AddMealToLogModal from "@/components/AddMealToLogModal/AddMealToLogModal";
 import AddFoodToLogModal from "@/components/AddFoodToLogModal/AddFoodToLogModal";
 import MealDetailModal from "@/components/MealDetailModal";
+import FoodDetailModal from "@/components/FoodDetailModal";
 import type { FoodItem, MealTemplate, Food } from "@/types";
 import {
   getAllFoods,
@@ -42,6 +43,8 @@ export default function Foods() {
   const [expandedMeals, setExpandedMeals] = useState<Set<string>>(new Set());
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [mealToEdit, setMealToEdit] = useState<MealTemplate | null>(null);
+  const [isFoodDetailOpen, setIsFoodDetailOpen] = useState(false);
+  const [selectedFoodForDetail, setSelectedFoodForDetail] = useState<FoodItem | null>(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -209,6 +212,23 @@ export default function Foods() {
   const handleOpenFoodToLog = (food: FoodItem) => {
     setSelectedFood(food);
     setIsFoodToLogModalOpen(true);
+  };
+
+  const handleOpenFoodDetail = (food: FoodItem) => {
+    setSelectedFoodForDetail(food);
+    setIsFoodDetailOpen(true);
+  };
+
+  const handleAddToLogFromDetail = (food: FoodItem) => {
+    setIsFoodDetailOpen(false);
+    setSelectedFoodForDetail(null);
+    handleOpenFoodToLog(food);
+  };
+
+  const handleDeleteFromDetail = (foodId: string) => {
+    setIsFoodDetailOpen(false);
+    setSelectedFoodForDetail(null);
+    handleDeleteFood(foodId);
   };
 
   const toggleMealExpansion = (templateId: string) => {
@@ -476,7 +496,12 @@ export default function Foods() {
         ) : (
           <div className={styles.foodList}>
             {filteredFoods.map((food) => (
-              <div key={food.id} className={styles.foodItem}>
+              <div
+                key={food.id}
+                className={styles.foodItem}
+                onClick={() => handleOpenFoodDetail(food)}
+                style={{ cursor: "pointer" }}
+              >
                 <div className={styles.foodHeaderLeft}>
                   <h3 className={styles.foodName}>{food.name}</h3>
                   {food.source === "custom" && (
@@ -492,7 +517,7 @@ export default function Foods() {
                   <div className={styles.gridHeader}>P</div>
                   <div className={styles.gridHeader}>C</div>
                   <div className={styles.gridHeader}>F</div>
-                  
+
                   <div className={styles.gridValue}>{food.calories}</div>
                   <div className={`${styles.gridValue} ${styles.macroProtein}`}>{food.protein}g</div>
                   <div className={`${styles.gridValue} ${styles.macroCarbs}`}>{food.carbs}g</div>
@@ -501,7 +526,10 @@ export default function Foods() {
 
                 <div className={styles.itemActions}>
                   <button
-                    onClick={() => handleOpenFoodToLog(food)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleOpenFoodToLog(food);
+                    }}
                     className={styles.addToLogButton}
                     title="Add to log"
                   >
@@ -509,7 +537,10 @@ export default function Foods() {
                   </button>
                   {food.source === "custom" && (
                     <button
-                      onClick={() => handleDeleteFood(food.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteFood(food.id);
+                      }}
                       className={styles.deleteButton}
                       title="Delete"
                     >
@@ -570,6 +601,17 @@ export default function Foods() {
               .filter((t) => t.id !== mealToEdit?.id)
               .map((t) => t.name.toLowerCase())
           )}
+        />
+
+        <FoodDetailModal
+          isOpen={isFoodDetailOpen}
+          onClose={() => {
+            setIsFoodDetailOpen(false);
+            setSelectedFoodForDetail(null);
+          }}
+          food={selectedFoodForDetail}
+          onAddToLog={handleAddToLogFromDetail}
+          onDelete={handleDeleteFromDetail}
         />
       </main>
     </div>

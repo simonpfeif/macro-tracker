@@ -286,6 +286,17 @@
   color: #1f2937;
 }
 
+.foodNameClickable {
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  transition: text-decoration-color 0.2s;
+}
+
+.foodNameClickable:hover {
+  text-decoration-color: #D4886A;
+  color: #D4886A;
+}
+
 /* Food item macros */
 .foodItemInfo {
   display: flex;
