@@ -242,44 +242,31 @@ export default function DailyLog() {
     const updatedFoods = existingMeal.foods.filter((_, i) => i !== foodIndex);
     const previousMeals = meals; // Save for rollback
 
-    if (updatedFoods.length === 0) {
-      // Optimistic: Remove meal from UI immediately
-      setMeals((prev) => prev.filter((m) => m.id !== existingMeal.id));
+    // Optimistic: Update foods in UI immediately (even if empty)
+    setMeals((prev) =>
+      prev.map((m) =>
+        m.id === existingMeal.id ? { ...m, foods: updatedFoods } : m
+      )
+    );
 
-      // Database call in background
-      try {
-        await deleteMeal(user.uid, existingMeal.id);
-      } catch (error) {
-        console.error("Failed to delete meal:", error);
-        setMeals(previousMeals); // Rollback on error
-      }
-    } else {
-      // Optimistic: Update foods in UI immediately
+    // Database call in background
+    try {
+      await deleteMeal(user.uid, existingMeal.id);
+      const newId = await saveMeal(user.uid, {
+        name: existingMeal.name,
+        foods: updatedFoods,
+        date: selectedDate,
+        order: existingMeal.order,
+      });
+      // Update with real ID (silent, no visual change)
       setMeals((prev) =>
         prev.map((m) =>
-          m.id === existingMeal.id ? { ...m, foods: updatedFoods } : m
+          m.id === existingMeal.id ? { ...m, id: newId } : m
         )
       );
-
-      // Database call in background
-      try {
-        await deleteMeal(user.uid, existingMeal.id);
-        const newId = await saveMeal(user.uid, {
-          name: existingMeal.name,
-          foods: updatedFoods,
-          date: selectedDate,
-          order: existingMeal.order,
-        });
-        // Update with real ID (silent, no visual change)
-        setMeals((prev) =>
-          prev.map((m) =>
-            m.id === existingMeal.id ? { ...m, id: newId } : m
-          )
-        );
-      } catch (error) {
-        console.error("Failed to update meal:", error);
-        setMeals(previousMeals); // Rollback on error
-      }
+    } catch (error) {
+      console.error("Failed to update meal:", error);
+      setMeals(previousMeals); // Rollback on error
     }
   };
 
