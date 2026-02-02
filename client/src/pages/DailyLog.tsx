@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
 import type { User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import type { Meal, FoodItem, Food, UserProfile, DailyLogStatus } from "@/types";
+import type { Meal, FoodItem, Food, UserProfile, DailyLogStatus, UserGoals } from "@/types";
 import { DndContext, closestCenter } from "@dnd-kit/core";
 import type { DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
@@ -22,6 +22,7 @@ import {
   getDailyLog,
   setDailyLogStatus,
   getDateLimits,
+  getUserGoals,
 } from "@/services/db";
 import { hashFoods } from "@/utils/mealHash";
 import { Plus } from "lucide-react";
@@ -50,6 +51,7 @@ export default function DailyLog() {
   const [logStatus, setLogStatus] = useState<DailyLogStatus>("unlogged");
   const [isFoodDetailOpen, setIsFoodDetailOpen] = useState(false);
   const [selectedFoodForDetail, setSelectedFoodForDetail] = useState<FoodItem | null>(null);
+  const [userGoals, setUserGoals] = useState<UserGoals | null>(null);
 
   const selectedDate = searchParams.get("date") || getTodayDate();
   const isToday = selectedDate === getTodayDate();
@@ -138,6 +140,21 @@ export default function DailyLog() {
   useEffect(() => {
     loadUserProfile();
   }, [loadUserProfile]);
+
+  // Load user goals
+  const loadUserGoals = useCallback(async () => {
+    if (!user) return;
+    try {
+      const goals = await getUserGoals(user.uid);
+      setUserGoals(goals);
+    } catch (error) {
+      console.error("Error loading user goals:", error);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    loadUserGoals();
+  }, [loadUserGoals]);
 
   // Load daily log status
   const loadDailyLogStatus = useCallback(async () => {
@@ -509,7 +526,7 @@ export default function DailyLog() {
     reorderMeals(oldIndex, newIndex);
   };
 
-  // Calculate daily totals
+  // Calculate daily totals including micronutrients
   const dailyTotals = meals.reduce(
     (acc, meal) => {
       meal.foods.forEach((food) => {
@@ -517,10 +534,38 @@ export default function DailyLog() {
         acc.protein += food.protein;
         acc.carbs += food.carbs;
         acc.fat += food.fat;
+        // Micronutrients
+        acc.fiber += food.fiber ?? 0;
+        acc.saturatedFat += food.saturatedFat ?? 0;
+        acc.transFat += food.transFat ?? 0;
+        acc.cholesterol += food.cholesterol ?? 0;
+        acc.sodium += food.sodium ?? 0;
+        acc.sugar += food.sugar ?? 0;
+        acc.addedSugar += food.addedSugar ?? 0;
+        acc.vitaminD += food.vitaminD ?? 0;
+        acc.calcium += food.calcium ?? 0;
+        acc.iron += food.iron ?? 0;
+        acc.potassium += food.potassium ?? 0;
       });
       return acc;
     },
-    { calories: 0, protein: 0, carbs: 0, fat: 0 }
+    {
+      calories: 0,
+      protein: 0,
+      carbs: 0,
+      fat: 0,
+      fiber: 0,
+      saturatedFat: 0,
+      transFat: 0,
+      cholesterol: 0,
+      sodium: 0,
+      sugar: 0,
+      addedSugar: 0,
+      vitaminD: 0,
+      calcium: 0,
+      iron: 0,
+      potassium: 0,
+    }
   );
 
   const goToPrevDay = () => {
@@ -641,8 +686,20 @@ export default function DailyLog() {
                 protein={dailyTotals.protein}
                 carbs={dailyTotals.carbs}
                 fat={dailyTotals.fat}
+                fiber={dailyTotals.fiber}
+                saturatedFat={dailyTotals.saturatedFat}
+                transFat={dailyTotals.transFat}
+                cholesterol={dailyTotals.cholesterol}
+                sodium={dailyTotals.sodium}
+                sugar={dailyTotals.sugar}
+                addedSugar={dailyTotals.addedSugar}
+                vitaminD={dailyTotals.vitaminD}
+                calcium={dailyTotals.calcium}
+                iron={dailyTotals.iron}
+                potassium={dailyTotals.potassium}
                 logStatus={logStatus}
                 onCompleteLog={handleCompleteLog}
+                userGoals={userGoals ?? undefined}
               />
             </div>
           </div>

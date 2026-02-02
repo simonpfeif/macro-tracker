@@ -22,6 +22,7 @@ import type {
   DailyLogStatus,
   SubscriptionTier,
   ServingSizeOverride,
+  UserGoals,
 } from "@/types";
 
 // Helper to get today's date in YYYY-MM-DD format
@@ -540,4 +541,63 @@ export async function deleteServingSizeOverride(
 ): Promise<void> {
   const overrideRef = doc(db, "users", userId, "servingSizeOverrides", foodId);
   await deleteDoc(overrideRef);
+}
+
+// ============ USER GOALS ============
+
+export async function getUserGoals(userId: string): Promise<UserGoals | null> {
+  const goalsRef = doc(db, "users", userId, "goals", "main");
+  const snapshot = await getDoc(goalsRef);
+
+  if (!snapshot.exists()) {
+    return null;
+  }
+
+  const data = snapshot.data();
+  return {
+    goalType: data.goalType || "maintenance",
+    calories: data.calories,
+    protein: data.protein,
+    carbs: data.carbs,
+    fat: data.fat,
+    // Optional micronutrients
+    fiber: data.fiber,
+    saturatedFat: data.saturatedFat,
+    transFat: data.transFat,
+    cholesterol: data.cholesterol,
+    sodium: data.sodium,
+    sugar: data.sugar,
+    addedSugar: data.addedSugar,
+    vitaminD: data.vitaminD,
+    calcium: data.calcium,
+    iron: data.iron,
+    potassium: data.potassium,
+  };
+}
+
+export async function saveUserGoals(
+  userId: string,
+  goals: UserGoals
+): Promise<void> {
+  const goalsRef = doc(db, "users", userId, "goals", "main");
+  await setDoc(goalsRef, {
+    goalType: goals.goalType,
+    calories: goals.calories,
+    protein: goals.protein,
+    carbs: goals.carbs,
+    fat: goals.fat,
+    // Optional micronutrients
+    fiber: goals.fiber,
+    saturatedFat: goals.saturatedFat,
+    transFat: goals.transFat,
+    cholesterol: goals.cholesterol,
+    sodium: goals.sodium,
+    sugar: goals.sugar,
+    addedSugar: goals.addedSugar,
+    vitaminD: goals.vitaminD,
+    calcium: goals.calcium,
+    iron: goals.iron,
+    potassium: goals.potassium,
+    updatedAt: Timestamp.now(),
+  });
 }

@@ -96,6 +96,18 @@ export default function MealSlot({
       fat: Math.round(selectedFood.fat * multiplier * 10) / 10,
       calories: Math.round(selectedFood.calories * multiplier),
       foodId: selectedFood.id,
+      // Micronutrients - default to 0 if not present
+      fiber: Math.round((selectedFood.fiber ?? 0) * multiplier * 10) / 10,
+      saturatedFat: Math.round((selectedFood.saturatedFat ?? 0) * multiplier * 10) / 10,
+      transFat: Math.round((selectedFood.transFat ?? 0) * multiplier * 10) / 10,
+      cholesterol: Math.round((selectedFood.cholesterol ?? 0) * multiplier * 10) / 10,
+      sodium: Math.round((selectedFood.sodium ?? 0) * multiplier * 10) / 10,
+      sugar: Math.round((selectedFood.sugar ?? 0) * multiplier * 10) / 10,
+      addedSugar: Math.round((selectedFood.addedSugar ?? 0) * multiplier * 10) / 10,
+      vitaminD: Math.round((selectedFood.vitaminD ?? 0) * multiplier * 10) / 10,
+      calcium: Math.round((selectedFood.calcium ?? 0) * multiplier * 10) / 10,
+      iron: Math.round((selectedFood.iron ?? 0) * multiplier * 10) / 10,
+      potassium: Math.round((selectedFood.potassium ?? 0) * multiplier * 10) / 10,
     };
 
     onAddFood(food);

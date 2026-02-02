@@ -68,3 +68,75 @@
   width: 100%;
   margin-top: 1.5rem;
 }
+
+.goalTypeSection {
+  margin-bottom: 1.5rem;
+}
+
+.goalTypeButtons {
+  display: flex;
+  gap: 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
+
+.goalTypeButton {
+  flex: 1;
+  padding: 0.625rem 1rem;
+  background: white;
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.goalTypeButton:not(:last-child) {
+  border-right: 1px solid #e5e7eb;
+}
+
+.goalTypeButton:hover {
+  background: #f9fafb;
+}
+
+.goalTypeButtonActive {
+  background: var(--color-primary);
+  color: white;
+}
+
+.goalTypeButtonActive:hover {
+  background: var(--color-primary);
+}
+
+.goalTypeHint {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-top: 0.5rem;
+}
+
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1f2937;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  animation: slideUp 0.3s ease;
+  z-index: 1000;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}

@@ -6,6 +6,18 @@ export type Food = {
   fat: number;
   calories: number;
   foodId?: string; // Reference to original FoodItem for detail lookup
+  // Optional micronutrients
+  fiber?: number; // g
+  saturatedFat?: number; // g
+  transFat?: number; // g
+  cholesterol?: number; // mg
+  sodium?: number; // mg
+  sugar?: number; // g
+  addedSugar?: number; // g
+  vitaminD?: number; // mcg
+  calcium?: number; // mg
+  iron?: number; // mg
+  potassium?: number; // mg
 };
 
 // Stored food item in database (shared or custom)
@@ -82,4 +94,27 @@ export type ServingSizeOverride = {
   foodName: string;
   customServingSize: string;
   updatedAt: Date;
+};
+
+// Goal types for progress bar coloring
+export type GoalType = 'loss' | 'maintenance' | 'gain';
+
+export type UserGoals = {
+  goalType: GoalType;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  // Micronutrient goals (optional, use defaults if not set)
+  fiber?: number;
+  saturatedFat?: number;
+  transFat?: number;
+  cholesterol?: number;
+  sodium?: number;
+  sugar?: number;
+  addedSugar?: number;
+  vitaminD?: number;
+  calcium?: number;
+  iron?: number;
+  potassium?: number;
 };

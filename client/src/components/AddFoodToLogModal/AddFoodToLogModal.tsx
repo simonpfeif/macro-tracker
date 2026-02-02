@@ -105,6 +105,18 @@ export default function AddFoodToLogModal({
     fat: Math.round(food.fat * multiplier * 10) / 10,
     calories: Math.round(food.calories * multiplier),
     foodId: food.id,
+    // Micronutrients - default to 0 if not present
+    fiber: Math.round((food.fiber ?? 0) * multiplier * 10) / 10,
+    saturatedFat: Math.round((food.saturatedFat ?? 0) * multiplier * 10) / 10,
+    transFat: Math.round((food.transFat ?? 0) * multiplier * 10) / 10,
+    cholesterol: Math.round((food.cholesterol ?? 0) * multiplier * 10) / 10,
+    sodium: Math.round((food.sodium ?? 0) * multiplier * 10) / 10,
+    sugar: Math.round((food.sugar ?? 0) * multiplier * 10) / 10,
+    addedSugar: Math.round((food.addedSugar ?? 0) * multiplier * 10) / 10,
+    vitaminD: Math.round((food.vitaminD ?? 0) * multiplier * 10) / 10,
+    calcium: Math.round((food.calcium ?? 0) * multiplier * 10) / 10,
+    iron: Math.round((food.iron ?? 0) * multiplier * 10) / 10,
+    potassium: Math.round((food.potassium ?? 0) * multiplier * 10) / 10,
   };
 
   const handleDateSelect = (date: string) => {

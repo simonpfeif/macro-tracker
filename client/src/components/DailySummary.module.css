@@ -6,6 +6,7 @@
   position: sticky;
   top: 1.5rem;
   box-shadow: var(--shadow-sm);
+  min-width: 340px;
   transition: transform var(--duration-normal) var(--ease-out),
               box-shadow var(--duration-normal) var(--ease-out);
 }
@@ -47,81 +48,128 @@
   color: #047857;
 }
 
-.caloriesSection {
-  text-align: center;
-  padding: 1.25rem;
-  margin-bottom: 1rem;
-  background: linear-gradient(135deg, var(--color-calories-light) 0%, #F5F1EB 100%);
-  border-radius: var(--radius-sm);
-  border-left: 3px solid var(--color-calories);
-}
-
-.caloriesValue {
-  font-size: 1.875rem;
-  font-weight: 700;
-  color: #1f2937;
-}
-
-.caloriesLabel {
-  font-size: 0.875rem;
-  color: #6b7280;
-}
-
-.macrosContainer {
+/* Nutrition container with progress rows */
+.nutritionContainer {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  margin-bottom: 0.75rem;
 }
 
-.macroRow {
+/* Progress row styles */
+.progressRow {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 0.5rem 0.75rem;
-  border-bottom: 1px solid #F5F3F0;
-  border-left: 3px solid transparent;
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-  transition: background var(--duration-fast) var(--ease-out);
+  gap: 0.75rem;
+  padding: 0.375rem 0;
 }
 
-.macroRow:last-child {
-  border-bottom: none;
-}
-
-/* Color-coded macro rows */
-.macroRowProtein {
-  border-left-color: var(--color-protein);
-}
-
-.macroRowProtein:hover {
-  background: var(--color-protein-light);
-}
-
-.macroRowCarbs {
-  border-left-color: var(--color-carbs);
-}
-
-.macroRowCarbs:hover {
-  background: var(--color-carbs-light);
-}
-
-.macroRowFat {
-  border-left-color: var(--color-fat);
-}
-
-.macroRowFat:hover {
-  background: var(--color-fat-light);
-}
-
-.macroLabel {
+.progressLabel {
+  min-width: 70px;
+  font-size: 0.875rem;
   color: #4b5563;
+  font-weight: 500;
 }
 
-.macroValue {
-  font-weight: 600;
+.progressBarContainer {
+  flex: 1;
+  min-width: 80px;
+}
+
+.progressBar {
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease, background 0.3s ease;
+}
+
+/* Progress bar color classes */
+.fillRed {
+  background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%);
+}
+
+.fillYellow {
+  background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+}
+
+.fillGreen {
+  background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
+}
+
+.progressValue {
+  min-width: 90px;
+  font-size: 0.8125rem;
   color: #1f2937;
+  font-weight: 600;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 
+/* Toggle button for micronutrients */
+.toggleButton {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.5rem;
+  margin-top: 0.5rem;
+  background: transparent;
+  border: 1px solid #e5e7eb;
+  border-radius: var(--radius-sm);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.toggleButton:hover {
+  background: #f9fafb;
+  color: #374151;
+  border-color: #d1d5db;
+}
+
+.toggleIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Micronutrients section */
+.micronutrientsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-top: 0.75rem;
+  margin-top: 0.5rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.micronutrientsSection .progressRow {
+  padding: 0.25rem 0;
+}
+
+.micronutrientsSection .progressLabel {
+  min-width: 90px;
+  font-size: 0.8125rem;
+}
+
+.micronutrientsSection .progressValue {
+  font-size: 0.75rem;
+  min-width: 85px;
+}
+
+.micronutrientsSection .progressBar {
+  height: 6px;
+}
+
+/* Complete log button */
 .completeLogButton {
   width: 100%;
   margin-top: 1.25rem;
@@ -147,4 +195,25 @@
 .completeIcon {
   width: 1rem;
   height: 1rem;
+}
+
+/* Colored left borders for main macro rows */
+.progressRowCalories {
+  border-left: 3px solid var(--color-calories);
+  padding-left: 0.5rem;
+}
+
+.progressRowProtein {
+  border-left: 3px solid var(--color-protein);
+  padding-left: 0.5rem;
+}
+
+.progressRowFat {
+  border-left: 3px solid var(--color-fat);
+  padding-left: 0.5rem;
+}
+
+.progressRowCarbs {
+  border-left: 3px solid var(--color-carbs);
+  padding-left: 0.5rem;
 }
