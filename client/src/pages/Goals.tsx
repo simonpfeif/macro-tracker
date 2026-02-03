@@ -10,7 +10,7 @@ import type { GoalType } from "@/types";
 import styles from "./Goals.module.css";
 
 const GOAL_TYPE_LABELS: Record<GoalType, string> = {
-  loss: "Weight Loss",
+  loss: "Fat Loss",
   maintenance: "Maintenance",
   gain: "Muscle Gain",
 };
@@ -200,7 +200,7 @@ export default function Goals() {
                 size="sm"
                 onClick={() => applyPreset("loss")}
               >
-                Weight Loss
+                Fat Loss
               </Button>
               <Button
                 variant="outline"

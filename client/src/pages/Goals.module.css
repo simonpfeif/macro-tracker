@@ -102,12 +102,12 @@
 }
 
 .goalTypeButtonActive {
-  background: var(--color-primary);
+  background: #16a34a;  /* Green color */
   color: white;
 }
 
 .goalTypeButtonActive:hover {
-  background: var(--color-primary);
+  background: #15803d;  /* Slightly darker on hover */
 }
 
 .goalTypeHint {
