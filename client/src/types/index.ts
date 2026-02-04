@@ -99,6 +99,36 @@ export type ServingSizeOverride = {
 // Goal types for progress bar coloring
 export type GoalType = 'loss' | 'maintenance' | 'gain';
 
+// Macro calculator types
+export type BiologicalSex = 'male' | 'female';
+export type ActivityLevel = 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active';
+export type TrainingFocus = 'tone' | 'performance' | 'health';
+export type WeightUnit = 'lbs' | 'kg';
+export type HeightUnit = 'ft_in' | 'cm';
+
+export type CalculatorInputs = {
+  weight: number;
+  weightUnit: WeightUnit;
+  heightFeet?: number;
+  heightInches?: number;
+  heightCm?: number;
+  heightUnit: HeightUnit;
+  age: number;
+  biologicalSex: BiologicalSex;
+  activityLevel: ActivityLevel;
+  goalType: GoalType;
+  trainingFocus: TrainingFocus;
+};
+
+export type CalculatedMacros = {
+  bmr: number;
+  tdee: number;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+};
+
 export type UserGoals = {
   goalType: GoalType;
   calories: number;

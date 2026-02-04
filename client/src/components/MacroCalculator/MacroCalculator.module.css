@@ -1,0 +1,265 @@
+.calculator {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.labelHint {
+  font-weight: 400;
+  color: #9ca3af;
+  font-size: 0.75rem;
+}
+
+.fieldHint {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin: 0;
+}
+
+/* Weight / Height with unit toggle */
+.inputWithUnit {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.inputWithUnit input {
+  flex: 1;
+}
+
+.unitToggle {
+  display: flex;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  flex-shrink: 0;
+}
+
+.unitButton {
+  padding: 0.5rem 0.75rem;
+  background: white;
+  border: none;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.unitButton:not(:last-child) {
+  border-right: 1px solid #e5e7eb;
+}
+
+.unitButton:hover {
+  background: #f9fafb;
+}
+
+.unitButtonActive {
+  background: #16a34a;
+  color: white;
+}
+
+.unitButtonActive:hover {
+  background: #15803d;
+}
+
+/* Height row */
+.heightRow {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.heightInputs {
+  display: flex;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.heightField {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.heightFieldCm {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.heightField input,
+.heightFieldCm input {
+  width: 100%;
+}
+
+.heightLabel {
+  font-size: 0.875rem;
+  color: #6b7280;
+  flex-shrink: 0;
+}
+
+/* Segmented control for sex */
+.segmentedControl {
+  display: flex;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
+
+.segmentButton {
+  flex: 1;
+  padding: 0.625rem 1rem;
+  background: white;
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.segmentButton:not(:last-child) {
+  border-right: 1px solid #e5e7eb;
+}
+
+.segmentButton:hover {
+  background: #f9fafb;
+}
+
+.segmentButtonActive {
+  background: #16a34a;
+  color: white;
+}
+
+.segmentButtonActive:hover {
+  background: #15803d;
+}
+
+/* Select dropdown */
+.select {
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid #e5e7eb;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  color: #374151;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.select:focus {
+  outline: none;
+  border-color: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+}
+
+/* Goal type buttons */
+.goalTypeButtons {
+  display: flex;
+  gap: 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
+
+.goalTypeButton {
+  flex: 1;
+  padding: 0.625rem 1rem;
+  background: white;
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.goalTypeButton:not(:last-child) {
+  border-right: 1px solid #e5e7eb;
+}
+
+.goalTypeButton:hover {
+  background: #f9fafb;
+}
+
+.goalTypeButtonActive {
+  background: #16a34a;
+  color: white;
+}
+
+.goalTypeButtonActive:hover {
+  background: #15803d;
+}
+
+/* Training focus cards */
+.focusCards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.focusCard {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.125rem;
+  padding: 0.75rem 1rem;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+}
+
+.focusCard:hover {
+  border-color: #d1d5db;
+  background: #f9fafb;
+}
+
+.focusCardActive {
+  border-color: #16a34a;
+  background: rgba(22, 163, 74, 0.05);
+}
+
+.focusCardActive:hover {
+  border-color: #16a34a;
+  background: rgba(22, 163, 74, 0.08);
+}
+
+.focusCardTitle {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.focusCardActive .focusCardTitle {
+  color: #16a34a;
+}
+
+.focusCardDescription {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+/* Calculate button */
+.calculateButton {
+  width: 100%;
+  margin-top: 0.5rem;
+}

@@ -140,3 +140,159 @@
     transform: translateX(-50%) translateY(0);
   }
 }
+
+/* Mode Toggle */
+.modeToggle {
+  display: flex;
+  gap: 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 1.5rem;
+  background: white;
+}
+
+.modeButton {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  background: white;
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.modeButton:not(:last-child) {
+  border-right: 1px solid #e5e7eb;
+}
+
+.modeButton:hover {
+  background: #f9fafb;
+}
+
+.modeButtonActive {
+  background: #16a34a;
+  color: white;
+}
+
+.modeButtonActive:hover {
+  background: #15803d;
+}
+
+/* Results Display */
+.resultsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.resultsTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.recalculateButton {
+  background: none;
+  border: none;
+  color: #16a34a;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+  transition: background 0.15s ease;
+}
+
+.recalculateButton:hover {
+  background: rgba(22, 163, 74, 0.1);
+}
+
+.statsRow {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: var(--radius-md);
+}
+
+.statLabel {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0.25rem 0;
+}
+
+.statUnit {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.calorieTarget {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.25rem;
+  background: linear-gradient(135deg, rgba(22, 163, 74, 0.1) 0%, rgba(22, 163, 74, 0.05) 100%);
+  border: 1px solid rgba(22, 163, 74, 0.2);
+  border-radius: var(--radius-md);
+  margin-bottom: 1.5rem;
+}
+
+.calorieLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #16a34a;
+}
+
+.calorieValue {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #16a34a;
+  line-height: 1.2;
+}
+
+.calorieUnit {
+  font-size: 0.875rem;
+  color: #15803d;
+}
+
+.macroResults {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.macroResult {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.editHint {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  text-align: center;
+  margin: 0.5rem 0 0;
+}
