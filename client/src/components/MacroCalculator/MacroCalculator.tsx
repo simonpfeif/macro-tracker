@@ -1,6 +1,5 @@
-import { useReducer, useEffect } from 'react';
+import { useReducer, useEffect, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { calculateMacros, calculateAge } from '@/utils/macroCalculations';
 import type {
   BiologicalSex,
@@ -78,10 +77,10 @@ const GOAL_TYPE_LABELS: Record<GoalType, string> = {
 
 type MacroCalculatorProps = {
   birthday?: string;
-  onCalculate: (results: CalculatedMacros, goalType: GoalType) => void;
+  onChange: (results: CalculatedMacros | null, goalType: GoalType) => void;
 };
 
-export default function MacroCalculator({ birthday, onCalculate }: MacroCalculatorProps) {
+export default function MacroCalculator({ birthday, onChange }: MacroCalculatorProps) {
   const [state, dispatch] = useReducer(formReducer, initialState);
 
   // Auto-fill age from birthday if available
@@ -96,7 +95,7 @@ export default function MacroCalculator({ birthday, onCalculate }: MacroCalculat
     dispatch({ type: 'SET_FIELD', field, value });
   };
 
-  const isValid = (): boolean => {
+  const isValid = useMemo((): boolean => {
     const weight = parseFloat(state.weight);
     const age = parseInt(state.age);
 
@@ -115,12 +114,13 @@ export default function MacroCalculator({ birthday, onCalculate }: MacroCalculat
     }
 
     return true;
-  };
+  }, [state.weight, state.age, state.heightUnit, state.heightFeet, state.heightInches, state.heightCm]);
 
-  const handleCalculate = () => {
-    if (!isValid()) return;
+  // Calculate macros whenever inputs change and are valid
+  const calculatedResults = useMemo((): CalculatedMacros | null => {
+    if (!isValid) return null;
 
-    const results = calculateMacros({
+    return calculateMacros({
       weight: parseFloat(state.weight),
       weightUnit: state.weightUnit,
       heightFeet: parseInt(state.heightFeet) || 0,
@@ -133,9 +133,25 @@ export default function MacroCalculator({ birthday, onCalculate }: MacroCalculat
       goalType: state.goalType,
       trainingFocus: state.trainingFocus,
     });
+  }, [
+    isValid,
+    state.weight,
+    state.weightUnit,
+    state.heightFeet,
+    state.heightInches,
+    state.heightCm,
+    state.heightUnit,
+    state.age,
+    state.biologicalSex,
+    state.activityLevel,
+    state.goalType,
+    state.trainingFocus,
+  ]);
 
-    onCalculate(results, state.goalType);
-  };
+  // Notify parent of changes
+  useEffect(() => {
+    onChange(calculatedResults, state.goalType);
+  }, [calculatedResults, state.goalType, onChange]);
 
   return (
     <div className={styles.calculator}>
@@ -313,14 +329,6 @@ export default function MacroCalculator({ birthday, onCalculate }: MacroCalculat
           ))}
         </div>
       </div>
-
-      <Button
-        className={styles.calculateButton}
-        onClick={handleCalculate}
-        disabled={!isValid()}
-      >
-        Calculate My Macros
-      </Button>
     </div>
   );
 }

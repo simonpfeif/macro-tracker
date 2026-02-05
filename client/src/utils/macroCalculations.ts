@@ -87,52 +87,50 @@ export function calculateTargetCalories(tdee: number, goalType: GoalType): numbe
   return tdee + GOAL_CALORIE_ADJUSTMENTS[goalType];
 }
 
-// Macro split ratios based on goal and training focus
-type MacroRatios = { protein: number; carbs: number; fat: number };
+// Calculate protein based on body weight (industry standard approach)
+// This gives more reasonable values than calorie-percentage approach
+function calculateProteinGrams(weightKg: number, goalType: GoalType): number {
+  const weightLbs = kgToLbs(weightKg);
 
-function getMacroRatios(goalType: GoalType, trainingFocus: TrainingFocus): MacroRatios {
-  // Base ratios vary by training focus
-  const focusRatios: Record<TrainingFocus, MacroRatios> = {
-    tone: { protein: 0.35, carbs: 0.35, fat: 0.30 },      // Higher protein
-    performance: { protein: 0.25, carbs: 0.50, fat: 0.25 }, // Higher carbs
-    health: { protein: 0.30, carbs: 0.40, fat: 0.30 },    // Balanced
+  // Protein multipliers in g/lb based on goal
+  const multipliers: Record<GoalType, number> = {
+    loss: 1.0,        // Higher protein to preserve muscle during deficit
+    maintenance: 0.85,
+    gain: 0.9,
   };
 
-  const base = focusRatios[trainingFocus];
-
-  // Adjust based on goal
-  if (goalType === 'loss') {
-    // Increase protein ratio for muscle preservation during cut
-    return {
-      protein: Math.min(base.protein + 0.05, 0.40),
-      carbs: base.carbs - 0.05,
-      fat: base.fat,
-    };
-  } else if (goalType === 'gain') {
-    // Increase carbs slightly for energy during bulk
-    return {
-      protein: base.protein,
-      carbs: Math.min(base.carbs + 0.05, 0.55),
-      fat: base.fat - 0.05,
-    };
-  }
-
-  return base;
+  return Math.round(weightLbs * multipliers[goalType]);
 }
 
-// Calculate macros in grams from calories
-function calculateMacroGrams(
-  calories: number,
-  ratios: MacroRatios
-): { protein: number; carbs: number; fat: number } {
-  // Protein: 4 calories per gram
+// Carb/fat ratios for remaining calories based on training focus
+type CarbFatRatio = { carbs: number; fat: number };
+
+function getCarbFatRatios(trainingFocus: TrainingFocus): CarbFatRatio {
+  // These ratios are applied to remaining calories after protein
+  const focusRatios: Record<TrainingFocus, CarbFatRatio> = {
+    tone: { carbs: 0.55, fat: 0.45 },       // Balanced
+    performance: { carbs: 0.70, fat: 0.30 }, // Higher carbs for training fuel
+    health: { carbs: 0.55, fat: 0.45 },      // Balanced, sustainable
+  };
+
+  return focusRatios[trainingFocus];
+}
+
+// Calculate carbs and fat from remaining calories after protein
+function calculateCarbsAndFat(
+  remainingCalories: number,
+  trainingFocus: TrainingFocus
+): { carbs: number; fat: number } {
   // Carbs: 4 calories per gram
   // Fat: 9 calories per gram
+  const ratios = getCarbFatRatios(trainingFocus);
+
+  const carbCalories = remainingCalories * ratios.carbs;
+  const fatCalories = remainingCalories * ratios.fat;
 
   return {
-    protein: Math.round((calories * ratios.protein) / 4),
-    carbs: Math.round((calories * ratios.carbs) / 4),
-    fat: Math.round((calories * ratios.fat) / 9),
+    carbs: Math.round(carbCalories / 4),
+    fat: Math.round(fatCalories / 9),
   };
 }
 
@@ -160,16 +158,22 @@ export function calculateMacros(inputs: CalculatorInputs): CalculatedMacros {
   // Calculate target calories
   const calories = calculateTargetCalories(tdee, inputs.goalType);
 
-  // Get macro ratios and calculate grams
-  const ratios = getMacroRatios(inputs.goalType, inputs.trainingFocus);
-  const macroGrams = calculateMacroGrams(calories, ratios);
+  // Calculate protein based on body weight (more reasonable than calorie percentage)
+  const protein = calculateProteinGrams(weightKg, inputs.goalType);
+
+  // Calculate protein calories and remaining calories for carbs/fat
+  const proteinCalories = protein * 4;
+  const remainingCalories = Math.max(0, calories - proteinCalories);
+
+  // Distribute remaining calories between carbs and fat based on training focus
+  const { carbs, fat } = calculateCarbsAndFat(remainingCalories, inputs.trainingFocus);
 
   return {
     bmr,
     tdee,
     calories,
-    protein: macroGrams.protein,
-    carbs: macroGrams.carbs,
-    fat: macroGrams.fat,
+    protein,
+    carbs,
+    fat,
   };
 }

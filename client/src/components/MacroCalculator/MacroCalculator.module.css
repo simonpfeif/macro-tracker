@@ -67,12 +67,12 @@
 }
 
 .unitButtonActive {
-  background: #16a34a;
+  background: var(--color-accent);
   color: white;
 }
 
 .unitButtonActive:hover {
-  background: #15803d;
+  background: var(--color-accent-hover);
 }
 
 /* Height row */
@@ -142,12 +142,12 @@
 }
 
 .segmentButtonActive {
-  background: #16a34a;
+  background: var(--color-accent);
   color: white;
 }
 
 .segmentButtonActive:hover {
-  background: #15803d;
+  background: var(--color-accent-hover);
 }
 
 /* Select dropdown */
@@ -165,8 +165,8 @@
 
 .select:focus {
   outline: none;
-  border-color: #16a34a;
-  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(212, 136, 106, 0.15);
 }
 
 /* Goal type buttons */
@@ -199,12 +199,12 @@
 }
 
 .goalTypeButtonActive {
-  background: #16a34a;
+  background: var(--color-accent);
   color: white;
 }
 
 .goalTypeButtonActive:hover {
-  background: #15803d;
+  background: var(--color-accent-hover);
 }
 
 /* Training focus cards */
@@ -234,13 +234,13 @@
 }
 
 .focusCardActive {
-  border-color: #16a34a;
-  background: rgba(22, 163, 74, 0.05);
+  border-color: var(--color-accent);
+  background: var(--color-accent-light);
 }
 
 .focusCardActive:hover {
-  border-color: #16a34a;
-  background: rgba(22, 163, 74, 0.08);
+  border-color: var(--color-accent);
+  background: var(--color-accent-light);
 }
 
 .focusCardTitle {
@@ -250,7 +250,7 @@
 }
 
 .focusCardActive .focusCardTitle {
-  color: #16a34a;
+  color: var(--color-accent-hover);
 }
 
 .focusCardDescription {
@@ -258,8 +258,3 @@
   color: #9ca3af;
 }
 
-/* Calculate button */
-.calculateButton {
-  width: 100%;
-  margin-top: 0.5rem;
-}
