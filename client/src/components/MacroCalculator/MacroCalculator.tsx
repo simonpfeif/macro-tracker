@@ -22,12 +22,11 @@ type FormState = {
   age: string;
   biologicalSex: BiologicalSex;
   activityLevel: ActivityLevel;
-  goalType: GoalType;
   trainingFocus: TrainingFocus;
 };
 
 type FormAction =
-  | { type: 'SET_FIELD'; field: keyof FormState; value: string | WeightUnit | HeightUnit | BiologicalSex | ActivityLevel | GoalType | TrainingFocus }
+  | { type: 'SET_FIELD'; field: keyof FormState; value: string | WeightUnit | HeightUnit | BiologicalSex | ActivityLevel | TrainingFocus }
   | { type: 'SET_AGE_FROM_BIRTHDAY'; age: number };
 
 const initialState: FormState = {
@@ -40,7 +39,6 @@ const initialState: FormState = {
   age: '',
   biologicalSex: 'male',
   activityLevel: 'moderate',
-  goalType: 'maintenance',
   trainingFocus: 'health',
 };
 
@@ -69,18 +67,13 @@ const TRAINING_FOCUS_OPTIONS: { value: TrainingFocus; label: string; description
   { value: 'health', label: 'General Health', description: 'Balanced, sustainable approach' },
 ];
 
-const GOAL_TYPE_LABELS: Record<GoalType, string> = {
-  loss: 'Fat Loss',
-  maintenance: 'Maintenance',
-  gain: 'Muscle Gain',
-};
-
 type MacroCalculatorProps = {
   birthday?: string;
-  onChange: (results: CalculatedMacros | null, goalType: GoalType) => void;
+  goalType: GoalType;
+  onChange: (results: CalculatedMacros | null) => void;
 };
 
-export default function MacroCalculator({ birthday, onChange }: MacroCalculatorProps) {
+export default function MacroCalculator({ birthday, goalType, onChange }: MacroCalculatorProps) {
   const [state, dispatch] = useReducer(formReducer, initialState);
 
   // Auto-fill age from birthday if available
@@ -130,7 +123,7 @@ export default function MacroCalculator({ birthday, onChange }: MacroCalculatorP
       age: parseInt(state.age),
       biologicalSex: state.biologicalSex,
       activityLevel: state.activityLevel,
-      goalType: state.goalType,
+      goalType: goalType,
       trainingFocus: state.trainingFocus,
     });
   }, [
@@ -144,43 +137,60 @@ export default function MacroCalculator({ birthday, onChange }: MacroCalculatorP
     state.age,
     state.biologicalSex,
     state.activityLevel,
-    state.goalType,
+    goalType,
     state.trainingFocus,
   ]);
 
   // Notify parent of changes
   useEffect(() => {
-    onChange(calculatedResults, state.goalType);
-  }, [calculatedResults, state.goalType, onChange]);
+    onChange(calculatedResults);
+  }, [calculatedResults, onChange]);
 
   return (
     <div className={styles.calculator}>
-      {/* Weight */}
-      <div className={styles.fieldGroup}>
-        <label className={styles.label}>Weight</label>
-        <div className={styles.inputWithUnit}>
+      {/* Weight + Age Row */}
+      <div className={styles.compactRow}>
+        {/* Weight */}
+        <div className={styles.fieldGroup}>
+          <label className={styles.label}>Weight</label>
+          <div className={styles.inputWithUnit}>
+            <Input
+              type="number"
+              placeholder={state.weightUnit === 'lbs' ? 'e.g., 150' : 'e.g., 68'}
+              value={state.weight}
+              onChange={(e) => setField('weight', e.target.value)}
+            />
+            <div className={styles.unitToggle}>
+              <button
+                type="button"
+                className={`${styles.unitButton} ${state.weightUnit === 'lbs' ? styles.unitButtonActive : ''}`}
+                onClick={() => setField('weightUnit', 'lbs')}
+              >
+                lbs
+              </button>
+              <button
+                type="button"
+                className={`${styles.unitButton} ${state.weightUnit === 'kg' ? styles.unitButtonActive : ''}`}
+                onClick={() => setField('weightUnit', 'kg')}
+              >
+                kg
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Age */}
+        <div className={`${styles.fieldGroup} ${styles.ageField}`}>
+          <label className={styles.label}>
+            Age
+            {birthday && <span className={styles.labelHint}> (auto)</span>}
+          </label>
           <Input
             type="number"
-            placeholder={state.weightUnit === 'lbs' ? 'e.g., 150' : 'e.g., 68'}
-            value={state.weight}
-            onChange={(e) => setField('weight', e.target.value)}
+            placeholder="30"
+            value={state.age}
+            onChange={(e) => setField('age', e.target.value)}
           />
-          <div className={styles.unitToggle}>
-            <button
-              type="button"
-              className={`${styles.unitButton} ${state.weightUnit === 'lbs' ? styles.unitButtonActive : ''}`}
-              onClick={() => setField('weightUnit', 'lbs')}
-            >
-              lbs
-            </button>
-            <button
-              type="button"
-              className={`${styles.unitButton} ${state.weightUnit === 'kg' ? styles.unitButtonActive : ''}`}
-              onClick={() => setField('weightUnit', 'kg')}
-            >
-              kg
-            </button>
-          </div>
         </div>
       </div>
 
@@ -243,20 +253,6 @@ export default function MacroCalculator({ birthday, onChange }: MacroCalculatorP
         </div>
       </div>
 
-      {/* Age */}
-      <div className={styles.fieldGroup}>
-        <label className={styles.label}>
-          Age
-          {birthday && <span className={styles.labelHint}> (from your birthday)</span>}
-        </label>
-        <Input
-          type="number"
-          placeholder="e.g., 30"
-          value={state.age}
-          onChange={(e) => setField('age', e.target.value)}
-        />
-      </div>
-
       {/* Biological Sex */}
       <div className={styles.fieldGroup}>
         <label className={styles.label}>Biological Sex</label>
@@ -293,23 +289,6 @@ export default function MacroCalculator({ birthday, onChange }: MacroCalculatorP
             </option>
           ))}
         </select>
-      </div>
-
-      {/* Goal Type */}
-      <div className={styles.fieldGroup}>
-        <label className={styles.label}>Goal</label>
-        <div className={styles.goalTypeButtons}>
-          {(['loss', 'maintenance', 'gain'] as GoalType[]).map((type) => (
-            <button
-              key={type}
-              type="button"
-              className={`${styles.goalTypeButton} ${state.goalType === type ? styles.goalTypeButtonActive : ''}`}
-              onClick={() => setField('goalType', type)}
-            >
-              {GOAL_TYPE_LABELS[type]}
-            </button>
-          ))}
-        </div>
       </div>
 
       {/* Training Focus */}

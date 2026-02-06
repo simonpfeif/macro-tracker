@@ -5,12 +5,57 @@
 
 .main {
   padding: 2rem 1.5rem;
-  max-width: 42rem;
+  max-width: 72rem;
   margin: 0 auto;
   animation: fadeIn var(--duration-slow) var(--ease-out);
+}
+
+/* Two-column layout */
+.twoColumnLayout {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.formColumn {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+}
+
+.resultsColumn {
+  position: sticky;
+  top: 1.5rem;
+}
+
+/* Mobile: Stack with results at top */
+@media (max-width: 768px) {
+  .main {
+    max-width: 42rem;
+  }
+
+  .twoColumnLayout {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 1rem;
+  }
+
+  .resultsColumn {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    margin: -2rem -1.5rem 0;
+    padding: 1rem 1.5rem;
+    background: var(--color-bg);
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .resultsColumn .resultsCard {
+    margin: 0;
+    box-shadow: none;
+    padding: 1rem;
+  }
 }
 
 .card {
@@ -31,6 +76,19 @@
   font-weight: 500;
   color: #374151;
   margin-bottom: 0.25rem;
+}
+
+/* Goal Selector in Results Panel */
+.goalSelector {
+  margin-bottom: 1.5rem;
+}
+
+.goalSelectorLabel {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.5rem;
 }
 
 .macroGrid {

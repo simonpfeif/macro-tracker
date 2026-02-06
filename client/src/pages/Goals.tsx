@@ -77,9 +77,8 @@ export default function Goals() {
   }, [user]);
 
   // Handler for calculator changes (memoized to avoid infinite loops)
-  const handleCalculatorChange = useCallback((results: CalculatedMacros | null, calculatedGoalType: GoalType) => {
+  const handleCalculatorChange = useCallback((results: CalculatedMacros | null) => {
     setCalculatedResults(results);
-    setGoalType(calculatedGoalType);
   }, []);
 
   // Determine which values to display/save
@@ -161,20 +160,44 @@ export default function Goals() {
       <Header title="Goals" currentPage="goals" />
 
       <main className={styles.main}>
-        {/* Calculator Card */}
-        <div className={styles.card}>
-          <p className={styles.description}>
-            Fill in your details below and your personalized macro targets will calculate automatically.
-          </p>
-          <MacroCalculator
-            birthday={birthday}
-            onChange={handleCalculatorChange}
-          />
-        </div>
+        <div className={styles.twoColumnLayout}>
+          {/* Form Column */}
+          <div className={styles.formColumn}>
+            {/* Calculator Card */}
+            <div className={styles.card}>
+              <p className={styles.description}>
+                Fill in your details below and your personalized macro targets will calculate automatically.
+              </p>
+              <MacroCalculator
+                birthday={birthday}
+                goalType={goalType}
+                onChange={handleCalculatorChange}
+              />
+            </div>
+          </div>
 
-        {/* Live Results Display */}
-        <div className={styles.resultsCard}>
+          {/* Results Column (sticky) */}
+          <div className={styles.resultsColumn}>
+            {/* Live Results Display */}
+            <div className={styles.resultsCard}>
           <h3 className={styles.resultsTitle}>Your Calculated Targets</h3>
+
+          {/* Goal Type Selector */}
+          <div className={styles.goalSelector}>
+            <label className={styles.goalSelectorLabel}>Goal</label>
+            <div className={styles.goalTypeButtons}>
+              {(["loss", "maintenance", "gain"] as GoalType[]).map((type) => (
+                <button
+                  key={type}
+                  type="button"
+                  className={`${styles.goalTypeButton} ${goalType === type ? styles.goalTypeButtonActive : ""}`}
+                  onClick={() => setGoalType(type)}
+                >
+                  {GOAL_TYPE_LABELS[type]}
+                </button>
+              ))}
+            </div>
+          </div>
 
           {calculatedResults ? (
             <>
@@ -239,21 +262,6 @@ export default function Goals() {
             {manualExpanded && (
               <div className={styles.manualFields}>
                 <div className={styles.manualFieldGroup}>
-                  <label className={styles.label}>Goal Type</label>
-                  <div className={styles.goalTypeButtons}>
-                    {(["loss", "maintenance", "gain"] as GoalType[]).map((type) => (
-                      <button
-                        key={type}
-                        className={`${styles.goalTypeButton} ${goalType === type ? styles.goalTypeButtonActive : ""}`}
-                        onClick={() => setGoalType(type)}
-                      >
-                        {GOAL_TYPE_LABELS[type]}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className={styles.manualFieldGroup}>
                   <label className={styles.label}>Daily Calories</label>
                   <Input
                     type="number"
@@ -306,6 +314,8 @@ export default function Goals() {
           >
             {saving ? "Saving..." : "Save Goals"}
           </Button>
+            </div>
+          </div>
         </div>
       </main>
 
