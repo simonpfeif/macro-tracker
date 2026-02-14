@@ -118,6 +118,7 @@ export type CalculatorInputs = {
   activityLevel: ActivityLevel;
   goalType: GoalType;
   trainingFocus: TrainingFocus;
+  bodyFatPercent?: number;
 };
 
 export type CalculatedMacros = {
@@ -127,6 +128,7 @@ export type CalculatedMacros = {
   protein: number;
   carbs: number;
   fat: number;
+  fiber: number;
 };
 
 export type UserGoals = {

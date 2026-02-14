@@ -20,6 +20,7 @@ type FormState = {
   heightCm: string;
   heightUnit: HeightUnit;
   age: string;
+  bodyFatPercent: string;
   biologicalSex: BiologicalSex;
   activityLevel: ActivityLevel;
   trainingFocus: TrainingFocus;
@@ -37,6 +38,7 @@ const initialState: FormState = {
   heightCm: '',
   heightUnit: 'ft_in',
   age: '',
+  bodyFatPercent: '',
   biologicalSex: 'male',
   activityLevel: 'moderate',
   trainingFocus: 'health',
@@ -62,7 +64,7 @@ const ACTIVITY_LEVEL_OPTIONS: { value: ActivityLevel; label: string; description
 ];
 
 const TRAINING_FOCUS_OPTIONS: { value: TrainingFocus; label: string; description: string }[] = [
-  { value: 'tone', label: 'Tone & Aesthetics', description: 'Higher protein, balanced macros' },
+  { value: 'tone', label: 'Tone & Aesthetics', description: 'Higher carbs for training & muscle recovery' },
   { value: 'performance', label: 'Performance', description: 'Higher carbs for training fuel' },
   { value: 'health', label: 'General Health', description: 'Balanced, sustainable approach' },
 ];
@@ -113,6 +115,8 @@ export default function MacroCalculator({ birthday, goalType, onChange }: MacroC
   const calculatedResults = useMemo((): CalculatedMacros | null => {
     if (!isValid) return null;
 
+    const bodyFatPercent = parseFloat(state.bodyFatPercent);
+
     return calculateMacros({
       weight: parseFloat(state.weight),
       weightUnit: state.weightUnit,
@@ -125,6 +129,7 @@ export default function MacroCalculator({ birthday, goalType, onChange }: MacroC
       activityLevel: state.activityLevel,
       goalType: goalType,
       trainingFocus: state.trainingFocus,
+      ...((!isNaN(bodyFatPercent) && bodyFatPercent > 0 && bodyFatPercent < 100) && { bodyFatPercent }),
     });
   }, [
     isValid,
@@ -135,6 +140,7 @@ export default function MacroCalculator({ birthday, goalType, onChange }: MacroC
     state.heightCm,
     state.heightUnit,
     state.age,
+    state.bodyFatPercent,
     state.biologicalSex,
     state.activityLevel,
     goalType,
@@ -148,7 +154,7 @@ export default function MacroCalculator({ birthday, goalType, onChange }: MacroC
 
   return (
     <div className={styles.calculator}>
-      {/* Weight + Age row */}
+      {/* Weight + Age + Body Fat row */}
       <div className={styles.fieldRow}>
         <div className={styles.fieldGroup}>
           <label className={styles.label}>Weight</label>
@@ -188,6 +194,20 @@ export default function MacroCalculator({ birthday, goalType, onChange }: MacroC
             placeholder="30"
             value={state.age}
             onChange={(e) => setField('age', e.target.value)}
+          />
+        </div>
+
+        <div className={styles.fieldGroup}>
+          <label className={styles.label}>
+            Body Fat % <span className={styles.labelHint}>(optional)</span>
+          </label>
+          <Input
+            type="number"
+            placeholder="e.g., 20"
+            value={state.bodyFatPercent}
+            onChange={(e) => setField('bodyFatPercent', e.target.value)}
+            min="1"
+            max="99"
           />
         </div>
       </div>

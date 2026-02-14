@@ -89,6 +89,7 @@ export default function Goals() {
         protein: manualProtein,
         carbs: manualCarbs,
         fat: manualFat,
+        fiber: calculatedResults?.fiber.toString() || "—",
       };
     }
     if (calculatedResults) {
@@ -97,6 +98,7 @@ export default function Goals() {
         protein: calculatedResults.protein.toString(),
         carbs: calculatedResults.carbs.toString(),
         fat: calculatedResults.fat.toString(),
+        fiber: calculatedResults.fiber.toString(),
       };
     }
     return {
@@ -104,6 +106,7 @@ export default function Goals() {
       protein: manualProtein || "—",
       carbs: manualCarbs || "—",
       fat: manualFat || "—",
+      fiber: "—",
     };
   };
 
@@ -123,6 +126,7 @@ export default function Goals() {
         protein: parseInt(displayValues.protein) || 150,
         carbs: parseInt(displayValues.carbs) || 225,
         fat: parseInt(displayValues.fat) || 65,
+        fiber: parseInt(displayValues.fiber) || undefined,
       });
       setSavedToast(true);
       setTimeout(() => setSavedToast(false), 2000);
@@ -239,6 +243,12 @@ export default function Goals() {
                   <span className={styles.macroLabel}>Fat</span>
                   <span className={styles.macroValue}>
                     {manualExpanded ? manualFat || "—" : calculatedResults.fat}g
+                  </span>
+                </div>
+                <div className={styles.macroResult}>
+                  <span className={styles.macroLabel}>Fiber</span>
+                  <span className={styles.macroValue}>
+                    {calculatedResults.fiber}g
                   </span>
                 </div>
               </div>
