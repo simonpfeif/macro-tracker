@@ -148,9 +148,8 @@ export default function MacroCalculator({ birthday, goalType, onChange }: MacroC
 
   return (
     <div className={styles.calculator}>
-      {/* Weight + Age Row */}
-      <div className={styles.compactRow}>
-        {/* Weight */}
+      {/* Weight + Age row */}
+      <div className={styles.fieldRow}>
         <div className={styles.fieldGroup}>
           <label className={styles.label}>Weight</label>
           <div className={styles.inputWithUnit}>
@@ -179,8 +178,7 @@ export default function MacroCalculator({ birthday, goalType, onChange }: MacroC
           </div>
         </div>
 
-        {/* Age */}
-        <div className={`${styles.fieldGroup} ${styles.ageField}`}>
+        <div className={styles.fieldGroup}>
           <label className={styles.label}>
             Age
             {birthday && <span className={styles.labelHint}> (auto)</span>}
@@ -194,101 +192,105 @@ export default function MacroCalculator({ birthday, goalType, onChange }: MacroC
         </div>
       </div>
 
-      {/* Height */}
-      <div className={styles.fieldGroup}>
-        <label className={styles.label}>Height</label>
-        <div className={styles.heightRow}>
-          {state.heightUnit === 'ft_in' ? (
-            <div className={styles.heightInputs}>
-              <div className={styles.heightField}>
-                <Input
-                  type="number"
-                  placeholder="5"
-                  value={state.heightFeet}
-                  onChange={(e) => setField('heightFeet', e.target.value)}
-                />
-                <span className={styles.heightLabel}>ft</span>
-              </div>
-              <div className={styles.heightField}>
-                <Input
-                  type="number"
-                  placeholder="10"
-                  value={state.heightInches}
-                  onChange={(e) => setField('heightInches', e.target.value)}
-                  min="0"
-                  max="11"
-                />
-                <span className={styles.heightLabel}>in</span>
-              </div>
-            </div>
-          ) : (
-            <div className={styles.heightInputs}>
-              <div className={styles.heightFieldCm}>
-                <Input
-                  type="number"
-                  placeholder="178"
-                  value={state.heightCm}
-                  onChange={(e) => setField('heightCm', e.target.value)}
-                />
-                <span className={styles.heightLabel}>cm</span>
-              </div>
-            </div>
-          )}
-          <div className={styles.unitToggle}>
+      {/* Sex + Height row */}
+      <div className={styles.fieldRow}>
+        <div className={styles.fieldGroup}>
+          <label className={styles.label}>
+            Biological Sex <span className={styles.labelHint}>(BMR calculation)</span>
+          </label>
+          <div className={styles.segmentedControl}>
             <button
               type="button"
-              className={`${styles.unitButton} ${state.heightUnit === 'ft_in' ? styles.unitButtonActive : ''}`}
-              onClick={() => setField('heightUnit', 'ft_in')}
+              className={`${styles.segmentButton} ${state.biologicalSex === 'male' ? styles.segmentButtonActive : ''}`}
+              onClick={() => setField('biologicalSex', 'male')}
             >
-              ft/in
+              Male
             </button>
             <button
               type="button"
-              className={`${styles.unitButton} ${state.heightUnit === 'cm' ? styles.unitButtonActive : ''}`}
-              onClick={() => setField('heightUnit', 'cm')}
+              className={`${styles.segmentButton} ${state.biologicalSex === 'female' ? styles.segmentButtonActive : ''}`}
+              onClick={() => setField('biologicalSex', 'female')}
             >
-              cm
+              Female
             </button>
           </div>
         </div>
-      </div>
 
-      {/* Biological Sex */}
-      <div className={styles.fieldGroup}>
-        <label className={styles.label}>Biological Sex</label>
-        <p className={styles.fieldHint}>Used for BMR calculation accuracy</p>
-        <div className={styles.segmentedControl}>
-          <button
-            type="button"
-            className={`${styles.segmentButton} ${state.biologicalSex === 'male' ? styles.segmentButtonActive : ''}`}
-            onClick={() => setField('biologicalSex', 'male')}
-          >
-            Male
-          </button>
-          <button
-            type="button"
-            className={`${styles.segmentButton} ${state.biologicalSex === 'female' ? styles.segmentButtonActive : ''}`}
-            onClick={() => setField('biologicalSex', 'female')}
-          >
-            Female
-          </button>
+        <div className={styles.fieldGroup}>
+          <label className={styles.label}>Height</label>
+          <div className={styles.heightRow}>
+            {state.heightUnit === 'ft_in' ? (
+              <div className={styles.heightInputs}>
+                <div className={styles.heightField}>
+                  <Input
+                    type="number"
+                    placeholder="5"
+                    value={state.heightFeet}
+                    onChange={(e) => setField('heightFeet', e.target.value)}
+                  />
+                  <span className={styles.heightLabel}>ft</span>
+                </div>
+                <div className={styles.heightField}>
+                  <Input
+                    type="number"
+                    placeholder="10"
+                    value={state.heightInches}
+                    onChange={(e) => setField('heightInches', e.target.value)}
+                    min="0"
+                    max="11"
+                  />
+                  <span className={styles.heightLabel}>in</span>
+                </div>
+              </div>
+            ) : (
+              <div className={styles.heightInputs}>
+                <div className={styles.heightFieldCm}>
+                  <Input
+                    type="number"
+                    placeholder="178"
+                    value={state.heightCm}
+                    onChange={(e) => setField('heightCm', e.target.value)}
+                  />
+                  <span className={styles.heightLabel}>cm</span>
+                </div>
+              </div>
+            )}
+            <div className={styles.unitToggle}>
+              <button
+                type="button"
+                className={`${styles.unitButton} ${state.heightUnit === 'ft_in' ? styles.unitButtonActive : ''}`}
+                onClick={() => setField('heightUnit', 'ft_in')}
+              >
+                ft/in
+              </button>
+              <button
+                type="button"
+                className={`${styles.unitButton} ${state.heightUnit === 'cm' ? styles.unitButtonActive : ''}`}
+                onClick={() => setField('heightUnit', 'cm')}
+              >
+                cm
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Activity Level */}
       <div className={styles.fieldGroup}>
         <label className={styles.label}>Activity Level</label>
-        <select
-          className={styles.select}
-          value={state.activityLevel}
-          onChange={(e) => setField('activityLevel', e.target.value as ActivityLevel)}
-        >
+        <div className={styles.activityCards}>
           {ACTIVITY_LEVEL_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label} - {option.description}
-            </option>
+            <button
+              key={option.value}
+              type="button"
+              className={`${styles.activityCard} ${state.activityLevel === option.value ? styles.activityCardActive : ''}`}
+              onClick={() => setField('activityLevel', option.value)}
+            >
+              <span className={styles.activityCardLabel}>{option.label}</span>
+              <span className={styles.activityCardDescription}>{option.description}</span>
+            </button>
           ))}
-        </select>
+        </div>
       </div>
 
       {/* Training Focus */}
