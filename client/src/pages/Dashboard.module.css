@@ -159,6 +159,44 @@
   color: #9ca3af;
 }
 
+.macroGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .macroGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.macroItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.75rem;
+  background: var(--color-bg);
+  border-radius: var(--radius-sm);
+}
+
+.macroValue {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.macroLabel {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+}
+
+.goalsLink {
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+
 .actionsCard {
   background: var(--color-card);
   border-radius: var(--radius-md);

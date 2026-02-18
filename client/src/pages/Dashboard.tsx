@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
 import type { User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { getUserGoals } from "@/services/db";
+import type { UserGoals } from "@/types";
 import { UtensilsCrossed, Calendar, Target, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header/Header";
@@ -10,6 +12,7 @@ import styles from "./Dashboard.module.css";
 
 export default function Dashboard() {
   const [user, setUser] = useState<User | null>(null);
+  const [goals, setGoals] = useState<UserGoals | null>(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -17,6 +20,11 @@ export default function Dashboard() {
     });
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    getUserGoals(user.uid).then(setGoals);
+  }, [user]);
 
   return (
     <div className={styles.page}>
@@ -60,7 +68,9 @@ export default function Dashboard() {
             </div>
             <span className={styles.statLabel}>Goal</span>
           </div>
-          <p className={styles.statValue}>--</p>
+          <p className={styles.statValue}>
+            {goals ? { loss: "Fat Loss", maintenance: "Maintenance", gain: "Muscle Gain" }[goals.goalType] : "--"}
+          </p>
         </div>
 
         <div className={`${styles.statCard} ${styles.statCardToday}`}>
@@ -72,6 +82,43 @@ export default function Dashboard() {
           </div>
           <p className={styles.statValue}>0 cal</p>
         </div>
+      </div>
+
+      {/* Daily Targets */}
+      <div className={styles.weightCard}>
+        <h2 className={styles.weightTitle}>Daily Targets</h2>
+        {goals ? (
+          <div className={styles.macroGrid}>
+            <div className={styles.macroItem}>
+              <span className={styles.macroValue}>{goals.calories}</span>
+              <span className={styles.macroLabel}>Calories</span>
+            </div>
+            <div className={styles.macroItem}>
+              <span className={styles.macroValue}>{goals.protein}g</span>
+              <span className={styles.macroLabel}>Protein</span>
+            </div>
+            <div className={styles.macroItem}>
+              <span className={styles.macroValue}>{goals.carbs}g</span>
+              <span className={styles.macroLabel}>Carbs</span>
+            </div>
+            <div className={styles.macroItem}>
+              <span className={styles.macroValue}>{goals.fat}g</span>
+              <span className={styles.macroLabel}>Fat</span>
+            </div>
+            {goals.fiber != null && (
+              <div className={styles.macroItem}>
+                <span className={styles.macroValue}>{goals.fiber}g</span>
+                <span className={styles.macroLabel}>Fiber</span>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className={styles.weightPlaceholder}>
+            <p className={styles.weightPlaceholderText}>
+              No goals set. <Link to="/goals" className={styles.goalsLink}>Set your goals</Link> to see daily targets.
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Weight Progress Placeholder */}
