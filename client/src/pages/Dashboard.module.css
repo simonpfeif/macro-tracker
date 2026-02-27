@@ -10,6 +10,8 @@
   animation: fadeIn var(--duration-slow) var(--ease-out);
 }
 
+/* ── Welcome ───────────────────────────────────────────── */
+
 .welcomeHeader {
   margin-bottom: 2rem;
 }
@@ -26,17 +28,13 @@
   margin-top: 0.25rem;
 }
 
+/* ── Stats grid ────────────────────────────────────────── */
+
 .statsGrid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
   margin-bottom: 2rem;
-}
-
-@media (min-width: 768px) {
-  .statsGrid {
-    grid-template-columns: repeat(4, 1fr);
-  }
 }
 
 .statCard {
@@ -54,42 +52,14 @@
   box-shadow: var(--shadow-md);
 }
 
-/* Color-coded stat cards */
-.statCardStreak {
-  border-left-color: var(--color-orange);
-}
+.statCardStreak { border-left-color: var(--color-orange); }
+.statCardStreak .statIconWrapper { background: var(--color-orange-light); color: var(--color-orange); }
 
-.statCardStreak .statIconWrapper {
-  background: var(--color-orange-light);
-  color: var(--color-orange);
-}
+.statCardWeek { border-left-color: var(--color-green); }
+.statCardWeek .statIconWrapper { background: var(--color-green-light); color: var(--color-green); }
 
-.statCardWeek {
-  border-left-color: var(--color-green);
-}
-
-.statCardWeek .statIconWrapper {
-  background: var(--color-green-light);
-  color: var(--color-green);
-}
-
-.statCardGoal {
-  border-left-color: var(--color-red);
-}
-
-.statCardGoal .statIconWrapper {
-  background: var(--color-red-light);
-  color: var(--color-red);
-}
-
-.statCardToday {
-  border-left-color: var(--color-yellow);
-}
-
-.statCardToday .statIconWrapper {
-  background: var(--color-yellow-light);
-  color: #B8A825;
-}
+.statCardGoal { border-left-color: var(--color-red); }
+.statCardGoal .statIconWrapper { background: var(--color-red-light); color: var(--color-red); }
 
 .statHeader {
   display: flex;
@@ -118,12 +88,14 @@
 }
 
 .statValue {
-  font-size: 1.5rem;
+  font-size: 1.375rem;
   font-weight: 700;
   color: var(--color-text);
 }
 
-.weightCard {
+/* ── Generic card ──────────────────────────────────────── */
+
+.card {
   background: var(--color-card);
   border-radius: var(--radius-md);
   padding: 1.5rem;
@@ -133,36 +105,101 @@
               box-shadow var(--duration-normal) var(--ease-out);
 }
 
-.weightCard:hover {
+.card:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
 }
 
-.weightTitle {
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.cardTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cardTitle {
   font-size: 1.125rem;
   font-weight: 600;
   color: var(--color-text);
-  margin-bottom: 1rem;
   letter-spacing: -0.01em;
 }
 
-.weightPlaceholder {
-  height: 12rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px dashed #E8E6E3;
-  border-radius: 0.5rem;
+.cardAction {
+  font-size: 0.875rem;
+  color: var(--color-accent);
+  text-decoration: none;
 }
 
-.weightPlaceholderText {
-  color: #9ca3af;
+.cardAction:hover {
+  text-decoration: underline;
 }
+
+/* ── Macro progress bars ───────────────────────────────── */
+
+.macroProgressStack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.macroProgressRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.macroProgressHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.macroProgressLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.macroProgressValues {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}
+
+.macroProgressTrack {
+  height: 8px;
+  background: var(--color-bg);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.macroProgressFill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.6s var(--ease-out);
+}
+
+/* ── Goal badge ────────────────────────────────────────── */
+
+.goalBadge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1.5px solid currentColor;
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+}
+
+/* ── Daily targets macro grid ──────────────────────────── */
 
 .macroGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
+  gap: 0.75rem;
 }
 
 @media (min-width: 640px) {
@@ -174,12 +211,18 @@
 .macroItem {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.75rem;
+  align-items: flex-start;
+  gap: 0.2rem;
+  padding: 0.75rem 0.875rem;
   background: var(--color-bg);
   border-radius: var(--radius-sm);
+  border-left: 3px solid transparent;
 }
+
+.macroItemCalories { border-left-color: var(--color-orange); }
+.macroItemProtein  { border-left-color: var(--color-red); }
+.macroItemCarbs    { border-left-color: var(--color-yellow); }
+.macroItemFat      { border-left-color: var(--color-green); }
 
 .macroValue {
   font-size: 1.25rem;
@@ -192,59 +235,114 @@
   color: var(--color-text-secondary);
 }
 
-.goalsLink {
+/* ── Weight form ───────────────────────────────────────── */
+
+.weightForm {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.weightInput {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: 1rem;
+}
+
+.weightInput:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+.unitSelect {
+  padding: 0.5rem 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.logButton {
+  padding: 0.5rem 1rem;
+  background: var(--color-accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity var(--duration-fast) var(--ease-out);
+}
+
+.logButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.logButton:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+/* ── Apple Health import ───────────────────────────────── */
+
+.appleHealthButton {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  margin-bottom: 0.75rem;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-out),
+              color var(--duration-fast) var(--ease-out);
+}
+
+.appleHealthButton:hover:not(:disabled) {
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+}
+
+.appleHealthButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.buttonIcon {
+  flex-shrink: 0;
+}
+
+.hiddenFileInput {
+  display: none;
+}
+
+/* ── Misc ──────────────────────────────────────────────── */
+
+.latestWeight {
+  font-size: 0.875rem;
+  font-weight: 600;
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+  border-radius: 999px;
+  padding: 0.2rem 0.65rem;
+}
+
+.placeholderText {
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+.link {
   color: var(--color-accent);
   text-decoration: underline;
-}
-
-.actionsCard {
-  background: var(--color-card);
-  border-radius: var(--radius-md);
-  padding: 1.5rem;
-  box-shadow: var(--shadow-sm);
-  transition: transform var(--duration-normal) var(--ease-out),
-              box-shadow var(--duration-normal) var(--ease-out);
-}
-
-.actionsCard:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-.actionsTitle {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--color-text);
-  margin-bottom: 1rem;
-  letter-spacing: -0.01em;
-}
-
-.actionsGrid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.75rem;
-}
-
-@media (min-width: 640px) {
-  .actionsGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-.actionButton {
-  width: 100%;
-  justify-content: flex-start;
-  gap: 0.5rem;
-  color: #1f2937 !important;
-  border-color: #E8E6E3 !important;
-}
-
-.actionButton:hover {
-  background-color: #F5F3F0 !important;
-  color: #111827 !important;
-}
-
-.icon {
-  width: 1rem;
-  height: 1rem;
 }

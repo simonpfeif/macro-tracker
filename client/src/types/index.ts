@@ -150,3 +150,11 @@ export type UserGoals = {
   iron?: number;
   potassium?: number;
 };
+
+export type WeightLog = {
+  id: string;
+  date: string;       // YYYY-MM-DD
+  weight: number;
+  unit: WeightUnit;   // reuse existing WeightUnit type
+  createdAt: Date;
+};

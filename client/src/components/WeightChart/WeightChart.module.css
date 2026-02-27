@@ -1,0 +1,19 @@
+.chartWrapper {
+  margin-top: 0.5rem;
+}
+
+.emptyState {
+  height: 10rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-sm);
+  margin-top: 0.5rem;
+}
+
+.emptyText {
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  text-align: center;
+}

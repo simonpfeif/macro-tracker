@@ -1,29 +1,16 @@
 import { Link } from "react-router-dom";
-import { Home, Calendar, UtensilsCrossed, Settings, Pizza } from "lucide-react";
 import styles from "./Header.module.css";
 import logo from "/android-chrome-192x192.png";
-
-type PageType = "dashboard" | "calendar" | "log" | "foods" | "goals" | "settings";
 
 type HeaderProps = {
   title?: string;
   subtitle?: string;
   leftContent?: React.ReactNode;
   centerContent?: React.ReactNode;
-  currentPage: PageType;
-};
-
-const navConfig: Record<string, { to: string; icon: typeof Home; label: string }> = {
-  dashboard: { to: "/", icon: Home, label: "Dashboard" },
-  calendar: { to: "/calendar", icon: Calendar, label: "Calendar" },
-  log: { to: "/log", icon: UtensilsCrossed, label: "Log" },
-  foods: { to: "/foods", icon: Pizza, label: "Foods" },
-  settings: { to: "/settings", icon: Settings, label: "Settings" },
+  currentPage?: string;
 };
 
 export default function Header({ title, subtitle, leftContent, centerContent }: HeaderProps) {
-  const iconsToShow = Object.keys(navConfig);
-
   return (
     <header className={styles.header}>
       <div className={styles.headerContent}>
@@ -46,25 +33,6 @@ export default function Header({ title, subtitle, leftContent, centerContent }: 
         {centerContent && (
           <div className={styles.centerSection}>{centerContent}</div>
         )}
-
-        {/* Right Section - Navigation Icons */}
-        <nav className={styles.navIcons}>
-          {iconsToShow.map((key) => {
-            const nav = navConfig[key];
-            if (!nav) return null;
-            const IconComponent = nav.icon;
-            return (
-              <Link
-                key={key}
-                to={nav.to}
-                className={styles.navIcon}
-                title={nav.label}
-              >
-                <IconComponent className={styles.icon} />
-              </Link>
-            );
-          })}
-        </nav>
       </div>
     </header>
   );

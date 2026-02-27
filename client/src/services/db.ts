@@ -9,6 +9,7 @@ import {
   query,
   where,
   orderBy,
+  limit,
   Timestamp,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -23,6 +24,7 @@ import type {
   SubscriptionTier,
   ServingSizeOverride,
   UserGoals,
+  WeightLog,
 } from "@/types";
 
 // Helper to get today's date in YYYY-MM-DD format
@@ -600,4 +602,41 @@ export async function saveUserGoals(
     potassium: goals.potassium,
     updatedAt: Timestamp.now(),
   });
+}
+
+// ============ WEIGHT LOGS ============
+
+export async function saveWeightLog(
+  userId: string,
+  entry: { date: string; weight: number; unit: 'lbs' | 'kg' }
+): Promise<string> {
+  const logsRef = collection(db, "users", userId, "weightLogs");
+  const docRef = await addDoc(logsRef, {
+    date: entry.date,
+    weight: entry.weight,
+    unit: entry.unit,
+    createdAt: Timestamp.now(),
+  });
+  return docRef.id;
+}
+
+export async function getWeightLogs(
+  userId: string,
+  limitCount: number = 30
+): Promise<WeightLog[]> {
+  const logsRef = collection(db, "users", userId, "weightLogs");
+  const q = query(logsRef, orderBy("date", "desc"), limit(limitCount));
+  const snapshot = await getDocs(q);
+  return snapshot.docs
+    .map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        date: data.date,
+        weight: data.weight,
+        unit: data.unit,
+        createdAt: data.createdAt.toDate(),
+      };
+    })
+    .reverse(); // reverse so chart data is oldest-first (chronological)
 }
