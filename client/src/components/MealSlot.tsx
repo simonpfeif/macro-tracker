@@ -1,10 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Plus, Trash2, X, Search, Pencil, Check, Bookmark, BookmarkCheck } from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Input } from "@/components/ui/input";
 import type { Food, FoodItem } from "@/types";
 import { ServingDisplay } from "./ServingDisplay";
+import { searchUSDA, type ExternalFood } from "@/services/nutritionApi";
+import { saveCustomFood } from "@/services/db";
 import styles from "./MealSlot.module.css";
 
 type MealSlotProps = {
@@ -20,6 +22,7 @@ type MealSlotProps = {
   isSavedAsTemplate?: boolean;
   isCustom?: boolean;
   onFoodClick?: (food: Food) => void;
+  userId?: string;
 };
 
 export default function MealSlot({
@@ -35,6 +38,7 @@ export default function MealSlot({
   isSavedAsTemplate = false,
   isCustom = false,
   onFoodClick,
+  userId,
 }: MealSlotProps) {
   const {
     attributes,
@@ -57,6 +61,9 @@ export default function MealSlot({
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(name);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const [onlineResults, setOnlineResults] = useState<ExternalFood[]>([]);
+  const [isSearchingOnline, setIsSearchingOnline] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const filteredFoods = searchQuery.trim()
     ? availableFoods
@@ -68,6 +75,11 @@ export default function MealSlot({
   useEffect(() => {
     setHighlightedIndex(-1);
   }, [searchQuery]);
+
+  // Cleanup debounce on unmount
+  useEffect(() => {
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+  }, []);
 
   const totals = foods.reduce(
     (acc, food) => ({
@@ -84,6 +96,14 @@ export default function MealSlot({
     setSearchQuery(food.name);
     setServings("1");
   };
+
+  function handleSelectOnlineFood(food: ExternalFood) {
+    const tempFood: FoodItem = { ...food, id: `online-${Date.now()}`, createdAt: new Date() };
+    setSelectedFood(tempFood);
+    setSearchQuery(food.name);
+    setOnlineResults([]);
+    if (userId) saveCustomFood(userId, { ...food, fiber: food.fiber ?? 0 }).catch(() => {});
+  }
 
   const handleAddFood = () => {
     if (!selectedFood) return;
@@ -115,6 +135,8 @@ export default function MealSlot({
     setSearchQuery("");
     setSelectedFood(null);
     setServings("1");
+    setOnlineResults([]);
+    setIsSearchingOnline(false);
   };
 
   const handleCancel = () => {
@@ -122,6 +144,8 @@ export default function MealSlot({
     setSearchQuery("");
     setSelectedFood(null);
     setServings("1");
+    setOnlineResults([]);
+    setIsSearchingOnline(false);
   };
 
   const handleRename = () => {
@@ -285,10 +309,24 @@ export default function MealSlot({
                 placeholder="Search foods..."
                 value={searchQuery}
                 onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  if (selectedFood && e.target.value !== selectedFood.name) {
+                  const value = e.target.value;
+                  setSearchQuery(value);
+                  if (selectedFood && value !== selectedFood.name) {
                     setSelectedFood(null);
                   }
+                  if (debounceRef.current) clearTimeout(debounceRef.current);
+                  setOnlineResults([]);
+                  debounceRef.current = setTimeout(async () => {
+                    const localCount = availableFoods.filter((f) =>
+                      f.name.toLowerCase().includes(value.toLowerCase())
+                    ).length;
+                    if (value.trim().length >= 2 && localCount < 3) {
+                      setIsSearchingOnline(true);
+                      const results = await searchUSDA(value);
+                      setOnlineResults(results);
+                      setIsSearchingOnline(false);
+                    }
+                  }, 400);
                 }}
                 onKeyDown={(e) => {
                   if (e.key === "ArrowDown") {
@@ -319,7 +357,7 @@ export default function MealSlot({
             </div>
 
             {/* Search Results */}
-            {!selectedFood && filteredFoods.length > 0 && (
+            {!selectedFood && (filteredFoods.length > 0 || isSearchingOnline || onlineResults.length > 0) && (
               <div className={styles.searchResults}>
                 {filteredFoods.map((food, index) => (
                   <button
@@ -334,6 +372,27 @@ export default function MealSlot({
                     </div>
                   </button>
                 ))}
+                {isSearchingOnline && (
+                  <div className={styles.onlineSearching}>Searching USDA…</div>
+                )}
+                {onlineResults.length > 0 && (
+                  <>
+                    <div className={styles.onlineDivider}>USDA results</div>
+                    {onlineResults.map((food, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        className={`${styles.searchResultItem} ${styles.onlineResultItem}`}
+                        onClick={() => handleSelectOnlineFood(food)}
+                      >
+                        <div className={styles.searchResultName}>{food.name}</div>
+                        <div className={styles.searchResultDetails}>
+                          {food.servingSize} · {food.calories} cal · {food.protein}g P
+                        </div>
+                      </button>
+                    ))}
+                  </>
+                )}
               </div>
             )}
 

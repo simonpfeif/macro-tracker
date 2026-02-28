@@ -634,6 +634,7 @@ export default function DailyLog() {
                         isSavedAsTemplate={isSavedAsTemplate}
                         isCustom
                         onFoodClick={handleFoodClick}
+                        userId={user?.uid}
                       />
                     );
                   })}

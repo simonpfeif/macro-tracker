@@ -302,28 +302,29 @@ export default function Dashboard() {
           <div className={styles.cardHeader}>
             <div className={styles.cardTitleRow}>
               <span className={styles.cardTitle}>Daily Targets</span>
+              {goals && (
+                <span
+                  className={styles.goalBadge}
+                  style={{
+                    borderColor:
+                      goals.goalType === "loss"
+                        ? "var(--color-red)"
+                        : goals.goalType === "gain"
+                        ? "var(--color-green)"
+                        : "var(--color-yellow)",
+                    color:
+                      goals.goalType === "loss"
+                        ? "var(--color-red)"
+                        : goals.goalType === "gain"
+                        ? "var(--color-green)"
+                        : "var(--color-text-secondary)",
+                  }}
+                >
+                  {goalTypeLabel[goals.goalType]}
+                </span>
+              )}
             </div>
-            {goals && (
-              <span
-                className={styles.goalBadge}
-                style={{
-                  borderColor:
-                    goals.goalType === "loss"
-                      ? "var(--color-red)"
-                      : goals.goalType === "gain"
-                      ? "var(--color-green)"
-                      : "var(--color-yellow)",
-                  color:
-                    goals.goalType === "loss"
-                      ? "var(--color-red)"
-                      : goals.goalType === "gain"
-                      ? "var(--color-green)"
-                      : "var(--color-text-secondary)",
-                }}
-              >
-                {goalTypeLabel[goals.goalType]}
-              </span>
-            )}
+            <Link to="/goals" className={styles.cardAction}>Edit goals →</Link>
           </div>
           {goals ? (
             <div className={styles.macroGrid}>

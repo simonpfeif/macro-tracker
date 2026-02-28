@@ -23,7 +23,7 @@ export default function Goals() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [goalType, setGoalType] = useState<GoalType>("maintenance");
-  const [savedToast, setSavedToast] = useState(false);
+  const [savedToast] = useState(false);
   const [birthday, setBirthday] = useState<string | undefined>();
   const [calculatedResults, setCalculatedResults] = useState<CalculatedMacros | null>(null);
 

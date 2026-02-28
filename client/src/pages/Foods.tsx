@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import type { User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
@@ -24,7 +24,7 @@ import {
   updateMealTemplate,
   saveMeal,
 } from "@/services/db";
-import { searchOpenFoodFacts, type ExternalFood } from "@/services/nutritionApi";
+import { searchUSDA, type ExternalFood } from "@/services/nutritionApi";
 import styles from "./Foods.module.css";
 
 export default function Foods() {
@@ -49,6 +49,8 @@ export default function Foods() {
   const [onlineResults, setOnlineResults] = useState<ExternalFood[]>([]);
   const [isSearchingOnline, setIsSearchingOnline] = useState(false);
   const [onlineSearchedQuery, setOnlineSearchedQuery] = useState("");
+  const [infoOpen, setInfoOpen] = useState(false);
+  const infoRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -56,6 +58,17 @@ export default function Foods() {
     });
     return () => unsubscribe();
   }, []);
+
+  // Close info popover on outside click
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (infoRef.current && !infoRef.current.contains(e.target as Node)) {
+        setInfoOpen(false);
+      }
+    }
+    if (infoOpen) document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [infoOpen]);
 
   const loadFoods = useCallback(async () => {
     if (!user) return;
@@ -155,7 +168,7 @@ export default function Foods() {
     if (!searchQuery.trim()) return;
     setIsSearchingOnline(true);
     try {
-      const results = await searchOpenFoodFacts(searchQuery);
+      const results = await searchUSDA(searchQuery);
       setOnlineResults(results);
       setOnlineSearchedQuery(searchQuery);
     } finally {
@@ -321,7 +334,24 @@ export default function Foods() {
 
       <main className={styles.main}>
         <div className={styles.topBar}>
-          <h2 className={styles.pageTitle}>Food Database</h2>
+          <div className={styles.pageTitleRow}>
+            <h2 className={styles.pageTitle}>Food Database</h2>
+            <div className={styles.infoWrapper} ref={infoRef}>
+              <button
+                className={styles.infoButton}
+                onClick={() => setInfoOpen((v) => !v)}
+                aria-label="About food data sources"
+              >
+                <Info size={13} />
+              </button>
+              {infoOpen && (
+                <div className={styles.infoPopover}>
+                  <strong>Common</strong> foods are curated whole foods with USDA-sourced values.{" "}
+                  <strong>My Foods</strong> are foods you've added manually or saved from USDA search results.
+                </div>
+              )}
+            </div>
+          </div>
           <div className={styles.topBarButtons}>
             <Button variant="outline" className={styles.addButton} onClick={() => setIsMealModalOpen(true)}>
               <Plus className={styles.icon} />
@@ -372,15 +402,6 @@ export default function Foods() {
           >
             Meals ({mealTemplates.length})
           </button>
-        </div>
-
-        {/* Disclaimer banner */}
-        <div className={styles.disclaimerBanner}>
-          <Info className={styles.disclaimerIcon} size="0.875rem" />
-          <p className={styles.disclaimerText}>
-            <strong>Common</strong> foods are from SnackStat's built-in database.{" "}
-            <strong>My Foods</strong> are foods you've added manually or imported online.
-          </p>
         </div>
 
         {/* Content */}
@@ -543,7 +564,7 @@ export default function Foods() {
             {onlineResults.length > 0 && (
               <div className={styles.onlineSection}>
                 <div className={styles.onlineSectionHeader}>
-                  <span className={styles.onlineSectionTitle}>Results from Open Food Facts</span>
+                  <span className={styles.onlineSectionTitle}>USDA results</span>
                   <span className={styles.onlineSectionNote}>Import to save to My Foods</span>
                 </div>
                 <div className={styles.foodList}>
@@ -641,7 +662,7 @@ export default function Foods() {
           {onlineResults.length > 0 && (
             <div className={styles.onlineSection}>
               <div className={styles.onlineSectionHeader}>
-                <span className={styles.onlineSectionTitle}>Results from Open Food Facts</span>
+                <span className={styles.onlineSectionTitle}>USDA results</span>
                 <span className={styles.onlineSectionNote}>Import to save to My Foods</span>
               </div>
               <div className={styles.foodList}>

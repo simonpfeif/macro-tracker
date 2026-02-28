@@ -5,7 +5,7 @@ import type { Food, FoodItem } from "@/types";
 import { Search } from "lucide-react";
 import { ServingDisplay } from "./ServingDisplay";
 import { saveCustomFood } from "@/services/db";
-import { searchOpenFoodFacts, type ExternalFood } from "@/services/nutritionApi";
+import { searchUSDA, type ExternalFood } from "@/services/nutritionApi";
 import styles from "./FoodForm.module.css";
 
 type FoodFormProps = {
@@ -24,7 +24,7 @@ export default function FoodForm({ onAddFood, foods, userId }: FoodFormProps) {
   // Online search state
   const [onlineResults, setOnlineResults] = useState<ExternalFood[]>([]);
   const [isSearchingOnline, setIsSearchingOnline] = useState(false);
-  const [onlineSearchedQuery, setOnlineSearchedQuery] = useState("");
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Manual entry fields
   const [foodName, setFoodName] = useState("");
@@ -53,24 +53,17 @@ export default function FoodForm({ onAddFood, foods, userId }: FoodFormProps) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Cleanup debounce on unmount
+  useEffect(() => {
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+  }, []);
+
   const handleSelectFood = (food: FoodItem) => {
     setSelectedFood(food);
     setSearchQuery(food.name);
     setShowResults(false);
     setServings("1");
   };
-
-  async function handleSearchOnline() {
-    if (!searchQuery.trim()) return;
-    setIsSearchingOnline(true);
-    try {
-      const results = await searchOpenFoodFacts(searchQuery);
-      setOnlineResults(results);
-      setOnlineSearchedQuery(searchQuery);
-    } finally {
-      setIsSearchingOnline(false);
-    }
-  }
 
   function handleSelectOnlineFood(food: ExternalFood) {
     const tempFood: FoodItem = {
@@ -149,7 +142,6 @@ export default function FoodForm({ onAddFood, foods, userId }: FoodFormProps) {
             setSelectedFood(null);
             setSearchQuery("");
             setOnlineResults([]);
-            setOnlineSearchedQuery("");
           }}
           className={styles.modeToggle}
         >
@@ -245,13 +237,25 @@ export default function FoodForm({ onAddFood, foods, userId }: FoodFormProps) {
                 placeholder="Search chicken, rice, eggs..."
                 value={searchQuery}
                 onChange={(e) => {
-                  setSearchQuery(e.target.value);
+                  const value = e.target.value;
+                  setSearchQuery(value);
                   setShowResults(true);
                   setOnlineResults([]);
-                  setOnlineSearchedQuery("");
-                  if (selectedFood && e.target.value !== selectedFood.name) {
+                  if (selectedFood && value !== selectedFood.name) {
                     setSelectedFood(null);
                   }
+                  if (debounceRef.current) clearTimeout(debounceRef.current);
+                  debounceRef.current = setTimeout(async () => {
+                    const localCount = foods.filter((f) =>
+                      f.name.toLowerCase().includes(value.toLowerCase())
+                    ).length;
+                    if (value.trim().length >= 2 && localCount < 3) {
+                      setIsSearchingOnline(true);
+                      const results = await searchUSDA(value);
+                      setOnlineResults(results);
+                      setIsSearchingOnline(false);
+                    }
+                  }, 400);
                 }}
                 onFocus={() => setShowResults(true)}
                 className={styles.searchInput}
@@ -259,7 +263,7 @@ export default function FoodForm({ onAddFood, foods, userId }: FoodFormProps) {
             </div>
 
             {/* Local Search Results Dropdown */}
-            {showResults && filteredFoods.length > 0 && (
+            {showResults && (filteredFoods.length > 0 || isSearchingOnline || onlineResults.length > 0) && (
               <div className={styles.dropdown}>
                 {filteredFoods.map((food) => (
                   <button
@@ -274,35 +278,34 @@ export default function FoodForm({ onAddFood, foods, userId }: FoodFormProps) {
                     </div>
                   </button>
                 ))}
-                <div className={styles.onlineSeparator}>
-                  <button
-                    type="button"
-                    onClick={handleSearchOnline}
-                    className={styles.searchOnlineLink}
-                    disabled={isSearchingOnline}
-                  >
-                    {isSearchingOnline ? "Searching…" : "Search online →"}
-                  </button>
-                </div>
+                {isSearchingOnline && (
+                  <div className={styles.onlineSearching}>Searching USDA…</div>
+                )}
+                {onlineResults.length > 0 && (
+                  <>
+                    <div className={styles.onlineSectionLabel}>USDA results</div>
+                    {onlineResults.map((food, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => handleSelectOnlineFood(food)}
+                        className={`${styles.dropdownItem} ${styles.dropdownItemOnline}`}
+                      >
+                        <div className={styles.itemName}>{food.name}</div>
+                        <div className={styles.itemDetails}>
+                          {food.servingSize} · {food.calories} cal · {food.protein}g P
+                        </div>
+                      </button>
+                    ))}
+                  </>
+                )}
               </div>
             )}
 
             {/* Empty state */}
-            {showResults && searchQuery && filteredFoods.length === 0 && (
+            {showResults && searchQuery && filteredFoods.length === 0 && !isSearchingOnline && onlineResults.length === 0 && (
               <div className={styles.emptyState}>
                 <p className={styles.emptyText}>No foods found locally</p>
-                {onlineSearchedQuery !== searchQuery ? (
-                  <button
-                    type="button"
-                    onClick={handleSearchOnline}
-                    className={styles.emptyLink}
-                    disabled={isSearchingOnline}
-                  >
-                    {isSearchingOnline ? "Searching…" : `Search online for "${searchQuery}"`}
-                  </button>
-                ) : onlineResults.length === 0 ? (
-                  <p className={styles.emptyText}>No online results found either</p>
-                ) : null}
                 <button
                   type="button"
                   onClick={() => setManualMode(true)}
@@ -313,25 +316,6 @@ export default function FoodForm({ onAddFood, foods, userId }: FoodFormProps) {
               </div>
             )}
 
-            {/* Online results dropdown */}
-            {showResults && onlineResults.length > 0 && (
-              <div className={styles.dropdown}>
-                <div className={styles.onlineSectionLabel}>Results from Open Food Facts</div>
-                {onlineResults.map((food, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => handleSelectOnlineFood(food)}
-                    className={`${styles.dropdownItem} ${styles.dropdownItemOnline}`}
-                  >
-                    <div className={styles.itemName}>{food.name}</div>
-                    <div className={styles.itemDetails}>
-                      per 100g · {food.calories} cal · {food.protein}g P
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
 
           {/* Selected Food Details */}

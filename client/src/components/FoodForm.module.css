@@ -212,28 +212,11 @@
   width: 100%;
 }
 
-.onlineSeparator {
-  border-top: 1px solid #E8E6E3;
-  padding: 0.375rem 0.75rem;
-  text-align: right;
-}
-
-.searchOnlineLink {
+.onlineSearching {
+  padding: 0.5rem 0.75rem;
   font-size: 0.75rem;
-  color: #D4886A;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  transition: color 0.2s;
-}
-
-.searchOnlineLink:hover:not(:disabled) {
-  color: #C67A5E;
-}
-
-.searchOnlineLink:disabled {
-  opacity: 0.6;
-  cursor: default;
+  color: #9ca3af;
+  font-style: italic;
 }
 
 .onlineSectionLabel {
