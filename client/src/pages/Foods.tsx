@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import type { User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import { Search, Plus, Trash2, CalendarPlus, ChevronDown, ChevronUp } from "lucide-react";
+import { Search, Plus, Trash2, CalendarPlus, ChevronDown, ChevronUp, Download, Info } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header/Header";
@@ -24,6 +24,7 @@ import {
   updateMealTemplate,
   saveMeal,
 } from "@/services/db";
+import { searchOpenFoodFacts, type ExternalFood } from "@/services/nutritionApi";
 import styles from "./Foods.module.css";
 
 export default function Foods() {
@@ -45,6 +46,9 @@ export default function Foods() {
   const [mealToEdit, setMealToEdit] = useState<MealTemplate | null>(null);
   const [isFoodDetailOpen, setIsFoodDetailOpen] = useState(false);
   const [selectedFoodForDetail, setSelectedFoodForDetail] = useState<FoodItem | null>(null);
+  const [onlineResults, setOnlineResults] = useState<ExternalFood[]>([]);
+  const [isSearchingOnline, setIsSearchingOnline] = useState(false);
+  const [onlineSearchedQuery, setOnlineSearchedQuery] = useState("");
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -96,6 +100,9 @@ export default function Foods() {
     result = searchFoods(result, searchQuery);
 
     setFilteredFoods(result);
+    // Reset online results when search query changes
+    setOnlineResults([]);
+    setOnlineSearchedQuery("");
   }, [foods, searchQuery, activeTab]);
 
   const handleSaveFood = async (foodData: {
@@ -142,6 +149,23 @@ export default function Foods() {
       console.error("Error saving food:", error);
       setFoods((prev) => prev.filter((f) => f.id !== tempId));
     }
+  };
+
+  const handleSearchOnline = async () => {
+    if (!searchQuery.trim()) return;
+    setIsSearchingOnline(true);
+    try {
+      const results = await searchOpenFoodFacts(searchQuery);
+      setOnlineResults(results);
+      setOnlineSearchedQuery(searchQuery);
+    } finally {
+      setIsSearchingOnline(false);
+    }
+  };
+
+  const handleImportOnlineFood = (food: ExternalFood, index: number) => {
+    handleSaveFood({ ...food, fiber: food.fiber ?? 0 });
+    setOnlineResults((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleDeleteFood = async (foodId: string) => {
@@ -350,6 +374,15 @@ export default function Foods() {
           </button>
         </div>
 
+        {/* Disclaimer banner */}
+        <div className={styles.disclaimerBanner}>
+          <Info className={styles.disclaimerIcon} size="0.875rem" />
+          <p className={styles.disclaimerText}>
+            <strong>Common</strong> foods are from SnackStat's built-in database.{" "}
+            <strong>My Foods</strong> are foods you've added manually or imported online.
+          </p>
+        </div>
+
         {/* Content */}
         {loading ? (
           <div className={styles.emptyState}>
@@ -474,26 +507,80 @@ export default function Foods() {
             </div>
           )
         ) : filteredFoods.length === 0 ? (
-          <div className={styles.emptyState}>
-            <div className={styles.emptyIcon}>
-              <Search className={styles.emptyIconInner} />
+          <>
+            <div className={styles.emptyState}>
+              <div className={styles.emptyIcon}>
+                <Search className={styles.emptyIconInner} />
+              </div>
+              <h3 className={styles.emptyTitle}>
+                {searchQuery ? "No foods found" : "No foods yet"}
+              </h3>
+              <p className={styles.emptyText}>
+                {searchQuery
+                  ? "Try a different search term"
+                  : "Add your first custom food to quickly log meals."}
+              </p>
+              {!searchQuery && (
+                <Button className={styles.addButton} onClick={() => setIsModalOpen(true)}>
+                  <Plus className={styles.icon} />
+                  Add Your First Food
+                </Button>
+              )}
+              {searchQuery && (
+                onlineSearchedQuery !== searchQuery ? (
+                  <button
+                    onClick={handleSearchOnline}
+                    className={styles.searchOnlineButton}
+                    disabled={isSearchingOnline}
+                  >
+                    {isSearchingOnline ? "Searching…" : `Search online for "${searchQuery}"`}
+                  </button>
+                ) : onlineResults.length === 0 ? (
+                  <p className={styles.emptyText}>No online results found either.</p>
+                ) : null
+              )}
             </div>
-            <h3 className={styles.emptyTitle}>
-              {searchQuery ? "No foods found" : "No foods yet"}
-            </h3>
-            <p className={styles.emptyText}>
-              {searchQuery
-                ? "Try a different search term"
-                : "Add your first custom food to quickly log meals."}
-            </p>
-            {!searchQuery && (
-              <Button className={styles.addButton} onClick={() => setIsModalOpen(true)}>
-                <Plus className={styles.icon} />
-                Add Your First Food
-              </Button>
+            {onlineResults.length > 0 && (
+              <div className={styles.onlineSection}>
+                <div className={styles.onlineSectionHeader}>
+                  <span className={styles.onlineSectionTitle}>Results from Open Food Facts</span>
+                  <span className={styles.onlineSectionNote}>Import to save to My Foods</span>
+                </div>
+                <div className={styles.foodList}>
+                  {onlineResults.map((food, i) => (
+                    <div key={i} className={`${styles.foodItem} ${styles.foodItemOnline}`}>
+                      <div className={styles.foodHeaderLeft}>
+                        <h3 className={styles.foodName}>{food.name}</h3>
+                        <span className={styles.offBadge}>Open Food Facts</span>
+                        <p className={styles.foodServing}>per 100g · Other</p>
+                      </div>
+                      <div className={styles.macrosGrid}>
+                        <div className={styles.gridHeader}>Cal</div>
+                        <div className={styles.gridHeader}>P</div>
+                        <div className={styles.gridHeader}>C</div>
+                        <div className={styles.gridHeader}>F</div>
+                        <div className={styles.gridValue}>{food.calories}</div>
+                        <div className={`${styles.gridValue} ${styles.macroProtein}`}>{food.protein}g</div>
+                        <div className={`${styles.gridValue} ${styles.macroCarbs}`}>{food.carbs}g</div>
+                        <div className={`${styles.gridValue} ${styles.macroFat}`}>{food.fat}g</div>
+                      </div>
+                      <div className={styles.itemActions}>
+                        <button
+                          onClick={() => handleImportOnlineFood(food, i)}
+                          className={styles.importButton}
+                          title="Import to My Foods"
+                        >
+                          <Download className={styles.icon} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
-          </div>
+          </>
         ) : (
+          <>
           <div className={styles.foodList}>
             {filteredFoods.map((food) => (
               <div
@@ -551,6 +638,45 @@ export default function Foods() {
               </div>
             ))}
           </div>
+          {onlineResults.length > 0 && (
+            <div className={styles.onlineSection}>
+              <div className={styles.onlineSectionHeader}>
+                <span className={styles.onlineSectionTitle}>Results from Open Food Facts</span>
+                <span className={styles.onlineSectionNote}>Import to save to My Foods</span>
+              </div>
+              <div className={styles.foodList}>
+                {onlineResults.map((food, i) => (
+                  <div key={i} className={`${styles.foodItem} ${styles.foodItemOnline}`}>
+                    <div className={styles.foodHeaderLeft}>
+                      <h3 className={styles.foodName}>{food.name}</h3>
+                      <span className={styles.offBadge}>Open Food Facts</span>
+                      <p className={styles.foodServing}>per 100g · Other</p>
+                    </div>
+                    <div className={styles.macrosGrid}>
+                      <div className={styles.gridHeader}>Cal</div>
+                      <div className={styles.gridHeader}>P</div>
+                      <div className={styles.gridHeader}>C</div>
+                      <div className={styles.gridHeader}>F</div>
+                      <div className={styles.gridValue}>{food.calories}</div>
+                      <div className={`${styles.gridValue} ${styles.macroProtein}`}>{food.protein}g</div>
+                      <div className={`${styles.gridValue} ${styles.macroCarbs}`}>{food.carbs}g</div>
+                      <div className={`${styles.gridValue} ${styles.macroFat}`}>{food.fat}g</div>
+                    </div>
+                    <div className={styles.itemActions}>
+                      <button
+                        onClick={() => handleImportOnlineFood(food, i)}
+                        className={styles.importButton}
+                        title="Import to My Foods"
+                      >
+                        <Download className={styles.icon} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          </>
         )}
 
         <AddFoodModal

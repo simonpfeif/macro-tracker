@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
 import type { User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
@@ -17,6 +18,7 @@ const GOAL_TYPE_LABELS: Record<GoalType, string> = {
 };
 
 export default function Goals() {
+  const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -111,25 +113,26 @@ export default function Goals() {
   };
 
   const displayValues = getDisplayValues();
+  const hasManualValues = parseInt(manualCalories) > 0 && parseInt(manualProtein) >= 0 && parseInt(manualCarbs) >= 0 && parseInt(manualFat) >= 0;
   const hasValidValues = manualExpanded
-    ? (parseInt(manualCalories) > 0 && parseInt(manualProtein) >= 0 && parseInt(manualCarbs) >= 0 && parseInt(manualFat) >= 0)
-    : calculatedResults !== null;
+    ? hasManualValues
+    : calculatedResults !== null || hasManualValues;
 
   const handleSave = async () => {
     if (!user || !hasValidValues) return;
 
     setSaving(true);
     try {
+      const fiber = parseInt(displayValues.fiber);
       await saveUserGoals(user.uid, {
         goalType,
         calories: parseInt(displayValues.calories) || 2000,
         protein: parseInt(displayValues.protein) || 150,
         carbs: parseInt(displayValues.carbs) || 225,
         fat: parseInt(displayValues.fat) || 65,
-        fiber: parseInt(displayValues.fiber) || undefined,
+        ...(isFinite(fiber) && fiber > 0 ? { fiber } : {}),
       });
-      setSavedToast(true);
-      setTimeout(() => setSavedToast(false), 2000);
+      navigate("/");
     } catch (error) {
       console.error("Error saving goals:", error);
     } finally {

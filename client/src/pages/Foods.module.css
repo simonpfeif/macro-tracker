@@ -420,3 +420,105 @@
 .showMoreButton:hover {
   color: #6b7280;
 }
+
+/* Disclaimer banner */
+.disclaimerBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  background: var(--color-accent-light);
+  border-radius: var(--radius-sm);
+  padding: 0.625rem 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.disclaimerIcon {
+  color: var(--color-accent);
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.disclaimerText {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* Online search button (in empty state) */
+.searchOnlineButton {
+  margin-top: 0.75rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  color: var(--color-accent);
+  background: transparent;
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+  display: block;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.searchOnlineButton:hover:not(:disabled) {
+  background: var(--color-accent-light);
+}
+
+.searchOnlineButton:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Online results section */
+.onlineSection {
+  margin-top: 2rem;
+}
+
+.onlineSectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.75rem;
+}
+
+.onlineSectionTitle {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.onlineSectionNote {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+}
+
+/* Online food item */
+.foodItemOnline {
+  border-left: 2px solid var(--color-accent-light);
+}
+
+/* Open Food Facts badge */
+.offBadge {
+  font-size: 0.75rem;
+  background: #EDF2FB;
+  color: #4A72B2;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.25rem;
+  flex-shrink: 0;
+}
+
+/* Import button */
+.importButton {
+  color: #9ca3af;
+  padding: 0.5rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.importButton:hover {
+  color: #22c55e;
+}

@@ -13,9 +13,10 @@ export type NewMealInput = {
 type MealFormProps = {
   onAddMeal: (meal: NewMealInput) => void;
   availableFoods: FoodItem[];
+  userId?: string;
 };
 
-export default function MacroForm({ onAddMeal, availableFoods }: MealFormProps) {
+export default function MacroForm({ onAddMeal, availableFoods, userId }: MealFormProps) {
   const [mealName, setMealName] = useState("");
   const [foods, setFoods] = useState<Food[]>([]);
 
@@ -69,7 +70,7 @@ export default function MacroForm({ onAddMeal, availableFoods }: MealFormProps) 
         />
       </div>
 
-      <FoodForm onAddFood={addFood} foods={availableFoods} />
+      <FoodForm onAddFood={addFood} foods={availableFoods} userId={userId} />
 
       {foods.length > 0 && (
         <div className={styles.foodsSection}>

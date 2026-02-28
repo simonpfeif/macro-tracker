@@ -4,19 +4,27 @@ import { Input } from "@/components/ui/input";
 import type { Food, FoodItem } from "@/types";
 import { Search } from "lucide-react";
 import { ServingDisplay } from "./ServingDisplay";
+import { saveCustomFood } from "@/services/db";
+import { searchOpenFoodFacts, type ExternalFood } from "@/services/nutritionApi";
 import styles from "./FoodForm.module.css";
 
 type FoodFormProps = {
   onAddFood: (food: Food) => void;
   foods: FoodItem[];
+  userId?: string;
 };
 
-export default function FoodForm({ onAddFood, foods }: FoodFormProps) {
+export default function FoodForm({ onAddFood, foods, userId }: FoodFormProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [showResults, setShowResults] = useState(false);
   const [selectedFood, setSelectedFood] = useState<FoodItem | null>(null);
   const [servings, setServings] = useState("1");
   const [manualMode, setManualMode] = useState(false);
+
+  // Online search state
+  const [onlineResults, setOnlineResults] = useState<ExternalFood[]>([]);
+  const [isSearchingOnline, setIsSearchingOnline] = useState(false);
+  const [onlineSearchedQuery, setOnlineSearchedQuery] = useState("");
 
   // Manual entry fields
   const [foodName, setFoodName] = useState("");
@@ -51,6 +59,33 @@ export default function FoodForm({ onAddFood, foods }: FoodFormProps) {
     setShowResults(false);
     setServings("1");
   };
+
+  async function handleSearchOnline() {
+    if (!searchQuery.trim()) return;
+    setIsSearchingOnline(true);
+    try {
+      const results = await searchOpenFoodFacts(searchQuery);
+      setOnlineResults(results);
+      setOnlineSearchedQuery(searchQuery);
+    } finally {
+      setIsSearchingOnline(false);
+    }
+  }
+
+  function handleSelectOnlineFood(food: ExternalFood) {
+    const tempFood: FoodItem = {
+      ...food,
+      id: `online-${Date.now()}`,
+      createdAt: new Date(),
+    };
+    handleSelectFood(tempFood);
+    setOnlineResults([]);
+
+    // Auto-save to My Foods in background (fire-and-forget)
+    if (userId) {
+      saveCustomFood(userId, food).catch(() => {/* silent */});
+    }
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -113,6 +148,8 @@ export default function FoodForm({ onAddFood, foods }: FoodFormProps) {
             setManualMode(!manualMode);
             setSelectedFood(null);
             setSearchQuery("");
+            setOnlineResults([]);
+            setOnlineSearchedQuery("");
           }}
           className={styles.modeToggle}
         >
@@ -210,6 +247,8 @@ export default function FoodForm({ onAddFood, foods }: FoodFormProps) {
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
                   setShowResults(true);
+                  setOnlineResults([]);
+                  setOnlineSearchedQuery("");
                   if (selectedFood && e.target.value !== selectedFood.name) {
                     setSelectedFood(null);
                   }
@@ -219,7 +258,7 @@ export default function FoodForm({ onAddFood, foods }: FoodFormProps) {
               />
             </div>
 
-            {/* Search Results Dropdown */}
+            {/* Local Search Results Dropdown */}
             {showResults && filteredFoods.length > 0 && (
               <div className={styles.dropdown}>
                 {filteredFoods.map((food) => (
@@ -235,12 +274,35 @@ export default function FoodForm({ onAddFood, foods }: FoodFormProps) {
                     </div>
                   </button>
                 ))}
+                <div className={styles.onlineSeparator}>
+                  <button
+                    type="button"
+                    onClick={handleSearchOnline}
+                    className={styles.searchOnlineLink}
+                    disabled={isSearchingOnline}
+                  >
+                    {isSearchingOnline ? "Searching…" : "Search online →"}
+                  </button>
+                </div>
               </div>
             )}
 
+            {/* Empty state */}
             {showResults && searchQuery && filteredFoods.length === 0 && (
               <div className={styles.emptyState}>
-                <p className={styles.emptyText}>No foods found</p>
+                <p className={styles.emptyText}>No foods found locally</p>
+                {onlineSearchedQuery !== searchQuery ? (
+                  <button
+                    type="button"
+                    onClick={handleSearchOnline}
+                    className={styles.emptyLink}
+                    disabled={isSearchingOnline}
+                  >
+                    {isSearchingOnline ? "Searching…" : `Search online for "${searchQuery}"`}
+                  </button>
+                ) : onlineResults.length === 0 ? (
+                  <p className={styles.emptyText}>No online results found either</p>
+                ) : null}
                 <button
                   type="button"
                   onClick={() => setManualMode(true)}
@@ -248,6 +310,26 @@ export default function FoodForm({ onAddFood, foods }: FoodFormProps) {
                 >
                   Enter manually instead
                 </button>
+              </div>
+            )}
+
+            {/* Online results dropdown */}
+            {showResults && onlineResults.length > 0 && (
+              <div className={styles.dropdown}>
+                <div className={styles.onlineSectionLabel}>Results from Open Food Facts</div>
+                {onlineResults.map((food, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => handleSelectOnlineFood(food)}
+                    className={`${styles.dropdownItem} ${styles.dropdownItemOnline}`}
+                  >
+                    <div className={styles.itemName}>{food.name}</div>
+                    <div className={styles.itemDetails}>
+                      per 100g · {food.calories} cal · {food.protein}g P
+                    </div>
+                  </button>
+                ))}
               </div>
             )}
           </div>

@@ -582,26 +582,30 @@ export async function saveUserGoals(
   goals: UserGoals
 ): Promise<void> {
   const goalsRef = doc(db, "users", userId, "goals", "main");
-  await setDoc(goalsRef, {
+
+  // Build the document data, omitting undefined values (Firestore rejects them)
+  const data: Record<string, unknown> = {
     goalType: goals.goalType,
     calories: goals.calories,
     protein: goals.protein,
     carbs: goals.carbs,
     fat: goals.fat,
-    // Optional micronutrients
-    fiber: goals.fiber,
-    saturatedFat: goals.saturatedFat,
-    transFat: goals.transFat,
-    cholesterol: goals.cholesterol,
-    sodium: goals.sodium,
-    sugar: goals.sugar,
-    addedSugar: goals.addedSugar,
-    vitaminD: goals.vitaminD,
-    calcium: goals.calcium,
-    iron: goals.iron,
-    potassium: goals.potassium,
     updatedAt: Timestamp.now(),
-  });
+  };
+
+  // Only include optional micronutrients if they have a value
+  const optionalFields: (keyof UserGoals)[] = [
+    "fiber", "saturatedFat", "transFat", "cholesterol",
+    "sodium", "sugar", "addedSugar", "vitaminD",
+    "calcium", "iron", "potassium",
+  ];
+  for (const field of optionalFields) {
+    if (goals[field] !== undefined) {
+      data[field] = goals[field];
+    }
+  }
+
+  await setDoc(goalsRef, data);
 }
 
 // ============ WEIGHT LOGS ============
