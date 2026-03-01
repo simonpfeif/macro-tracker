@@ -1,12 +1,12 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Calendar, UtensilsCrossed, Pizza, Settings } from "lucide-react";
+import { Home, Calendar, ClipboardList, Pizza, Settings } from "lucide-react";
 import styles from "./Header.module.css";
 import logo from "/android-chrome-192x192.png";
 
 const navTabs = [
   { to: "/", icon: Home, label: "Dashboard" },
   { to: "/calendar", icon: Calendar, label: "Calendar" },
-  { to: "/log", icon: UtensilsCrossed, label: "Log" },
+  { to: "/log", icon: ClipboardList, label: "Log" },
   { to: "/foods", icon: Pizza, label: "Foods" },
   { to: "/settings", icon: Settings, label: "Settings" },
 ];
@@ -56,7 +56,6 @@ export default function Header({ title, subtitle, leftContent, centerContent }: 
                 className={`${styles.navLink} ${isActive ? styles.navLinkActive : ""}`}
               >
                 <Icon size="1.125rem" />
-                <span>{label}</span>
               </Link>
             );
           })}
