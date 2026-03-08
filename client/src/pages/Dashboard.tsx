@@ -19,16 +19,30 @@ import styles from "./Dashboard.module.css";
 
 // ── Local helper component ────────────────────────────────────────────────────
 
+function getMacroColor(percent: number, goalType: string): string {
+  const GREEN = 'linear-gradient(90deg, #22c55e 0%, #16a34a 100%)';
+  const YELLOW = 'linear-gradient(90deg, #f59e0b 0%, #d97706 100%)';
+  const RED = 'linear-gradient(90deg, #ef4444 0%, #dc2626 100%)';
+  if (percent > 150 || percent < 50) return RED;
+  const isAtGoal = percent >= 80 && percent <= 120;
+  switch (goalType) {
+    case 'loss': return percent <= 100 ? GREEN : RED;
+    case 'gain': return percent >= 80 ? GREEN : percent >= 50 ? YELLOW : RED;
+    default: return isAtGoal ? GREEN : YELLOW; // maintenance
+  }
+}
+
 type MacroProgressBarProps = {
   label: string;
   consumed: number;
   goal: number;
   unit: string;
-  color: string;
+  goalType: string;
 };
 
-function MacroProgressBar({ label, consumed, goal, unit, color }: MacroProgressBarProps) {
+function MacroProgressBar({ label, consumed, goal, unit, goalType }: MacroProgressBarProps) {
   const pct = goal > 0 ? Math.min((consumed / goal) * 100, 100) : 0;
+  const color = getMacroColor(goal > 0 ? (consumed / goal) * 100 : 0, goalType);
   return (
     <div className={styles.macroProgressRow}>
       <div className={styles.macroProgressHeader}>
@@ -266,28 +280,28 @@ export default function Dashboard() {
                 consumed={todayMacros.calories}
                 goal={goals.calories}
                 unit=" kcal"
-                color="var(--color-orange)"
+                goalType={goals.goalType}
               />
               <MacroProgressBar
                 label="Protein"
                 consumed={todayMacros.protein}
                 goal={goals.protein}
                 unit="g"
-                color="var(--color-red)"
+                goalType={goals.goalType}
               />
               <MacroProgressBar
                 label="Carbs"
                 consumed={todayMacros.carbs}
                 goal={goals.carbs}
                 unit="g"
-                color="var(--color-yellow)"
+                goalType={goals.goalType}
               />
               <MacroProgressBar
                 label="Fat"
                 consumed={todayMacros.fat}
                 goal={goals.fat}
                 unit="g"
-                color="var(--color-green)"
+                goalType={goals.goalType}
               />
             </div>
           ) : (
