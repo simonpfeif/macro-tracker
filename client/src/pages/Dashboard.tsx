@@ -15,20 +15,22 @@ import type { UserGoals, WeightLog } from "@/types";
 import { TrendingUp, Calendar, Target, Apple } from "lucide-react";
 import Header from "@/components/Header/Header";
 import WeightChart from "@/components/WeightChart/WeightChart";
+import { getMondayOfWeek, formatDateStr } from "@/utils/dateUtils";
 import styles from "./Dashboard.module.css";
 
 // ── Local helper component ────────────────────────────────────────────────────
 
-function getMacroColor(percent: number, goalType: string): string {
-  const GREEN = 'linear-gradient(90deg, #22c55e 0%, #16a34a 100%)';
-  const YELLOW = 'linear-gradient(90deg, #f59e0b 0%, #d97706 100%)';
-  const RED = 'linear-gradient(90deg, #ef4444 0%, #dc2626 100%)';
-  if (percent > 150 || percent < 50) return RED;
+const GRADIENT_GREEN = 'linear-gradient(90deg, #22c55e 0%, #16a34a 100%)';
+const GRADIENT_YELLOW = 'linear-gradient(90deg, #f59e0b 0%, #d97706 100%)';
+const GRADIENT_RED = 'linear-gradient(90deg, #ef4444 0%, #dc2626 100%)';
+
+function getMacroGradient(percent: number, goalType: string): string {
+  if (percent > 150 || percent < 50) return GRADIENT_RED;
   const isAtGoal = percent >= 80 && percent <= 120;
   switch (goalType) {
-    case 'loss': return percent <= 100 ? GREEN : RED;
-    case 'gain': return percent >= 80 ? GREEN : percent >= 50 ? YELLOW : RED;
-    default: return isAtGoal ? GREEN : YELLOW; // maintenance
+    case 'loss': return percent <= 100 ? GRADIENT_GREEN : GRADIENT_RED;
+    case 'gain': return percent >= 80 ? GRADIENT_GREEN : percent >= 50 ? GRADIENT_YELLOW : GRADIENT_RED;
+    default: return isAtGoal ? GRADIENT_GREEN : GRADIENT_YELLOW; // maintenance
   }
 }
 
@@ -42,7 +44,7 @@ type MacroProgressBarProps = {
 
 function MacroProgressBar({ label, consumed, goal, unit, goalType }: MacroProgressBarProps) {
   const pct = goal > 0 ? Math.min((consumed / goal) * 100, 100) : 0;
-  const color = getMacroColor(goal > 0 ? (consumed / goal) * 100 : 0, goalType);
+  const color = getMacroGradient(goal > 0 ? (consumed / goal) * 100 : 0, goalType);
   return (
     <div className={styles.macroProgressRow}>
       <div className={styles.macroProgressHeader}>
@@ -59,21 +61,6 @@ function MacroProgressBar({ label, consumed, goal, unit, goalType }: MacroProgre
       </div>
     </div>
   );
-}
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-function getMondayOfWeek(date: Date): Date {
-  const d = new Date(date);
-  const day = d.getDay(); // 0 = Sunday
-  const diff = day === 0 ? -6 : 1 - day; // Monday = 1
-  d.setDate(d.getDate() + diff);
-  d.setHours(0, 0, 0, 0);
-  return d;
-}
-
-function formatDateStr(date: Date): string {
-  return date.toISOString().split("T")[0];
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────

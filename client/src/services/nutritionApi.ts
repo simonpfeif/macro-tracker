@@ -11,7 +11,7 @@ function getNutrient(food: Record<string, unknown>, id: number): number {
   return Math.round(((found.value as number) ?? 0) * 10) / 10;
 }
 
-function normalizeUSDA(food: Record<string, unknown>): ExternalFood {
+export function normalizeUSDA(food: Record<string, unknown>): ExternalFood {
   const isBranded = food.dataType === "Branded";
   const servingSize = isBranded && food.servingSize
     ? `${food.servingSize}${food.servingSizeUnit ?? "g"}`
